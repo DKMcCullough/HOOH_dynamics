@@ -18,10 +18,23 @@ df['techAmean'] = np.nanmean(np.r_[[df[i] for i in ['rep1','rep2']]],axis=0)
 df['techBmean'] = np.nanmean(np.r_[[df[i] for i in ['rep3','rep4']]],axis=0)
 df['techAstd'] = np.nanstd(np.r_[[df[i] for i in ['rep1','rep2']]],axis=0)
 df['techBstd'] = np.nanstd(np.r_[[df[i] for i in ['rep3','rep4']]],axis=0)
+df['abundance_mean'] = np.nanmean(np.r_[[df[i] for i in ['techAmean','techBmean']]],axis=0)
+df['abundance_std'] = np.nanstd(np.r_[[df[i] for i in ['techAmean','techBmean']]],axis=0)
 
 
+df['lr1'] = np.log(df['rep1'])
+df['lr2'] = np.log(df['rep2'])
+df['lr3'] = np.log(df['rep3'])
+df['lr4'] = np.log(df['rep4'])
+'''
 
-#df['abundance_mean'] = np.nanmean(np.r_[[df[i] for i in ['rep1','rep2','rep3','rep4']]],axis=0)
+df['logtechA'] = np.nanmean([[df[i] for i in ['lr1','lr2']]],axis = 0)
+df['logtechB'] = np.nanmean(np.r_[[df[i] for i in ['lr3','lr4']]], axis = 0)
+df['logtechAstd'] = np.nanstd(np.r_[[df[i] for i in ['lr1','lr2']]],axis=0)
+df['logtechBstd'] = np.nanstd(np.r_[[df[i] for i in ['lr3','lr4']]],axis=0)
+df['log_abundance'] = np.nanmean(np.r_[[df[i] for i in ['logtechA','logtechB']]],axis=0)
+df['log_abundance_std'] = np.nanstd(np.r_[[df[i] for i in ['logtechA','logtechB']]],axis=0)
+'''
 
 
 #df['log_abundance'] = np.nanmean(np.log(np.r_[[df[i] for i in ['rep1','rep2','rep3','rep4']]],axis=0))
@@ -37,12 +50,44 @@ df = df_P
 
 
 
-f,ax = plt.subplots(1,2,figsize=[8,5])
+f1,ax = plt.subplots(1,2,figsize=[8,5],dpi = 300)
+f1.suptitle('Logged when Graphing')
+ax[0].set_title('reps')
+ax[1].set_title('total')
+ax[0].plot(np.log(df.techAmean),np.log(df.techAstd),label = 'a')
+ax[0].plot(np.log(df.techBmean),np.log(df.techBstd), label = 'b')
+ax[1].plot(np.log(df.abundance_mean),np.log(df.abundance_std), label = 'mean')
+ax[0].semilogy()
+ax[1].semilogy()
+ax[0].legend()
+ax[1].legend()
 
-ax[0].plot(np.mean((df.techAmean+df.techBmean)),np.std((df.techAmean+df.techBmean)))
-ax[1].plot(np.mean(np.log((df.rep1+df.rep3))),np.std(np.log((df.rep1+df.rep3))))
-#plt.semilogy()
 plt.show()
+
+f1.savefig('../figures/f1',dpi=300)
+
+'''
+
+f2,ax = plt.subplots(1,2,figsize=[8,5],dpi = 300)
+
+f1,ax = plt.subplots(1,2,figsize=[8,5],dpi = 300)
+f1.suptitle('Logged first')
+ax[0].set_title('reps')
+ax[1].set_title('total')
+ax[0].plot((df.logtechA),(df.logtechAstd),label = 'a')
+ax[0].plot((df.tlogtechB),(df.logtechBstd), label = 'b')
+ax[1].plot(np.log(df.log_abundance),np.log(df.log_abundance_std), label = 'mean')
+ax[0].semilogy()
+ax[1].semilogy()
+ax[0].legend()
+ax[1].legend()
+
+
+'''
+
+
+
+
 
 
 
