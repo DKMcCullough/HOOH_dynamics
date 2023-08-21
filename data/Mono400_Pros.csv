@@ -1,0 +1,71 @@
+﻿assay,Time (days),treatment(HOOH (uM)),Plank_type,strain,rep1,rep2,rep3,rep4,HOOH_avg,HOOH_stdv,method,oriSource,temperature
+plus_0,0.00,0,Pro,MIT9313,8.55E+04,9.18E+04,8.67E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.22,0,Pro,MIT9313,8.99E+04,1.01E+05,8.85E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.50,0,Pro,MIT9313,6.07E+04,6.45E+04,5.65E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.99,0,Pro,MIT9313,9.87E+04,7.94E+04,8.21E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,2.13,0,Pro,MIT9313,1.57E+05,1.08E+05,1.24E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,4.07,0,Pro,MIT9313,2.92E+05,4.41E+04,4.58E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,7.1,0,Pro,MIT9313,7.51E+05,5.09E+03,6.79E+02,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.00,0.4,Pro,MIT9313,8.70E+04,8.35E+04,8.19E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.22,0.4,Pro,MIT9313,9.48E+04,9.18E+04,7.48E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.50,0.4,Pro,MIT9313,5.63E+04,4.63E+04,5.09E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.99,0.4,Pro,MIT9313,7.45E+04,7.62E+04,7.82E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,2.13,0.4,Pro,MIT9313,9.55E+04,1.09E+05,8.87E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,4.07,0.4,Pro,MIT9313,7.26E+04,8.79E+04,5.87E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,7.1,0.4,Pro,MIT9313,2.00E+04,5.56E+04,1.19E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.00,0,Pro,UH18301,1.29E+05,7.99E+04,1.28E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.22,0,Pro,UH18301,8.43E+04,7.90E+04,1.16E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.50,0,Pro,UH18301,6.77E+04,5.48E+04,8.28E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0.99,0,Pro,UH18301,1.10E+05,7.57E+04,1.27E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,2.13,0,Pro,UH18301,1.87E+05,1.11E+05,1.83E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,4.07,0,Pro,UH18301,2.26E+05,1.64E+05,2.68E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,7.1,0,Pro,UH18301,2.60E+05,1.90E+05,2.63E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.00,0.4,Pro,UH18301,1.21E+05,9.62E+04,1.36E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.22,0.4,Pro,UH18301,1.29E+05,9.79E+04,1.31E+05,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.50,0.4,Pro,UH18301,7.02E+04,6.48E+04,7.76E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,0.99,0.4,Pro,UH18301,6.21E+04,5.94E+04,6.72E+04,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,2.13,0.4,Pro,UH18301,7.98E+03,7.47E+03,9.33E+03,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,4.07,0.4,Pro,UH18301,6.78E+02,1.02E+03,1.02E+03,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_400,7.1,0.4,Pro,UH18301,2.04E+03,3.39E+02,1.70E+03,Nan,Nan,Nan,flow,Jeff Morris ,24
+plus_0,0,0,Pro ,MIT9215,3.17E+05,3.21E+05,2.62E+05,3.09E+05,82.94413821,3.097956977,flow,Cocultures-1-31-20-BCC,Nan
+plus_0,1,0,Pro ,MIT9215,5.00E+05,5.03E+05,4.68E+05,4.87E+05,74.22571446,4.317943116,flow,Cocultures-1-31-20-BCC,Nan
+plus_0,4,0,Pro ,MIT9215,7.87E+05,8.53E+05,8.43E+05,9.27E+05,92.65888937,7.831240738,flow,Cocultures-1-31-20-BCC,Nan
+plus_0,6,0,Pro ,MIT9215,1.45E+06,1.49E+06,1.53E+06,1.51E+06,81.19654549,0.916071322,flow,Cocultures-1-31-20-BCC,Nan
+plus_0,8,0,Pro ,MIT9215,2.44E+06,2.43E+06,2.35E+06,2.49E+06,27.23810523,0.849211931,flow,Cocultures-1-31-20-BCC,Nan
+plus_400,0,0.4,Pro ,MIT9215,3.02E+05,2.76E+05,2.76E+05,2.79E+05,361.3762614,4.443382821,flow,Cocultures-1-31-20-BCC,Nan
+plus_400,1,0.4,Pro ,MIT9215,2.63E+05,2.85E+05,2.70E+05,2.80E+05,380.665843,3.870223528,flow,Cocultures-1-31-20-BCC,Nan
+plus_400,4,0.4,Pro ,MIT9215,1.13E+03,9.91E+02,1.13E+03,1.56E+03,378.1443141,2.772563323,flow,Cocultures-1-31-20-BCC,Nan
+plus_400,6,0.4,Pro ,MIT9215,2.69E+03,1.13E+03,1.84E+03,2.55E+03,421.827608,7.573759808,flow,Cocultures-1-31-20-BCC,Nan
+plus_400,8,0.4,Pro ,MIT9215,5.66E+03,5.38E+03,6.09E+03,5.24E+03,383.4725981,20.63540634,flow,Cocultures-1-31-20-BCC,Nan
+plus_0,0,0,Pro,MIT9215,1.27E+06,1.34E+06,1.37E+06,1.43E+06,49.92971723,1.463536637,flow,Cocultures-2-5-20-BCC,Nan
+plus_0,1,0,Pro,MIT9215,1.72E+06,1.71E+06,1.74E+06,1.79E+06,65.66672954,3.157419907,flow,Cocultures-2-5-20-BCC,Nan
+plus_0,2,0,Pro,MIT9215,2.11E+06,1.93E+06,2.04E+06,2.05E+06,17.54429653,1.254635944,flow,Cocultures-2-5-20-BCC,Nan
+plus_0,5,0,Pro,MIT9215,2.86E+06,2.76E+06,2.90E+06,2.81E+06,29.15129363,0.479462989,flow,Cocultures-2-5-20-BCC,Nan
+plus_400,0,0,Pro,MIT9215,1.29E+06,1.32E+06,1.28E+06,1.37E+06,324.5120356,8.177971046,flow,Cocultures-2-5-20-BCC,Nan
+plus_400,1,0.4,Pro,MIT9215,1.21E+06,1.18E+06,1.18E+06,1.15E+06,363.5574012,16.10371166,flow,Cocultures-2-5-20-BCC,Nan
+plus_400,2,0.4,Pro,MIT9215,1.52E+04,1.88E+04,2.46E+04,2.78E+04,336.9121305,7.426397749,flow,Cocultures-2-5-20-BCC,Nan
+plus_400,5,0.4,Pro,MIT9215,1.05E+04,8.92E+03,9.20E+03,1.03E+04,339.3529367,6.869542465,flow,Cocultures-2-5-20-BCC,Nan
+plus_0,1,0,Pro ,MIT9312,58728,54759,53415,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,4,0,Pro ,MIT9312,283080,241427,204281,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,5,0,Pro ,MIT9312,419391,348416,286548,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,7,0,Pro ,MIT9312,1750610,1299260,941160,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,8,0,Pro ,MIT9312,3058200,2086680,1446360,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,10,0,Pro ,MIT9312,6446210,5184650,4271980,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,1,0.4,Pro ,MIT9312,53993,53065,55942,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,4,0.4,Pro ,MIT9312,152289,187323,159070,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,5,0.4,Pro ,MIT9312,204074,253673,201692,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,7,0.4,Pro ,MIT9312,444410,737160,458580,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,8,0.4,Pro ,MIT9312,637230,1015810,679800,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,10,0.4,Pro ,MIT9312,1675790,2963490,1760750,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,1,0,Pro ,MED4,33942.8939,30965.48693,31609.73479,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,3,0,Pro ,MED4,68209.97613,70402.27989,53676.01294,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,4,0,Pro ,MED4,92620.71576,89690.30378,81777.85799,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,5,0,Pro ,MED4,1.47E+05,1.46E+05,1.21E+05,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,7,0,Pro ,MED4,3.40E+05,2.91E+05,2.16E+05,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_0,10,0,Pro ,MED4,9.24E+05,7.55E+05,5.08E+05,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,1,0.4,Pro ,MED4,33044.20995,29557.51257,39070.24587,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,3,0.4,Pro ,MED4,48955.78097,44101.17294,37673.0986,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,4,0.4,Pro ,MED4,57454.31906,57322.20546,45011.55608,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,5,0.4,Pro ,MED4,6.72E+04,7.16E+04,5.50E+04,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,7,0.4,Pro ,MED4,9.24E+04,9.59E+04,8.33E+04,Nan,Nan,Nan,flow,Ma_et_al_2018,24
+plus_400,10,0.4,Pro ,MED4,7.27E+04,1.12E+05,1.04E+05,Nan,Nan,Nan,flow,Ma_et_al_2018,24
