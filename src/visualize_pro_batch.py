@@ -36,11 +36,12 @@ df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy()
 df = df_P
 
 
+
 f,ax = plt.subplots(1,2,figsize=[8,5])
 
-ax[0].plot(np.mean((df.techAmean+df.techBmean),axis=0),np.std((df.techAmean+df.techBmean),axis=0))
-ax[0].plot(np.mean((df.rep1+df.rep3)),axis=0),np.std(np.log((df.rep1+df.rep3),axis=0))
-plt.semilogy()
+ax[0].plot(np.mean((df.techAmean+df.techBmean)),np.std((df.techAmean+df.techBmean)))
+ax[1].plot(np.mean(np.log((df.rep1+df.rep3))),np.std(np.log((df.rep1+df.rep3))))
+#plt.semilogy()
 plt.show()
 
 
