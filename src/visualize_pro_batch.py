@@ -95,7 +95,7 @@ f2.savefig('../figures/f2',dpi=300)
 
 strains = df_mono['strain'].unique()
 nstrains = strains.shape[0]
-colors = ['r','orange','g','b','k']
+
 fig3, (ax)= plt.subplots(nstrains,2,figsize = (10,16))
 fig3.suptitle('Unlogged Data')
 for (S,si) in zip(strains,range(nstrains)):   
@@ -107,11 +107,78 @@ for (S,si) in zip(strains,range(nstrains)):
     df0 = df[((df['assay']=='plus_0'))].copy()
     df400 = df[((df['assay']=='plus_400'))].copy()
     #print(df0.info(),df400.info())
-    ax[si,0].plot(df0['time'],df0['avg1'], marker='o',label = S)
-    ax[si,1].plot(df400['time'],df400['avg1'], yerr='std1',marker='o',label = S)
-    df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
-    df400.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '400 HOOH assay', ylabel = 'cells per mL',logy = True)
+    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = S)
+    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label = S)
+    #ax[si,0].set_ylim(1000,2500000)
+    #ax[si,1].set_ylim(1000,1500000)
+    l3  = ax[si,1].legend(loc = 'upper center')
+    l3.draw_frame(False)
+    #df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
+    #df400.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '400 HOOH assay', ylabel = 'cells per mL',logy = True)
 
 
+# make space on the right for annotation (e.g. ROS=0, etc.)
+fig3.subplots_adjust(right=0.85, wspace = 0.15, hspace = 0.35)
 
+# titles
+ax[0,0].set_title('Monocultures in 0 HOOH')
+ax[0,1].set_title('Monocultures in 400 HOOH')
+
+# xlabels
+for a in ax[-1,:]:
+    a.set_xlabel('Time (days)')
+
+# ylabels
+for a in ax[:,0]:
+    a.set_ylabel('Cells (ml$^{-1}$)')
+
+fig3.savefig('../figures/monoculture_graphs')
 #inits = pd.read_csv("../data/inits/________.csv")
+
+
+
+
+
+fig4, (ax)= plt.subplots(nstrains,2,figsize = (10,16))
+fig4.suptitle('Logged Data')
+for (S,si) in zip(strains,range(nstrains)):   
+    df = df_mono[((df_mono['strain']==S))].copy()
+    df['log1'] = np.log(df['rep1'])
+    df['log2'] = np.log(df['rep2'])
+    df['log3'] = np.log(df['rep3'])
+    df['log4'] = np.log(df['rep4'])
+    df['avg1'] = df[['log1', 'log3']].mean(axis=1)
+    df['avg2'] = df[['log2', 'log4']].mean(axis=1)
+    df['std1'] = df[['log1', 'log3']].std(axis=1)
+    df['std2'] = df[['log2', 'log4']].std(axis=1)
+    df0 = df[((df['assay']=='plus_0'))].copy()
+    df400 = df[((df['assay']=='plus_400'))].copy()
+    #print(df0.info(),df400.info())
+    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = S+' avg 1')
+    ax[si,0].errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v',label = S+' avg 2')
+    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label = S +' avg 1')
+    ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = S +' avg 2')
+    #ax[si,0].set_ylim(1000,2500000)
+    #ax[si,1].set_ylim(1000,1500000)
+    l4  = ax[si,1].legend(loc = 'upper center')
+    l4.draw_frame(False)
+    #df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
+    #df400.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '400 HOOH assay', ylabel = 'cells per mL',logy = True)
+
+
+# make space on the right for annotation (e.g. ROS=0, etc.)
+fig4.subplots_adjust(right=0.85, wspace = 0.15, hspace = 0.35)
+
+# titles
+ax[0,0].set_title('Monocultures in 0 HOOH')
+ax[0,1].set_title('Monocultures in 400 HOOH')
+
+# xlabels
+for a in ax[-1,:]:
+    a.set_xlabel('Time (days)')
+
+# ylabels
+for a in ax[:,0]:
+    a.set_ylabel('Cells (ml$^{-1}$)')
+
+fig4.savefig('../figures/monoculture_logged_graphs')
