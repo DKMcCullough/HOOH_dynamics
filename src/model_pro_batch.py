@@ -60,7 +60,7 @@ for (S,si) in zip(strains,range(nstrains)):
     l1.draw_frame(False)
     
 # make space on the right for annotation (e.g. ROS=0, etc.)
-fig1.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.25)
+fig1.subplots_adjust(right=0.85, wspace = 0.20, hspace = 0.25)
 
 # titles and labels 
 ax0.set_title('Monocultures in 0 HOOH')
@@ -68,7 +68,7 @@ ax1.set_title('Monocultures in 400 HOOH')
 
 ax0.set_xlabel('Time (days)')
 ax1.set_xlabel('Time (days)')
-ax0.set_ylabel('Cells (ml$^{-1}$)')
-ax1.set_ylabel('Cells (ml$^{-1}$)')
+ax0.set_ylabel('log(Cells(ml$^{-1}$))')
+ax1.set_ylabel('log(Cells(ml$^{-1}$))')
 
 fig1.savefig('../figures/mono_all_graphed')
