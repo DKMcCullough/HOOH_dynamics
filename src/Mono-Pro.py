@@ -69,16 +69,6 @@ plt.show()
 
 #fig1.suptitle('Pro Dynamics')
 #plt.subplots_adjust(wspace = 0.5, top = 0.9,bottom = 0.1)
-'''
-for S in strains:
-    df = df_P[((df_P['strain']==S))].copy()
-    df0 = df[((df['assay']=='plus_0'))].copy()
-    df400 = df[((df['assay']=='plus_400'))].copy()
-    #ax1 = df0.plot(x = 'Time (days)',y = 'Pavg', label = S)
-    ax2 = df0.plot(kind='scatter', x='Time (days)', y='Pavg', yerr='Pstd',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
-    ax3 = df400.plot(kind='scatter', x='Time (days)', y='Pavg', yerr='Pstd',style="-", label = S, title = '400 HOOH assay', ylabel = 'cells per mL',logy = True)
-
-'''
 
 
 
