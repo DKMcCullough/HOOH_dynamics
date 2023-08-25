@@ -72,7 +72,7 @@ ax1.set_xlabel('Time (days)')
 ax0.set_ylabel('log(Cells(ml$^{-1}$))')
 ax1.set_ylabel('log(Cells(ml$^{-1}$))')
 
-#fig1.savefig('../figures/mono_all_graphed')
+fig1.savefig('../figures/mono_all_graphed')
 
 
 
@@ -80,15 +80,15 @@ ax1.set_ylabel('log(Cells(ml$^{-1}$))')
 # modeling abiotic for SH and deltaH and H0 info
 #########
 
-df = df_P
-#df['log_abundance'] = np.log(df['raw_abundance'])
-#df['log_sigma'] = np.std(df['HOOH_stdv'])
-df = df.rename(columns={"avg1": "abundance"})
+df = df_abiotic
+df['log_abundance'] = np.log(df['raw_abundance'])
+df['log_sigma'] = np.std(df['HOOH_stdv'])
+df = df.rename(columns={"log_abundance": "abundance"})
 
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)] 
 df4 = df.loc[df['assay'].str.contains('4', case=False)] 
 
-inits = pd.read_csv("../data/inits/pro_inits.csv")
+inits = pd.read_csv("../data/inits/abiotic.csv")
 
 
 def set_best_params(model,posteriors,snames):
@@ -119,66 +119,6 @@ def get_model(df):
                           H = H0_mean,
                          )
     return a1
-
-
-
-deltah  #from abiotic
-Sh #from abiotic
-rho =  0.002 #from multiN data from one Pro species. Not well constrained.
-Qnp = 1
-SN = 0
-k1p =  0.00002     #completely made up #Number I found with hand fitting
-k2 = 0.83  #semi constrained from literature (Should be between 0.5 and 0.88)
-ksp = k2/k1p
-dp = 0.2   ##Number I found with hand fitting
-
-params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp)
-
-y = [P,N,H]
-inits = (P0, N0, H0)
-
-
-
-#get k2, ksp, dp fit here and maybe rho and N0 or SN too?
-def mono_0H(y,t,params): #no kdam or phi here (or make 0)
-    deltah,Sh,rho,Qnp,SN,ksp,k2,dp = params[0], params[1], params[2], params[3], params[4], params[5],params[6],params[7]
-    P,N,H = y[0],y[1],y[2]
-    dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P)     
-    dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* Qnp) - rho*N    
-    dHdt = Sh - deltah*H  #phi being P cell-specific detox rate
-    return [dPdt,dNdt,dHdt]
-
-
-#in 400 HOOH 
-
-#prior params constant from 0H run
-
-kdam = 4.0e-3   #hooh mediated damage rate of Pro    #hand fit
-phip = 1.1e-7    #0007  #detoxification-based decay of HOOH  #hand fit
-
-params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp,phip,kdam)
-y = [P,N,H]
-inits = (P0, N0, H0)
-
-
-
-def mono_400H(y,t,params): #kdam and phi are being fit, all else should come from mono_0H fits
-    deltah,Sh,rho,Qnp,SN,ksp,k2,dp,phip,kdam = params[0], params[1], params[2], params[3],params[4], params[5], params[6], params[7], params[8],params[9]
-    P,N,H = y[0],y[1],y[2]
-    dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P) - kdam*H*P     
-    dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* Qnp) - rho*N    
-    dHdt = Sh - deltah*H -phip*H*P #phi being S cell-specific detox rate
-    return [dPdt,dNdt,dHdt]
-
-
-
-
-
-
-
-
-
-
 
 
 def abiotic(y,t,params):
