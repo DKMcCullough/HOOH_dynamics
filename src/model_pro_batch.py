@@ -122,20 +122,10 @@ def get_model(df):
 
 
 
-deltah  #from abiotic
-Sh #from abiotic
-rho =  0.002 #from multiN data from one Pro species. Not well constrained.
-Qnp = 1
-SN = 0
-k1p =  0.00002     #completely made up #Number I found with hand fitting
-k2 = 0.83  #semi constrained from literature (Should be between 0.5 and 0.88)
-ksp = k2/k1p
-dp = 0.2   ##Number I found with hand fitting
+#params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp)
 
-params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp)
-
-y = [P,N,H]
-inits = (P0, N0, H0)
+#y = [P,N,H]
+#inits = (P0, N0, H0)
 
 
 
@@ -149,16 +139,9 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     return [dPdt,dNdt,dHdt]
 
 
-#in 400 HOOH 
 
-#prior params constant from 0H run
+#params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp,phip,kdam)
 
-kdam = 4.0e-3   #hooh mediated damage rate of Pro    #hand fit
-phip = 1.1e-7    #0007  #detoxification-based decay of HOOH  #hand fit
-
-params = (deltah,Sh,rho,Qnp,SN,ksp,k2,dp,phip,kdam)
-y = [P,N,H]
-inits = (P0, N0, H0)
 
 
 
