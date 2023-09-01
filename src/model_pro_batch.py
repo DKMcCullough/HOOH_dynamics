@@ -77,24 +77,24 @@ pw = 1
 
 Qnp = int((9.4e-15*(1/(14.0))*1e+9))  #Nitrogen Quota for Pro from Bertilison 
 
-Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-dp_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
+Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000020})
+k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000002})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+dp_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.002})
 rho_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-SN_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':6})
-deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':6})
+SN_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
+deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1})
 P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+6})
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
 
 
 
-nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
 
 P0_mean = 100000
-N0_mean = 50000
+N0_mean = 900000
 
 H0_mean = 80
 
@@ -136,7 +136,7 @@ def get_model(df):
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
-                          t_steps=100000,
+                          t_steps=10000,
                           P = P0_mean,
                           N = N0_mean,
                           H = H0_mean,
@@ -163,7 +163,8 @@ a1 = get_model(df0)
 
 
 # do fitting
-posteriors1 = a1.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1)
+posteriors1 = a1.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,static_parameters=set(['Qnp']))
+#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # set best params
 set_best_params(a1,posteriors1,snames)
@@ -182,23 +183,24 @@ fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
 fig3.suptitle('Pro in 0 H Model')
 
 ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
+ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a1,posteriors1,100)
 ax0.semilogy()
 ax0.set_title('Pro dynamics ')
-l3 = ax0.legend(loc = 'upper left')
+l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-ax1.scatter(posteriors1.iteration, posteriors1.rsquared)
+ax1.scatter(posteriors1.iteration, posteriors1.chi)
 ax1.set_title('Model error ')
 
 fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
 ax0.set_xlabel('days')
 ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('iteration number')
-ax1.set_xlabel('r squared ')
+ax1.set_ylabel('chi')
+ax1.set_xlabel('iteration number ')
 
 plt.show()
 
@@ -206,7 +208,7 @@ plt.show()
 #########################################################
 #graphing model and params 
 #########################################################
-
+'''
 # pro model graph
 fig4,ax4 = plt.subplots(1,7,figsize=[20,7])
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
@@ -243,7 +245,7 @@ plt.show()
 
 
 fig4.savefig('../figures/pro_odelib0')
-
+'''
 
 print("I'm done bro")
 
