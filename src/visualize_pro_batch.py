@@ -52,6 +52,8 @@ for (S,si) in zip(strains,range(nstrains)):
     ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = 'vol num ' + str(S)+'  avg 2')
     #ax[si,0].set_ybound(1000,2500000)
     #ax[si,1].set_ybound(1000,1500000)
+    ax[si,0].semilogy()
+    ax[si,1].semilogy()
     l3  = ax[si,1].legend(loc = 'upper center')
     l3.draw_frame(False)
     #df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
@@ -59,7 +61,7 @@ for (S,si) in zip(strains,range(nstrains)):
 
 
 # make space on the right for annotation (e.g. ROS=0, etc.)
-fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.25)
+fig3.subplots_adjust(right=0.90,wspace = 0.15, hspace = 0.25)
 
 # titles
 ax[0,0].set_title('Monocultures in 0 HOOH')
@@ -74,7 +76,7 @@ for a in ax[:,0]:
     a.set_ylabel('Cells (ml$^{-1}$)')
 
 fig3.savefig('../figures/monoculture_graphs')
-#inits = pd.read_csv("../data/inits/________.csv")
+
 
 
 #####################################################
@@ -108,7 +110,7 @@ for (S,si) in zip(strains,range(nstrains)):    #zipping the strain list with num
 
 #Config fig
 # make space on the right for annotation (e.g. ROS=0, etc.)
-fig4.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.25)
+fig4.subplots_adjust(right=0.90,wspace = 0.45, hspace = 0.25)
 
 # titles
 ax[0,0].set_title('Monocultures in 0 HOOH')
@@ -124,4 +126,4 @@ for a in ax[:,0]:
 
 plt.show() 
 
-#fig4.savefig('../figures/monoculture_logged_graphs')
+fig4.savefig('../figures/monoculture_logged_graphs')
