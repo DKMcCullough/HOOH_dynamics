@@ -50,7 +50,7 @@ inits0 = pd.read_csv("../data/inits/abiotic0.csv")
 inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 
 #####################################################
-#defs for modeling and graphing model uncertainty 
+#functions  for modeling and graphing model uncertainty 
 #####################################################
 def set_best_params(model,posteriors,snames):
     im = posteriors.loc[posteriors.chi==min(posteriors.chi)].index[0]
@@ -60,7 +60,7 @@ def set_best_params(model,posteriors,snames):
     model.set_inits(**{o:posteriors.loc[im][a0.get_pnames()].to_dict()[o+'0'] for o in ['H']})
 ###############
 #####only set for 0 a for idk if 400 model is working correctly. #######
-################
+
 def plot_uncertainty(ax,model,posteriors,ntimes):
     for a in range(ntimes):
         im = rd.choice(posteriors.index)
@@ -122,7 +122,7 @@ a4 = get_model(df4)
  
 
 # do fitting for 0 an 400 model 
-posteriors1 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1)
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1)
 posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1)
 
 
@@ -158,8 +158,8 @@ plot_uncertainty(ax4[1,0],a4,posteriors4,100) #plotting 100 itterations of model
 
 
 # plot histograms of params next to dynamics graphs
-ax4[0,1].hist((np.log(posteriors1.Sh))) #graphing Sh of 0 H assay 
-ax4[0,2].hist((np.log(posteriors1.deltah))) #graphing deltah of 0 H assay 
+ax4[0,1].hist((np.log(posteriors0.Sh))) #graphing Sh of 0 H assay 
+ax4[0,2].hist((np.log(posteriors0.deltah))) #graphing deltah of 0 H assay 
 ax4[1,1].hist((np.log(posteriors4.Sh))) #graphing Sh of 400 H assay 
 ax4[1,2].hist((np.log(posteriors4.deltah))) #graphing deltah of 400 H assay 
 
@@ -190,7 +190,7 @@ plt.show()
 fig5,ax5 = plt.subplots(2,1,sharex=True, figsize=[8,5])
 fig5.suptitle('deltah vs Sh ')
 #graphing each assay's parameters against each other 
-ax5[0].scatter(posteriors1.Sh,posteriors1.deltah)
+ax5[0].scatter(posteriors0.Sh,posteriors0.deltah)
 ax5[1].scatter(posteriors4.Sh,posteriors4.deltah)
 
 #ax5[0].set_xlabel('Frequency Sh')
@@ -210,9 +210,9 @@ plt.show()
 
 fig6,ax6 = plt.subplots(2,2,sharex=True,figsize=[8,5])
 fig6.suptitle('Log deltah vs Sh ')
-ax6[0,0].scatter(posteriors1.iteration,np.log(posteriors1.Sh))
+ax6[0,0].scatter(posteriors0.iteration,np.log(posteriors0.Sh))
 ax6[0,1].scatter(posteriors4.iteration,np.log(posteriors4.Sh))
-ax6[1,0].scatter(posteriors1.iteration,np.log(posteriors1.deltah))
+ax6[1,0].scatter(posteriors0.iteration,np.log(posteriors0.deltah))
 ax6[1,1].scatter(posteriors4.iteration,np.log(posteriors4.deltah))
 
 ax6[1,1].set_xlabel('iteration')
@@ -231,9 +231,9 @@ plt.show()
 
 fig7,ax7 = plt.subplots(2,2,sharex=True,figsize=[8,5])
 fig7.suptitle('logged param exploration ')
-ax7[0,0].scatter(posteriors1.rsquared,np.log(posteriors1.Sh))
+ax7[0,0].scatter(posteriors0.rsquared,np.log(posteriors0.Sh))
 ax7[0,1].scatter(posteriors4.rsquared,np.log(posteriors4.Sh))
-ax7[1,0].scatter(posteriors1.rsquared,np.log(posteriors1.deltah))
+ax7[1,0].scatter(posteriors0.rsquared,np.log(posteriors0.deltah))
 ax7[1,1].scatter(posteriors4.rsquared,np.log(posteriors4.deltah))
 
 ax7[1,1].set_xlabel('rsquared')

@@ -55,13 +55,25 @@ df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy()
 df = df_P
 
 #making avg columns of technical reps (std hereo nly for graphing, not logged here)
+df['log1'] = np.log(df['rep1'])
+df['log2'] = np.log(df['rep2'])
+df['log3'] = np.log(df['rep3'])
+df['log4'] = np.log(df['rep4'])
 df['avg1'] = df[['rep1', 'rep2']].mean(axis=1)
 df['avg2'] = df[['rep3', 'rep4']].mean(axis=1)
 df['std1'] = df[['rep1', 'rep2']].std(axis=1)
 df['std2'] = df[['rep3', 'rep4']].std(axis=1)
-
-
+'''
+df['lavg1'] = df[['log1', 'log2']].mean(axis=1)
+df['lavg2'] = df[['log3', 'log4']].mean(axis=1)
+df['stdlog1'] = df[['rep1', 'rep2']].std(axis=1)
+df['stdlog2'] = df[['rep3', 'rep4']].std(axis=1)
+'''
 df.rename(columns = {'avg1':'abundance'}, inplace = True)
+df.rename(columns = {'lavg1':'log_abundance'}, inplace = True)
+
+
+
 
 
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)] 
@@ -87,6 +99,9 @@ ax1.set_xlabel('Time (days)')
 #########
 # modeling abiotic for SH and deltaH and H0 info
 #########
+#####################################################
+#model param and state variable set up 
+#####################################################
 
 
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
@@ -144,7 +159,7 @@ def plot_uncertainty(ax,model,posteriors,ntimes):
 #Ksp or k1?!?
 
 def get_model(df):
-    a1=ODElib.ModelFramework(ODE=mono_0H,
+    Model=ODElib.ModelFramework(ODE=mono_0H,
                           parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','P0','N0','H0'],
                           state_names = snames,
                           dataframe=df,
@@ -164,7 +179,7 @@ def get_model(df):
                           N = N0_mean,
                           H = H0_mean
                             )
-    return a1
+    return Model
 
 
 
@@ -184,24 +199,24 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
 df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_models
-a1 = get_model(df0) 
+a0 = get_model(df0) 
 
 
 # do fitting
-posteriors1 = a1.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,static_parameters=set(['Qnp']))
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,static_parameters=set(['Qnp']))
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # set best params
-set_best_params(a1,posteriors1,snames)
+set_best_params(a0,posteriors0,snames)
 
 # run model with optimal params
-mod0 = a1.integrate()
+mod0 = a0.integrate()
 
 
 
-####################
-# graphing model
-#####################
+###################################
+# graphing model and associated error
+#####################################
 
 
 fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
@@ -211,46 +226,46 @@ ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 
 ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
-plot_uncertainty(ax0,a1,posteriors1,100)
+plot_uncertainty(ax0,a0,posteriors0,100)
 ax0.semilogy()
 ax0.set_title('Pro dynamics ')
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-ax1.scatter(posteriors1.iteration, posteriors1.chi)
-ax1.set_title('Model error ')
+ax1.scatter(posteriors0.iteration, posteriors0.rsquared)
+ax1.set_title('Model performance')
 
 fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
 ax0.set_xlabel('days')
 ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('chi')
+ax1.set_ylabel('r-squared')
 ax1.set_xlabel('iteration number ')
 
 plt.show()
 
 
 #########################################################
-#graphing model and params 
+#graphing model and params histograms 
 #########################################################
-'''
+
 # pro model graph
 fig4,ax4 = plt.subplots(1,7,figsize=[20,7])
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
 ax4[0].plot(df0.time,df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
 ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
-plot_uncertainty(ax4[0],a1,posteriors1,100)
+plot_uncertainty(ax4[0],a1,posteriors0,100)
 
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
 
 # plot histograms
-ax4[1].hist(posteriors1.dp)
-ax4[2].hist(posteriors1.k1)
-ax4[3].hist(posteriors1.k2)
-ax4[4].hist(posteriors1.rho)
-ax4[5].hist(posteriors1.Sh)
-ax4[6].hist(posteriors1.deltah)
+ax4[1].hist(posteriors0.dp)
+ax4[2].hist(posteriors0.k1)
+ax4[3].hist(posteriors0.k2)
+ax4[4].hist(posteriors0.rho)
+ax4[5].hist(posteriors0.Sh)
+ax4[6].hist(posteriors0.deltah)
 
 
 ax4[1].set_title('dp')
@@ -269,8 +284,8 @@ fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
 plt.show()
 
 
-fig4.savefig('../figures/pro_odelib0')
-'''
+#fig4.savefig('../figures/pro_odelib0')
+
 
 print("I'm done bro")
 
