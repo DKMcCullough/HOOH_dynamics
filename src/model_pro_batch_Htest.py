@@ -1,3 +1,20 @@
+
+'''
+
+name:   model_pro_batch_Htest.py 
+
+location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
+
+author: DKM
+
+goal: get Pro and H modeled together form monoculture BCC data
+
+working on: ln of data in df for uncertainty, follow P and H with model and have correct statevariable testsed against correct data and uncertaintty. 
+
+'''
+
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

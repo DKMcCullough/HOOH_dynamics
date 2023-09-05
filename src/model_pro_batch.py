@@ -1,10 +1,33 @@
+
+'''
+
+name:   model_pro_batch.py 
+
+location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
+
+author: DKM
+
+goal: Loop model and graph 0 H Pro assay and model of said biomass via odelib
+
+working on: ln of data in df for uncertainty, loop for 0 and 400 using different init files? (need H connected to 0 H first) 
+
+'''
+
+
+
+
+
+
+
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy 
 import ODElib
 import random as rd
-
+import sys
 
 
 plt.rcParams["figure.dpi"] = 300
@@ -91,7 +114,7 @@ H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 
 
 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
+nits = 100 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
 
 P0_mean = 100000
 N0_mean = 900000
@@ -122,7 +145,7 @@ def plot_uncertainty(ax,model,posteriors,ntimes):
 
 def get_model(df):
     a1=ODElib.ModelFramework(ODE=mono_0H,
-                          parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','H0','N0','P0'],
+                          parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','P0','N0','H0'],
                           state_names = snames,
                           dataframe=df,
                           deltah = deltah_prior.copy(),
@@ -136,10 +159,10 @@ def get_model(df):
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
-                          t_steps=10000,
+                          t_steps=1000,
                           P = P0_mean,
                           N = N0_mean,
-                          H = H0_mean,
+                          H = H0_mean
                             )
     return a1
 
@@ -151,6 +174,7 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     deltah,Sh,rho,Qnp,SN,k1,k2,dp = params[0], params[1], params[2], params[3], params[4], params[5],params[6],params[7]
     P,N,H = y[0],y[1],y[2]
     ksp=k2/k1
+    #print(P)
     dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P)     
     dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* Qnp) - rho*N    
     dHdt = Sh - deltah*H  #phi being P cell-specific detox rate
