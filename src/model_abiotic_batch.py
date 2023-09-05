@@ -12,12 +12,22 @@ working on: ln of data in df for uncertainty, loop of all dfs in df_all for mode
 
 '''
 
+#read in needed packages 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy 
 import ODElib
 import random as rd
+
+
+#####################################################
+#set figure RC params 
+#####################################################
+plt.rcParams["figure.dpi"] = 300
+plt.rcParams.update({'font.size': 16})
+plt.rcParams['legend.fontsize'] = 'small'
+
 
 #####################################################
 # read in data and formatting
@@ -49,6 +59,7 @@ df4 = df.loc[df['assay'].str.contains('4', case=False)]
 inits0 = pd.read_csv("../data/inits/abiotic0.csv")
 inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 
+
 #####################################################
 #functions  for modeling and graphing model uncertainty 
 #####################################################
@@ -61,15 +72,26 @@ def set_best_params(model,posteriors,snames):
 ###############
 #####only set for 0 a for idk if 400 model is working correctly. #######
 
+#function for plotting uncertainty once model has been run 
 def plot_uncertainty(ax,model,posteriors,ntimes):
     for a in range(ntimes):
-        im = rd.choice(posteriors.index)
+        im = rd.choice(posteriors.index) 
         model.set_inits(**{'H':posteriors.loc[im][model.get_pnames()].to_dict()['H0']})
         model.set_parameters(**posteriors.loc[im][model.get_pnames()].to_dict())
         mod = model.integrate()
         ax.plot(mod.time,mod['H'],c=str(0.8),lw=1,zorder=1)
 
 
+#actual model that will be run by the odelib model framework
+def abiotic(y,t,params):
+    deltah,Sh = params[0], params[1]
+    H = y[0]
+    dHdt = Sh - deltah*H 
+    return [dHdt]
+
+
+
+#initiating the model as a class in odelib (give us use of the methods in this class - like integrate :-) 
 def get_model(df):
     a1=ODElib.ModelFramework(ODE=abiotic,
                           parameter_names=['deltah','Sh', 'H0'],
@@ -83,12 +105,6 @@ def get_model(df):
                          )
     return a1
 
-
-def abiotic(y,t,params):
-    deltah,Sh = params[0], params[1]
-    H = y[0]
-    dHdt = Sh - deltah*H 
-    return [dHdt]
 
 
 #####################################################
@@ -178,7 +194,7 @@ l2.draw_frame(False)
 
 plt.show()
 
-
+'''
 #fig4.savefig('../figures/abiotic_odelib')
 
 ########################################
@@ -192,7 +208,8 @@ fig5.suptitle('deltah vs Sh ')
 #graphing each assay's parameters against each other 
 ax5[0].scatter(posteriors0.Sh,posteriors0.deltah)
 ax5[1].scatter(posteriors4.Sh,posteriors4.deltah)
-
+ax5[0].set_yscale('log')
+ax5[1].set_xscale('log')
 #ax5[0].set_xlabel('Frequency Sh')
 ax5[1].set_xlabel('Frequency Sh')
 ax5[0].set_ylabel('Frequency deltah')
@@ -202,7 +219,7 @@ plt.legend()
 plt.show()
 
 #fig5.savefig('../figures/abiotic_params')
-
+'''
 
 #################################
 #graphing logged parameter values
@@ -227,7 +244,7 @@ ax6[1,0].set_ylabel('log deltah')
 plt.show()
 
 
-
+'''
 
 fig7,ax7 = plt.subplots(2,2,sharex=True,figsize=[8,5])
 fig7.suptitle('logged param exploration ')
@@ -249,7 +266,7 @@ l7.draw_frame(False)
 plt.show()
 
 
-
+'''
 
 
 print('we done did it')
