@@ -63,35 +63,36 @@ df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
 df['std1'] = df[['rep1', 'rep3']].std(axis=1)
 df['std2'] = df[['rep2', 'rep4']].std(axis=1)
 
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1)
+df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
 df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['stdlog1'] = df[['rep1', 'rep3']].std(axis=1)
-df['stdlog2'] = df[['rep2', 'rep4']].std(axis=1)
+df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
+df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 
 #setting working df for model as far as abundance and log abundance values 
-df.rename(columns = {'avg1':'abundance'}, inplace = True)
-df.rename(columns = {'lavg1':'log_abundance'}, inplace = True)
+df.rename(columns = {'avg1':'abundance'}, inplace = True) #reaneme main df column to be fit by odelib 
+df.rename(columns = {'lavg1':'log_abundance'}, inplace = True) #reaneme log of main df column to be fit by odelib 
 
 #splitting df of Pro into 0 and 400 H assays 
-df0 = df.loc[~ df['assay'].str.contains('4', case=False)] 
-df4 = df.loc[df['assay'].str.contains('4', case=False)] 
+df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
+df4 = df.loc[df['assay'].str.contains('4', case=False)]  #assay 400 H (actually around 360 nM in data)
 
 
 
 #####################################################
 #plotting data and error within biological reps 
 #####################################################
+# fig set up and main title 
 fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
 fig2.suptitle('Pro  Monocultures')
 
-#format fig 
-ax0.set_title('Pro in 0 HOOH ')
-ax0.semilogy()
-ax1.set_title('Pro in 400 HOOH ')
-ax1.semilogy()
-ax0.set_xlabel('Time (days)')
-ax0.set_ylabel('Cells(ml$^{-1}$)')
-ax1.set_xlabel('Time (days)')
+#format fig  
+ax0.set_title('Pro in 0 HOOH ') #graph title for graph 1
+ax0.semilogy() #setting y axis to be logged b/c cell data
+ax1.set_title('Pro in 400 HOOH ') #graph title for graph 2
+ax1.semilogy()#setting y axis to be logged b/c cell data
+ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
+ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
+ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
 
 #graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
@@ -105,7 +106,7 @@ ax1.errorbar(df4['time'],df4['avg2'],yerr=df4['std2'], marker='v', label = 'avg2
 
 
 #####################################################
-#model param and state variable set up 
+#   model param and state variable set up 
 # modeling abiotic HOOH via SH and deltaH and H0 
 #####################################################
 
@@ -114,14 +115,14 @@ inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
 
 # state variable names
-snames = ['P','N','H']
+snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
 
 # define priors for parameters
-#####################################################
 pw = 1   #sigma for param search
 
 Qnp = int((9.4e-15*(1/(14.0))*1e+9))  #Nitrogen Quota for Pro from Bertilison 
 
+#setting param prior guesses and inititaing as an odelib param class in odelib
 Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000002})
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000002})
 k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
@@ -130,10 +131,11 @@ rho_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw
 SN_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1})
-P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+6})
-N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
-
+#setting state variiable  prior guess
+P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+6})
+N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
+#pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #setting how many MCMC chains you will run 
 nits = 100 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -149,7 +151,7 @@ H0_mean = 80
 #functions  for modeling and graphing model uncertainty 
 #####################################################
 def get_model(df):
-    Model=ODElib.ModelFramework(ODE=mono_0H,
+    M = ODElib.ModelFramework(ODE=mono_0H,
                           parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','P0','N0','H0'],
                           state_names = snames,
                           dataframe=df,
@@ -169,7 +171,7 @@ def get_model(df):
                           N = N0_mean,
                           H = H0_mean
                             )
-    return Model
+    return M
 
 
 def set_best_params(model,posteriors,snames):
@@ -219,13 +221,30 @@ mod0 = a0.integrate()
 
 
 
-###################################
-# graphing model and associated error
-#####################################
+#####################################################
+# graphing model vs data in 0 H and associated error
+#####################################################
 
-######fig set up and config
+###### fig set up
 fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model') #setting main title of fig
+
+#fig config and naming 
+#####################################################
+fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
+
+ax0.semilogy()
+ax0.set_title('Pro dynamics ')
+ax1.set_title('Model performance')
+
+ax0.set_xlabel('days')
+ax0.set_ylabel('cell concentration')
+ax1.set_ylabel('r-squared')
+ax1.set_xlabel('iteration number ')
+
+l3 = ax0.legend(loc = 'lower right')
+l3.draw_frame(False)
+
 
 #graphing data from df to see 2 different biological reps represented
 ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
@@ -233,20 +252,11 @@ ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a0,posteriors0,100)
-ax0.semilogy()
-ax0.set_title('Pro dynamics ')
-l3 = ax0.legend(loc = 'lower right')
-l3.draw_frame(False)
 
 ax1.scatter(posteriors0.iteration, posteriors0.rsquared)
-ax1.set_title('Model performance')
 
-fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
-ax0.set_xlabel('days')
-ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('r-squared')
-ax1.set_xlabel('iteration number ')
+
 
 plt.show()
 
@@ -258,12 +268,16 @@ plt.show()
 # pro model graph
 fig4,ax4 = plt.subplots(1,7,figsize=[20,7])
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
-ax4[0].plot(df0.time,df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
-ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
-plot_uncertainty(ax4[0],a0,posteriors0,100)
 
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
+
+
+
+ax4[0].plot(df0.time,df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
+plot_uncertainty(ax4[0],a0,posteriors0,100)
+
 
 # plot histograms
 ax4[1].hist(posteriors0.dp)
@@ -293,7 +307,7 @@ plt.show()
 #fig4.savefig('../figures/pro_odelib0')
 
 
-print("I'm done bro")
+print("I'm done bro! ")
 
 
 

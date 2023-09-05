@@ -101,7 +101,7 @@ snames = ['H']
 #sigma we give model to search withi for each param
 pw = 1
 
-#setting param prior guesses and inititaing as an odelib param class?
+#setting param prior guesses and inititaing as an odelib param class in odelib
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':6})
