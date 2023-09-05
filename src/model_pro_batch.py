@@ -181,6 +181,7 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     return [dPdt,dNdt,dHdt]
 
 
+df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_models
 a1 = get_model(df0) 
