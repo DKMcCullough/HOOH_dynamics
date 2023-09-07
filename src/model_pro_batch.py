@@ -123,8 +123,8 @@ pw = 1   #sigma for param search
 Qnp = int((9.4e-15*(1/(14.0))*1e+9))  #Nitrogen Quota for Pro from Bertilison 
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
-Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000002})
-k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0000002})
+Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
+k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
 k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 dp_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.002})
 rho_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
@@ -138,7 +138,7 @@ H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #setting how many MCMC chains you will run 
-nits = 100 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 
 #still not sure what part of fitting algor this is used for
@@ -196,7 +196,7 @@ def plot_uncertainty(ax,model,posteriors,ntimes):
 def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     deltah,Sh,rho,Qnp,SN,k1,k2,dp = params[0], params[1], params[2], params[3], params[4], params[5],params[6],params[7]
     P,N,H = y[0],y[1],y[2]
-    ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
+    ksp=int(k2/k1) #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P)     
     dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* Qnp) - rho*N    
     dHdt = Sh - deltah*H  #phi being P cell-specific detox rate
@@ -208,9 +208,9 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
 # get_models
 a0 = get_model(df0) 
 
-
+#broken here!!!!!!!!!!
 # do fitting
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,static_parameters=set(['Qnp']))
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, static_parameters=set(['Qnp']))
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # set best params
@@ -247,13 +247,14 @@ l3.draw_frame(False)
 
 
 #graphing data from df to see 2 different biological reps represented
+
 ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
 ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a0,posteriors0,100)
 
-ax1.scatter(posteriors0.iteration, posteriors0.rsquared)
+#ax1.scatter(posteriors0.chi, posteriors0.iteration)
 
 
 
@@ -274,7 +275,7 @@ l4.draw_frame(False)
 
 
 
-ax4[0].plot(df0.time,df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(df0.time, df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
 ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
 plot_uncertainty(ax4[0],a0,posteriors0,100)
 
