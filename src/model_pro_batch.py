@@ -53,7 +53,7 @@ df = df_P
 #config data in df from raw for odelib usefulness
 #####################################################
 
-#making avg columns of technical reps (std hereo nly for graphing, not logged here)
+#making avg columns of technical reps (std here only for graphing, not logged here)
 df['log1'] = np.log(df['rep1'])
 df['log2'] = np.log(df['rep2'])
 df['log3'] = np.log(df['rep3'])
@@ -210,7 +210,7 @@ a0 = get_model(df0)
 
 #broken here!!!!!!!!!!
 # do fitting
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, static_parameters=set(['Qnp']))
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1) #, static_parameters =set(['Qnp']))
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # set best params
