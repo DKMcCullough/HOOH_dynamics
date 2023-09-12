@@ -38,7 +38,6 @@ df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 #format empty columns and column names 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'Time(days)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df = df_all
 
 #split df into only abiotice H data 
 df_abiotic = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
@@ -106,11 +105,13 @@ def get_model(df):
     return a1
 
 
-
+#attatch time  
+#find closesst time 
 def get_residuals(self):
     mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)
-    return(res)
+    res = (mod.abundance - self.df.abundance)   #this is not same species 
+    mod['res'] = res
+    return(mod)
 
 #####################################################
 #model param and state variable set up 
@@ -133,9 +134,9 @@ H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':(p
 H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 1000
+nits = 100000
 
-
+#has P, N H, if not OB - trie 
 
 # get_models for 0 an 400 model 
 a0 = get_model(df0) 
@@ -143,8 +144,8 @@ a4 = get_model(df4)
  
 
 # do fitting for 0 an 400 model 
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1)
-posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1)
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, print_report=False)
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1, print_report=False)
 
 
 # set best params for 0 an 400 model 
@@ -156,7 +157,7 @@ mod0 = a0.integrate()
 mod4 = a4.integrate()
 
 #get residuals from model 
-a0res = get_residuals(a0)
+a0res = get_residuals(a0)  #is this using the best fit or just a first run???
 a4res = get_residuals(a4)
 
 
@@ -234,52 +235,54 @@ plt.show()
 #################################
 #graphing logged parameter values
 ##################################
-#crating and confin of fig 6
-fig6,ax6 = plt.subplots(2,2,sharex=True,figsize=[8,5])
-fig6.suptitle('Trace plots for Logged deltah and Sh ')
+#crating and config of fig 6
+fig6,ax6 = plt.subplots(2,2,sharex=True,figsize=[8,5]) #make plot
+fig6.suptitle('Trace plots for Logged deltah and Sh ') #set main title 
 fig6.subplots_adjust(right=0.90, wspace = 0.25, top = 0.85) #shift white space for better fig view
+fig6.supxlabel('Model Iteration') #set overall x title 
+ax6[0,0].set_title('0 HOOH')
+ax6[0,1].set_title('400 HOOH ')
+ax6[0,0].set_ylabel('log Sh')
+ax6[1,0].set_ylabel('log deltah')
 
+#graphing iteration number vs parameter numbert logged 
 ax6[0,0].scatter(posteriors0.iteration,np.log(posteriors0.Sh))
 ax6[0,1].scatter(posteriors4.iteration,np.log(posteriors4.Sh))
 ax6[1,0].scatter(posteriors0.iteration,np.log(posteriors0.deltah))
 ax6[1,1].scatter(posteriors4.iteration,np.log(posteriors4.deltah))
 
-ax6[0,1].set_xlabel('Model Iteration')
-ax6[0,0].set_title('0 HOOH')
-ax6[0,1].set_title('400 HOOH ')
 
 
-ax6[0,0].set_ylabel('log Sh')
-ax6[1,0].set_ylabel('log deltah')
-#ax5[0].set_yscale('log')
-
+#print out plot
 plt.show()
 
+#########################################
+#graphing Residuals of best model vs data 
+##########################################
+
+#making and confing of residuals plot
+fig7,ax7 = plt.subplots(2,1,sharex = True,figsize=[8,5])
+fig7.suptitle('Residuals vs Fit Value ')
+fig7.supylabel('Model Value (H)')
+
+fig7.supxlabel('Residual')
+
+#plotting residual function output residual and abundance columns 
+ax7[0].scatter(a0res['res'], a0res['abundance'],label = '0 H') #where )
+ax7[1].scatter( a4res['res'],a4res['abundance'],label = '400 H')
 
 
-
-
-
-
-fig7,ax7 = plt.subplots(2,2,sharex=True,figsize=[8,5])
-fig7.suptitle('residuals vs Fits ')
-ax7[0,0].scatter(a0res,mod0['H'] where )
-ax7[1,0].scatter(a4res,mod4['H'])
-
-ax7[1,1].set_xlabel('Model Fit Value (H)')
-ax7[0,0].set_title('0 HOOH')
-ax7[0,1].set_title('400 HOOH ')
-
-
-ax7[0,0].set_ylabel('residual')
-
-#ax5[0].set_yscale('log')
-l7 = ax7[0,0].legend()
+#config legends for data differentialtion 
+l7 = ax7[0].legend()
+l8 = ax7[1].legend()
 l7.draw_frame(False)
+l8.draw_frame(False)
+
+#print out plot
 plt.show()
 
 
-
+# 'program finished' flag
 print('\n Done my guy \n')
 
 print('\n Im free Im free! Im done calculating!' )

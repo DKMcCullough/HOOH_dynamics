@@ -113,6 +113,9 @@ ax1.errorbar(df4['time'],df4['avg2'],yerr=df4['std2'], marker='v', label = 'avg2
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
+#setting how many MCMC chains you will run 
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+
 
 # state variable names
 snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
@@ -120,10 +123,11 @@ snames = ['P','N','H'] #order must match all further model mentions (same fro pa
 # define priors for parameters
 pw = 1   #sigma for param search
 
-Qnp = int((9.4e-15*(1/(14.0))*1e+9))  #Nitrogen Quota for Pro from Bertilison 
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
-Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
+Qnp = int((9.4e-15*(1/(14.0))*1e+9))  #Nitrogen Quota for Pro from Bertilison 
+
+Qnp_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':Qnp})
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
 k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 dp_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.002})
@@ -136,9 +140,6 @@ P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
-
-#setting how many MCMC chains you will run 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 
 #still not sure what part of fitting algor this is used for
@@ -198,7 +199,7 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     P,N,H = y[0],y[1],y[2]
     ksp=int(k2/k1) #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P)     
-    dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* Qnp) - rho*N    
+    dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* (int(Qnp))) - rho*N    
     dHdt = Sh - deltah*H  #phi being P cell-specific detox rate
     return [dPdt,dNdt,dHdt]
 
@@ -210,7 +211,7 @@ a0 = get_model(df0)
 
 #broken here!!!!!!!!!!
 # do fitting
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1) #, static_parameters =set(['Qnp']))
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['Qnp']),print_report=False) #, )
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # set best params
@@ -229,8 +230,8 @@ mod0 = a0.integrate()
 fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model') #setting main title of fig
 
-#fig config and naming 
-#####################################################
+####### fig config and naming 
+
 fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
 ax0.semilogy()
@@ -254,41 +255,21 @@ ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a0,posteriors0,100)
 
-#ax1.scatter(posteriors0.chi, posteriors0.iteration)
-
-
-
-
+#printing off graph
 plt.show()
 
 
+
+
 #########################################################
-#graphing model and params histograms 
+#graphing model vs data and params histograms 
 #########################################################
 
-# pro model graph
+# set up graph
 fig4,ax4 = plt.subplots(1,7,figsize=[20,7])
+#set titles and config graph 
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
-
-l4 = ax4[0].legend(loc = 'upper left')
-l4.draw_frame(False)
-
-
-
-ax4[0].plot(df0.time, df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
-ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
-plot_uncertainty(ax4[0],a0,posteriors0,100)
-
-
-# plot histograms
-ax4[1].hist(posteriors0.dp)
-ax4[2].hist(posteriors0.k1)
-ax4[3].hist(posteriors0.k2)
-ax4[4].hist(posteriors0.rho)
-ax4[5].hist(posteriors0.Sh)
-ax4[6].hist(posteriors0.deltah)
-
-
+ax4[0].set_title('Model Dynamic output')
 ax4[1].set_title('dp')
 ax4[2].set_title('k1')
 ax4[3].set_title('k2')
@@ -296,12 +277,28 @@ ax4[4].set_title('rho')
 ax4[5].set_title('Sh')
 ax4[6].set_title('deltah')
 
-
-ax4[3].set_xlabel('Frequency')
-
-
+ax4[3].set_xlabel('Parameter Value Frequency', fontsize = 16)
+#make legends
+l4 = ax4[0].legend(loc = 'upper left')
+l4.draw_frame(False)
+#shift fig subplots
 fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
 
+
+#graph data, model, and uncertainty 
+ax4[0].plot(df0.time, df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
+plot_uncertainty(ax4[0],a0,posteriors0,100)
+
+# plot histograms of parameter search results 
+ax4[1].hist(posteriors0.dp)
+ax4[2].hist(posteriors0.k1)
+ax4[3].hist(posteriors0.k2)
+ax4[4].hist(posteriors0.rho)
+ax4[5].hist(posteriors0.Sh)
+ax4[6].hist(posteriors0.deltah)
+
+#show full graph 
 plt.show()
 
 
