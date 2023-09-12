@@ -15,6 +15,7 @@ working on: ln of data in df for uncertainty, follow P and H with model and have
 
 
 
+#read in needed packages 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,9 +23,21 @@ import scipy
 import ODElib
 import random as rd
 
+#####################################################
+#set figure RC params 
+#####################################################
+plt.rcParams["figure.dpi"] = 300
+plt.rcParams.update({'font.size': 16})
+plt.rcParams['legend.fontsize'] = 'small'
+
+######################################################
+#reading in data and configureing 
+#####################################################
+
 df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'Time(days)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
+df_all = df_all.rename({'log_abundance':'H_log_abundance'}, axis=1) 
 df = df_all
 
 df_abiotic = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  

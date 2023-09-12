@@ -1,8 +1,34 @@
+'''
+
+name:   model_abiotic_batch.py 
+
+location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
+
+author: DKM
+
+goal: Loop model of Monoculture BCC assays to graph 0 H phyotplankton biomass 
+
+working on: - getting this in model to play so we can model all at once 
+
+'''
+
+#read in needed packages 
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy 
 
+
+#####################################################
+#set figure RC params 
+#####################################################
+plt.rcParams["figure.dpi"] = 300
+plt.rcParams.update({'font.size': 16})
+plt.rcParams['legend.fontsize'] = 'small'
+
+######################################################
+#reading in data and configureing 
+#####################################################
 
 df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
@@ -27,68 +53,33 @@ df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy()
 df = df_P
 #df =  df_S[df_S['strain'] == 'WH7803'].copy() 
 
-'''
 
-f1,ax = plt.subplots(1,2,figsize=[8,5],dpi = 300)
-f1.suptitle('No logging  when Graphing')
-ax[0].set_title('reps')
-ax[1].set_title('total')
-#ax[0].plot(np.log(df.techAmean),np.log(df.techAstd),label = 'a')
-#ax[0].plot(np.log(df.techBmean),np.log(df.techBstd), label = 'b')
-#ax[1].plot(np.log(df.abundance_mean),np.log(df.abundance_std), label = 'mean')
-#ax[0].semilogy()
-#ax[1].semilogy()
-ax[0].plot((df.techAmean),(df.techAstd),label = 'a')
-ax[0].plot((df.techBmean),(df.techBstd), label = 'b')
-ax[1].plot((df.abundance_mean),(df.abundance_std), label = 'mean')
-#ax[0].semilogy()
-#ax[1].semilogy()
+#####################################################
+# graphing monoculture data by strain in unlogged df
+#####################################################
 
-ax[0].legend()
-ax[1].legend()
-
-plt.show()
-
-f1.savefig('../figures/f1',dpi=300)
-
-
-f2,ax = plt.subplots(1,2,figsize=[8,5],dpi = 300)
-f2.suptitle('Logged and then AVG')
-ax[0].set_title('reps')
-ax[1].set_title('total')
-ax[0].plot((df.logtechA),(df.logtechAstd),label = 'a')
-ax[0].plot((df.logtechB),(df.logtechBstd), label = 'b')
-ax[1].plot((df.log_abundance),(df.log_abundance_std), label = 'mean')
-#ax[0].semilogy()
-#ax[1].semilogy()
-ax[0].legend()
-ax[1].legend()
-
-plt.show()
-
-f2.savefig('../figures/f2',dpi=300)
-'''
-
-strains = df_mono['strain'].unique()
+strains = df_mono['Vol_number'].unique()
 nstrains = strains.shape[0]
 #need to slice by Vol number !!! (2 cat + Syns)
 fig3, (ax)= plt.subplots(nstrains,2,figsize = (12,14))
 fig3.suptitle('Unlogged Data', size =25 )
 for (S,si) in zip(strains,range(nstrains)):   
-    df = df_mono[((df_mono['strain']==S))].copy()
-    df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
+    df = df_mono[((df_mono['Vol_number']==S))].copy() #setting df to only monocultre data that share the vol number.
+    df['avg1'] = df[['rep1', 'rep3']].mean(axis=1) #avging over odd or even reps for bio reps of assay s (1/2 and 3/4 are technical reps) 
     df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
     df['std1'] = df[['rep1', 'rep3']].std(axis=1)
     df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-    df0 = df[((df['assay']=='plus_0'))].copy()
+    df0 = df[((df['assay']=='plus_0'))].copy() #split df inot 0 and 400 assays 
     df400 = df[((df['assay']=='plus_400'))].copy()
     #print(df0.info(),df400.info())
-    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = str(S)+' avg 1')
-    ax[si,0].errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v',label = str(S)+' avg 2')
-    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label = str(S)+' avg 1')
-    ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = str(S) +' avg 2')
+    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = 'vol num ' + str(S)+'  avg 1')
+    ax[si,0].errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v',label = 'vol num ' + str(S)+'  avg 2')
+    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label ='vol num ' + str(S)+'  avg 1')
+    ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = 'vol num ' + str(S)+'  avg 2')
     #ax[si,0].set_ybound(1000,2500000)
     #ax[si,1].set_ybound(1000,1500000)
+    ax[si,0].semilogy()
+    ax[si,1].semilogy()
     l3  = ax[si,1].legend(loc = 'upper center')
     l3.draw_frame(False)
     #df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
@@ -96,7 +87,7 @@ for (S,si) in zip(strains,range(nstrains)):
 
 
 # make space on the right for annotation (e.g. ROS=0, etc.)
-fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.25)
+fig3.subplots_adjust(right=0.90,wspace = 0.15, hspace = 0.25)
 
 # titles
 ax[0,0].set_title('Monocultures in 0 HOOH')
@@ -111,43 +102,41 @@ for a in ax[:,0]:
     a.set_ylabel('Cells (ml$^{-1}$)')
 
 fig3.savefig('../figures/monoculture_graphs')
-#inits = pd.read_csv("../data/inits/________.csv")
 
 
+
+#####################################################
+# graphing logged data 
+#####################################################
 
 
 
 fig4, (ax)= plt.subplots(nstrains,2,figsize = (12,14))
 fig4.suptitle('Logged Data',size =25)
-for (S,si) in zip(strains,range(nstrains)):   
-    df = df_mono[((df_mono['strain']==S))].copy()
-    df['log1'] = np.log(df['rep1'])
-    df['log2'] = np.log(df['rep2'])
+for (S,si) in zip(strains,range(nstrains)):    #zipping the strain list with number of strains to have loop for whole df
+    df = df_mono[((df_mono['Vol_number']==S))].copy() #setting df to that which matches vol number in Strain list at said itteration 
+    df['log1'] = np.log(df['rep1']) #logging and stdv for data and error evalution 
+    df['log2'] = np.log(df['rep2']) #logging reps
     df['log3'] = np.log(df['rep3'])
     df['log4'] = np.log(df['rep4'])
-    df['avg1'] = df[['log1', 'log3']].mean(axis=1)
-    df['avg2'] = df[['log2', 'log4']].mean(axis=1)
+    df['avg1'] = df[['log1', 'log3']].mean(axis=1) #avg of logged data
+    df['avg2'] = df[['log2', 'log4']].mean(axis=1) 
     df['std1'] = df[['log1', 'log3']].std(axis=1)
     df['std2'] = df[['log2', 'log4']].std(axis=1)
-    df0 = df[((df['assay']=='plus_0'))].copy()
-    df400 = df[((df['assay']=='plus_400'))].copy()
-    #print(df0.info(),df400.info())
-    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = S+' avg 1')
-    ax[si,0].errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v',label = S+' avg 2')
-    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label = S +' avg 1')
-    ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = S +' avg 2')
-    #ax[si,0].set_ybound(1000,250000)
-    #ax[si,1].set_ybound(1000,1500000)
+    df0 = df[((df['assay']=='plus_0'))].copy() #seleection only assay 0 from working df
+    df400 = df[((df['assay']=='plus_400'))].copy() #selecting 400 H assay from loop's working df
+    ax[si,0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = 'vol num ' + str(S)+'  avg 1')
+    ax[si,0].errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v',label ='vol num ' + str(S)+'  avg 2')
+    ax[si,1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label = 'vol num ' + str(S)+' avg 1')
+    ax[si,1].errorbar(df400['time'],df400['avg2'],yerr=df400['std2'], marker='v',label = 'vol num ' + str(S)+' avg 2')
     ax[si,0].semilogy()
     ax[si,1].semilogy()
     l4  = ax[si,1].legend(loc = 'upper center')
     l4.draw_frame(False)
-    #df0.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '0 HOOH assay', ylabel = 'cells per mL',logy = True)
-    #df400.plot(kind='scatter', x='time', y ='avg1', yerr='std1',style="-", label = S, title = '400 HOOH assay', ylabel = 'cells per mL',logy = True)
 
-
+#Config fig
 # make space on the right for annotation (e.g. ROS=0, etc.)
-fig4.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.25)
+fig4.subplots_adjust(right=0.90,wspace = 0.45, hspace = 0.25)
 
 # titles
 ax[0,0].set_title('Monocultures in 0 HOOH')
@@ -160,5 +149,7 @@ for a in ax[-1,:]:
 # ylabels
 for a in ax[:,0]:
     a.set_ylabel('Cells (ml$^{-1}$)')
+
+plt.show() 
 
 fig4.savefig('../figures/monoculture_logged_graphs')
