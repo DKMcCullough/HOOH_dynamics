@@ -34,14 +34,15 @@ plt.rcParams['legend.fontsize'] = 'small'
 #####################################################
 
 #main df read in 
-df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
+
 #format empty columns and column names 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'Time(days)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
+df_all = df_all.rename({'time(hr)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 
 #split df into only abiotice H data 
 df_abiotic = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
-
 
 # configuring df for modeling via odelib
 df = df_abiotic  #ensuring df is working df
@@ -104,14 +105,14 @@ def get_model(df):
                          )
     return a1
 
-
-#attatch time  
-#find closesst time 
+ 
+#find closest time 
 def get_residuals(self):
     mod = self.integrate(predict_obs=True)
     res = (mod.abundance - self.df.abundance)   #this is not same species 
     mod['res'] = res
     return(mod)
+
 
 #####################################################
 #model param and state variable set up 
@@ -126,21 +127,24 @@ pw = 1
 #setting param prior guesses and inititaing as an odelib param class in odelib
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 
-Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':6})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
 #setting state variiable  prior guess
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':(pw/10),'scale':1e+5})
 
 #setting H mean for odelib search 
 H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]
 
+
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
 nits = 100000
 
-#has P, N H, if not OB - trie 
 
-# get_models for 0 an 400 model 
-a0 = get_model(df0) 
-a4 = get_model(df4) 
+#####################################
+# Create and Run model on 0 and 400 df
+#####################################
+
+a0 = get_model(df0) # initialising model for 0 df
+a4 = get_model(df4) # initialising model for 400 df
  
 
 # do fitting for 0 an 400 model 
@@ -164,49 +168,50 @@ a4res = get_residuals(a4)
 #########################################################
 # graphing df and models together
 #########################################################
+c0 = 'lightseagreen'
+c4 = 'darkgoldenrod'
 
 # Set up graph for Dynamics and param histograms
 
-fig4,ax4 = plt.subplots(2,3,figsize=[10,7]) #plot creation and config 
-fig4.suptitle('Abiotic HOOH Model Output') #full title config
-fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
-
-#graph dynamics of data and model (best model line), and posterior guesses (grey lines) of 0 and 400 respectively
-
-#plot dynamics of data and model for 0 and 400 assays  
-ax4[0,0].plot(df0.time,df0.abundance, marker='o',label = 'abiotic - 0 H ') #data of 0 H assay
-ax4[0,0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-plot_uncertainty(ax4[0,0],a0,posteriors0,100) #plotting 100 itterations of model search for 0 H assay 
-ax4[1,0].plot(df4.time,df4.abundance, marker='o',label = 'abiotic - 400 H ')#data of 400 H
-ax4[1,0].plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 400 H assay 
-plot_uncertainty(ax4[1,0],a4,posteriors4,100) #plotting 100 itterations of model for 400 H assay 
-
-
-# plot histograms of params next to dynamics graphs
-ax4[0,1].hist((np.log(posteriors0.Sh))) #graphing Sh of 0 H assay 
-ax4[0,2].hist((np.log(posteriors0.deltah))) #graphing deltah of 0 H assay 
-ax4[1,1].hist((np.log(posteriors4.Sh))) #graphing Sh of 400 H assay 
-ax4[1,2].hist((np.log(posteriors4.deltah))) #graphing deltah of 400 H assay 
-
-fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
-
+fig1,ax1 = plt.subplots(2,3,figsize=[10,7]) #plot creation and config 
 #set titles of subplots
-ax4[0,0].set_title('Model-Data Dynamics')
-ax4[0,1].set_title('Sh')
-ax4[0,2].set_title('deltah')
-ax4[0,0].set_ylabel('HOOH Concentration nM/mL')
-ax4[1,0].set_ylabel('HOOH Concentration nM/mL')
+fig1.suptitle('Abiotic HOOH Model Output') #full title config
+fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+ax1[0,0].set_title('Model-Data Dynamics')
+fig1.supylabel('HOOH Concentration nM/mL')
+ax1[0,1].set_title('Sh')
+ax1[0,2].set_title('deltah')
+ax1[1,1].text(3.5, -15, 'Frequency')
 
-#config legend 
-l1 = ax4[0,0].legend(loc = 'upper left')
-l2 = ax4[1,0].legend(loc = 'upper left')
+
+fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+
+#config legends
+l1 = ax1[0,0].legend(loc = 'lower right')
+l2 = ax1[1,0].legend(loc = 'upper left')
 l1.draw_frame(False)
 l2.draw_frame(False)
 
+#graph dynamics of data and model (best model line), and posterior guesses (grey lines) of 0 and 400 respectively
+
+#plot dynamics of data and model for 0 assay 
+ax1[0,0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'abiotic - 0 H ') #data of 0 H assay
+ax1[0,0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+plot_uncertainty(ax1[0,0],a0,posteriors0,100) #plotting 100 itterations of model search for 0 H assay 
+#plot 400 assay dynamics and models
+ax1[1,0].plot(df4.time,df4.abundance, marker='o',color = c4, label = 'abiotic - 400 H ')#data of 400 H
+ax1[1,0].plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 400 H assay 
+plot_uncertainty(ax1[1,0],a4,posteriors4,100) #plotting 100 itterations of model for 400 H assay 
+# plot histograms of params next to dynamics graphs
+ax1[0,1].hist((np.log(posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
+ax1[0,2].hist((np.log(posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
+ax1[1,1].hist((np.log(posteriors4.Sh)),facecolor=c4) #graphing Sh of 400 H assay 
+ax1[1,2].hist((np.log(posteriors4.deltah)),facecolor=c4) #graphing deltah of 400 H assay 
+
+#show full graph and save fig
 plt.show()
 
-'''
-#fig4.savefig('../figures/abiotic_odelib')
+fig1.savefig('../figures/abiotic_0and400_dynamics')
 
 ########################################
 #graph parameters against one another 
@@ -214,72 +219,89 @@ plt.show()
 
 #graph set up
 
-fig5,ax5 = plt.subplots(2,1,sharex=True, figsize=[8,5])
-fig5.suptitle('deltah vs Sh ')
-#graphing each assay's parameters against each other 
-ax5[0].scatter(posteriors0.Sh,posteriors0.deltah)
-ax5[1].scatter(posteriors4.Sh,posteriors4.deltah)
-ax5[0].set_yscale('log')
-ax5[1].set_xscale('log')
-#ax5[0].set_xlabel('Frequency Sh')
-ax5[1].set_xlabel('Frequency Sh')
-ax5[0].set_ylabel('Frequency deltah')
-ax5[1].set_ylabel('Frequency deltah')
-#ax5[0].set_yscale('log')
+fig2,ax2 = plt.subplots(2,2,sharex=True, figsize=[8,5])
+fig2.suptitle('Deltah vs Sh ')
+fig2.supylabel('deltah')
+fig2.supxlabel('Sh')
+ax2[0,0].set_title('0 HOOH')
+ax2[0,1].set_title('400 HOOH ')
 plt.legend()
+#adding text for more labels of graph
+ax2[0,1].text(22.5, 0.01, 'RAW',)
+ax2[1,1].text(22.5, (-4.8), 'LOG',)
+fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+
+#graphing each assay's parameters against each other 
+ax2[0,0].scatter(posteriors0.Sh,posteriors0.deltah,color = c0)
+ax2[0,1].scatter(posteriors4.Sh,posteriors4.deltah,color = c4)
+ax2[1,0].scatter(np.log(posteriors0.Sh),np.log(posteriors0.deltah),color = c0)
+ax2[1,1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c4)
+
+#ax2[1,0].set_yscale('log')
+
+
+#show full graph and save fig
+
 plt.show()
 
-#fig5.savefig('../figures/abiotic_params')
-'''
+fig2.savefig('../figures/abiotic_0and400_params')
+
 
 #################################
 #graphing logged parameter values
 ##################################
-#crating and config of fig 6
-fig6,ax6 = plt.subplots(2,2,sharex=True,figsize=[8,5]) #make plot
-fig6.suptitle('Trace plots for Logged deltah and Sh ') #set main title 
-fig6.subplots_adjust(right=0.90, wspace = 0.25, top = 0.85) #shift white space for better fig view
-fig6.supxlabel('Model Iteration') #set overall x title 
-ax6[0,0].set_title('0 HOOH')
-ax6[0,1].set_title('400 HOOH ')
-ax6[0,0].set_ylabel('log Sh')
-ax6[1,0].set_ylabel('log deltah')
+#crating and config of fig 3
+fig3,ax3 = plt.subplots(2,2,sharex=True,figsize=[8,5]) #make plot
+fig3.suptitle('Trace plots for Logged Params ') #set main title 
+fig3.subplots_adjust(right=0.90, wspace = 0.25, top = 0.85) #shift white space for better fig view
+fig3.supxlabel('Model Iteration') #set overall x title 
+ax3[0,0].set_title('0 HOOH')
+ax3[0,1].set_title('400 HOOH ')
+ax3[0,0].set_ylabel('Log Sh')
+ax3[1,0].set_ylabel('Log deltah')
+
+#ax3[:,:].set_yscale('log')
+
 
 #graphing iteration number vs parameter numbert logged 
-ax6[0,0].scatter(posteriors0.iteration,np.log(posteriors0.Sh))
-ax6[0,1].scatter(posteriors4.iteration,np.log(posteriors4.Sh))
-ax6[1,0].scatter(posteriors0.iteration,np.log(posteriors0.deltah))
-ax6[1,1].scatter(posteriors4.iteration,np.log(posteriors4.deltah))
+ax3[0,0].scatter(posteriors0.iteration,np.log(posteriors0.Sh),color = c0)
+ax3[0,1].scatter(posteriors4.iteration,np.log(posteriors4.Sh),color = c4)
+ax3[1,0].scatter(posteriors0.iteration,np.log(posteriors0.deltah),color = c0)
+ax3[1,1].scatter(posteriors4.iteration,np.log(posteriors4.deltah),color = c4)
 
 
 
 #print out plot
 plt.show()
+
+fig3.savefig('../figures/abiotic_0and400_TRACE')
+
 
 #########################################
 #graphing Residuals of best model vs data 
 ##########################################
 
 #making and confing of residuals plot
-fig7,ax7 = plt.subplots(2,1,sharex = True,figsize=[8,5])
-fig7.suptitle('Residuals vs Fit Value ')
-fig7.supylabel('Model Value (H)')
-
-fig7.supxlabel('Residual')
+fig4,ax4 = plt.subplots(2,1,sharex = True,figsize=[8,5])
+fig4.suptitle('Residuals vs Model Fit Value ')
+fig4.supylabel('Model Value (H)')
+fig4.supxlabel('Residual')
+#config legends for data differentialtion 
+l4 = ax4[0].legend()
+l5 = ax4[1].legend()
+l4.draw_frame(False)
+l5.draw_frame(False)
 
 #plotting residual function output residual and abundance columns 
-ax7[0].scatter(a0res['res'], a0res['abundance'],label = '0 H') #where )
-ax7[1].scatter( a4res['res'],a4res['abundance'],label = '400 H')
+ax4[0].scatter(a0res['res'], a0res['abundance'],label = '0 H', color = c0) #where )
+ax4[1].scatter(a4res['res'], a4res['abundance'],label = '400 H', color = c4)
 
-
-#config legends for data differentialtion 
-l7 = ax7[0].legend()
-l8 = ax7[1].legend()
-l7.draw_frame(False)
-l8.draw_frame(False)
+#how to get residuals from all posterior runs not just best???
 
 #print out plot
 plt.show()
+
+fig4.savefig('../figures/abiotic_0and400_residuals')
 
 
 # 'program finished' flag
