@@ -168,8 +168,8 @@ a4res = get_residuals(a4)
 #########################################################
 # graphing df and models together
 #########################################################
-c0 = 'lightseagreen'
-c4 = 'darkgoldenrod'
+c0 = 'darkgreen'
+c4 = 'darkviolet'
 
 # Set up graph for Dynamics and param histograms
 
@@ -196,11 +196,11 @@ l2.draw_frame(False)
 
 #plot dynamics of data and model for 0 assay 
 ax1[0,0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'abiotic - 0 H ') #data of 0 H assay
-ax1[0,0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+ax1[0,0].plot(mod0.time,mod0['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 plot_uncertainty(ax1[0,0],a0,posteriors0,100) #plotting 100 itterations of model search for 0 H assay 
 #plot 400 assay dynamics and models
 ax1[1,0].plot(df4.time,df4.abundance, marker='o',color = c4, label = 'abiotic - 400 H ')#data of 400 H
-ax1[1,0].plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 400 H assay 
+ax1[1,0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 400 H assay 
 plot_uncertainty(ax1[1,0],a4,posteriors4,100) #plotting 100 itterations of model for 400 H assay 
 # plot histograms of params next to dynamics graphs
 ax1[0,1].hist((np.log(posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
