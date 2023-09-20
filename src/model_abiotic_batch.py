@@ -58,7 +58,9 @@ df4 = df.loc[df['assay'].str.contains('4', case=False)]
 ## Reading in inits files for 0 and 400 models respectively
 inits0 = pd.read_csv("../data/inits/abiotic0.csv")
 inits4 = pd.read_csv("../data/inits/abiotic4.csv")
-
+#inits0 = pd.read_csv(("../data/inits/"+str(s)+"_abiotic0".csv"))
+#inits = pd.read_csv(("../data/inits/"+str(s)+"_abiotic"+str(t)+".csv"))
+t = [0,4]
 
 #####################################################
 #functions  for modeling and graphing model uncertainty 
@@ -305,9 +307,10 @@ fig4.savefig('../figures/abiotic_0and400_residuals')
 
 
 # 'program finished' flag
+print('\n ~~~****~~~****~~~ \n')
 print('\n Done my guy \n')
-
+print('\n ~~~****~~~****~~~ \n')
 print('\n Im free Im free! Im done calculating!' )
-
+print('\n ~~~****~~~****~~~ \n')
 
 
