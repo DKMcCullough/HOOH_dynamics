@@ -218,7 +218,7 @@ fig1.savefig('../figures/abiotic_0and400_dynamics')
 
 #graph set up
 
-fig2,ax2 = plt.subplots(2,2,sharex=True, figsize=[8,5])
+fig2,ax2 = plt.subplots(2,2, figsize=[8,5])
 fig2.suptitle('Deltah vs Sh ')
 fig2.supylabel('ln deltah')
 fig2.supxlabel('ln Sh')
