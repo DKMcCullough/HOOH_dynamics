@@ -25,8 +25,8 @@ import random as rd
 #set figure RC params 
 #####################################################
 plt.rcParams["figure.dpi"] = 300
-plt.rcParams.update({'font.size': 16})
-plt.rcParams['legend.fontsize'] = 'small'
+#plt.rcParams.update({'font.size': 12})
+#plt.rcParams['legend.fontsize'] = 'small'
 
 
 #####################################################
@@ -34,8 +34,8 @@ plt.rcParams['legend.fontsize'] = 'small'
 #####################################################
 
 #main df read in 
-#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
+df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+#df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 
 #format empty columns and column names 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
@@ -131,14 +131,14 @@ deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s'
 
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
 #setting state variiable  prior guess
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':(pw/10),'scale':1e+5})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':0.0001,'scale':1e+5})
 
 #setting H mean for odelib search 
 H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 100000
+nits = 1000
 
 
 #####################################
@@ -210,9 +210,6 @@ ax1[0,2].hist((np.log(posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 
 ax1[1,1].hist((np.log(posteriors4.Sh)),facecolor=c4) #graphing Sh of 400 H assay 
 ax1[1,2].hist((np.log(posteriors4.deltah)),facecolor=c4) #graphing deltah of 400 H assay 
 
-#show full graph and save fig
-plt.show()
-
 fig1.savefig('../figures/abiotic_0and400_dynamics')
 
 ########################################
@@ -244,8 +241,6 @@ ax2[1,1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c4)
 
 #show full graph and save fig
 
-plt.show()
-
 fig2.savefig('../figures/abiotic_0and400_params')
 
 
@@ -274,8 +269,6 @@ ax3[1,1].scatter(posteriors4.iteration,np.log(posteriors4.deltah),color = c4)
 
 
 #print out plot
-plt.show()
-
 fig3.savefig('../figures/abiotic_0and400_TRACE')
 
 
@@ -301,8 +294,6 @@ ax4[1].scatter(a4res['res'], a4res['abundance'],label = '400 H', color = c4)
 #how to get residuals from all posterior runs not just best???
 
 #print out plot
-plt.show()
-
 fig4.savefig('../figures/abiotic_0and400_residuals')
 
 
