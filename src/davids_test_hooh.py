@@ -62,28 +62,6 @@ inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 #inits = pd.read_csv(("../data/inits/"+str(s)+"_abiotic"+str(t)+".csv"))
 t = [0,4]
 
-#####################################################
-#functions  for modeling and graphing model uncertainty 
-#####################################################
-def set_best_params(model,posteriors,snames):
-    im = posteriors.loc[posteriors.chi==min(posteriors.chi)].index[0]
-    bestchain = posteriors.iloc[im]["chain#"]
-    posteriors = posteriors[posteriors["chain#"]==bestchain]
-    model.set_parameters(**posteriors.loc[im][a0.get_pnames()].to_dict())
-    model.set_inits(**{o:posteriors.loc[im][a0.get_pnames()].to_dict()[o+'0'] for o in ['H']})
-###############
-#####only set for 0 a for idk if 400 model is working correctly. #######
-
-#function for plotting uncertainty once model has been run 
-def plot_uncertainty(ax,model,posteriors,ntimes):
-    for a in range(ntimes):
-        im = rd.choice(posteriors.index) 
-        model.set_inits(**{'H':posteriors.loc[im][model.get_pnames()].to_dict()['H0']})
-        model.set_parameters(**posteriors.loc[im][model.get_pnames()].to_dict())
-        mod = model.integrate()
-        ax.plot(mod.time,mod['H'],c=str(0.8),lw=1,zorder=1)
-
-
 #actual model that will be run by the odelib model framework
 def abiotic(y,t,params):
     deltah,Sh = params[0], params[1]
