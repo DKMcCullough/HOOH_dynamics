@@ -135,8 +135,8 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1, 
 # set best params for 0 an 400 model 
 #set_best_params(a0,posteriors0,snames)
 #set_best_params(a4,posteriors4,snames)
-a0.set_best_params(posteriors0)
-a4.set_best_params(posteriors4)
+a0.set_best_params(posteriors0)   #new func working for best params 
+a4.set_best_params(posteriors4)   #new func workinng  for best params 
 
 # run model with optimal params for 0 an 400 model 
 mod0 = a0.integrate()
@@ -180,12 +180,12 @@ fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white spac
 ax1[0,0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'abiotic - 0 H ') #data of 0 H assay
 ax1[0,0].plot(mod0.time,mod0['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 #plot_uncertainty(ax1[0,0],a0,posteriors0,100) #plotting 100 itterations of model search for 0 H assay 
-a0.plot_uncertainty(ax1[0,0],posteriors0,'H',100)
+a0.plot_uncertainty(ax1[0,0],posteriors0,'H',100) #new uncertainty function working 
 #plot 400 assay dynamics and models
 ax1[1,0].plot(df4.time,df4.abundance, marker='o',color = c4, label = 'abiotic - 400 H ')#data of 400 H
 ax1[1,0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 400 H assay 
 #plot_uncertainty(ax1[1,0],a4,posteriors4,100) #plotting 100 itterations of model for 400 H assay 
-a4.plot_uncertainty(ax1[1,0],posteriors4,'H',100)
+a4.plot_uncertainty(ax1[1,0],posteriors4,'H',100)  #new uncertainty function working 
 # plot histograms of params next to dynamics graphs
 ax1[0,1].hist((np.log(posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
 ax1[0,2].hist((np.log(posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
@@ -278,7 +278,7 @@ ax4[1].scatter(a4res['res'], a4res['abundance'],label = '400 H', color = c4)
 #print out plot
 fig4.savefig('../figures/abiotic_0and400_residuals')
 
-
+plt.show()
 # 'program finished' flag
 print('\n ~~~****~~~****~~~ \n')
 print('\n Done my guy \n')
