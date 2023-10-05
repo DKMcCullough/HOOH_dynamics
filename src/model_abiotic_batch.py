@@ -25,31 +25,42 @@ import random as rd
 #set figure RC params 
 #####################################################
 plt.rcParams["figure.dpi"] = 300
-#plt.rcParams.update({'font.size': 12})
-#plt.rcParams['legend.fontsize'] = 'small'
 
 
 #####################################################
 # read in data and formatting
 #####################################################
 
-#main df read in 
 df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-#df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
-
-#format empty columns and column names 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(hr)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
+df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
+df = df_all
 
-#split df into only abiotice H data 
-df_abiotic = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
+#make unlogged avgs
+df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
+df['std1'] = df[['rep1', 'rep3']].std(axis=1)
 
-# configuring df for modeling via odelib
-df = df_abiotic  #ensuring df is working df
-df['log_abundance'] = np.log(df['raw_abundance']) #creating logabundance value and column from raw df data column 
-#df['log_sigma'] = np.std(df['HOOH_stdv']) #maybe use eventually once we have actual replicates 
-df['log_sigma'] = 0.1 # made up number to have a stdv for our model to fit 
-df = df.rename(columns={"raw_abundance": "abundance"}) #renaming raw to abundance for odelib to graph against
+#make logs of data
+df['log1'] = np.log(df['rep1'])
+df['log3'] = np.log(df['rep3'])
+
+#avg and std of logged data
+df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
+df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
+
+#splicing abiotic and mono or coculture data
+df_abiotic = df.loc[df['assay'].str.contains('abiotic', case=False)].copy()  
+df_co = df.loc[df['assay'].str.contains('coculture', case=False)].copy()  
+df_mono = df.loc[~df['assay'].str.contains('coculture', case=False)].copy()  
+df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy() 
+df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
+
+#setting working df
+df = df_abiotic
+
+df = df.rename(columns={"avg1": "abundance"}) #renaming raw to abundance for odelib to graph against
+df = df.rename(columns={"stdlog1": "log_sigma"}) #renaming raw to abundance for odelib to graph against
+
 
 #splitting df into 0 HOOH and 400 HOOH assay dfs 
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)] 
@@ -57,10 +68,10 @@ df4 = df.loc[df['assay'].str.contains('4', case=False)]
 
 ## Reading in inits files for 0 and 400 models respectively
 inits0 = pd.read_csv("../data/inits/abiotic0.csv")
+#priors0 = inits0.to_dict()
+
 inits4 = pd.read_csv("../data/inits/abiotic4.csv")
-#inits0 = pd.read_csv(("../data/inits/"+str(s)+"_abiotic0".csv"))
-#inits = pd.read_csv(("../data/inits/"+str(s)+"_abiotic"+str(t)+".csv"))
-t = [0,4]
+#priors4 = inits4.to_dict()
 
 #####################################################
 #functions  for modeling and graphing model uncertainty 
@@ -71,6 +82,7 @@ def set_best_params(model,posteriors,snames):
     posteriors = posteriors[posteriors["chain#"]==bestchain]
     model.set_parameters(**posteriors.loc[im][a0.get_pnames()].to_dict())
     model.set_inits(**{o:posteriors.loc[im][a0.get_pnames()].to_dict()[o+'0'] for o in ['H']})
+
 ###############
 #####only set for 0 a for idk if 400 model is working correctly. #######
 
@@ -94,19 +106,19 @@ def abiotic(y,t,params):
 
 
 #initiating the model as a class in odelib (give us use of the methods in this class - like integrate :-) 
-def get_model(df):
+def get_model(df,priors):
     a1=ODElib.ModelFramework(ODE=abiotic,
                           parameter_names=['deltah','Sh', 'H0'],
                           state_names = snames,
                           dataframe=df,
-                          deltah = deltah_prior.copy(),
-                          Sh = Sh_prior.copy(),
-                          H0  = H0_prior.copy(),
+                          deltah = priors['deltah'],
+                          Sh = priors['Sh'],
+                          H0  = priors['H0'],
                           t_steps=1000,
-                          H = H0_mean,
+                          H = priors['H0'],
                          )
     return a1
-
+#vroken rn  - get priors frm 
  
 #find closest time 
 def get_residuals(self):
@@ -131,10 +143,13 @@ deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s'
 
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
 #setting state variiable  prior guess
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':0.0001,'scale':1e+5})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
+
+priors = {} #list of all priors to feed to odelib create
 
 #setting H mean for odelib search 
 H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]
+
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
@@ -145,18 +160,17 @@ nits = 1000
 # Create and Run model on 0 and 400 df
 #####################################
 
-a0 = get_model(df0) # initialising model for 0 df
-a4 = get_model(df4) # initialising model for 400 df
+a0 = get_model(df0,priors) # initialising model for 0 df
+a4 = get_model(df4,priors) # initialising model for 400 df
  
 
 # do fitting for 0 an 400 model 
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, print_report=False)
+posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, print_report=True)
 posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1, print_report=False)
 
-
-# set best params for 0 an 400 model 
-set_best_params(a0,posteriors0,snames)
-set_best_params(a4,posteriors4,snames)
+#new way to use set best params funct
+a0.set_best_params(posteriors0)   #new func working for best params 
+a4.set_best_params(posteriors4)   #new func workinng  for best params 
 
 # run model with optimal params for 0 an 400 model 
 mod0 = a0.integrate()
