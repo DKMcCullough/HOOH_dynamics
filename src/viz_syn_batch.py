@@ -167,8 +167,8 @@ for (t,nt) in zip(treats,range(ntreats)):
             '''
 
 plt.show() 
-fig1.savefig('../figures/Syn_raw_graphs')
-fig2.savefig('../figures/Syn_logged_graphs')
+#fig1.savefig('../figures/Syn_raw_graphs')
+#fig2.savefig('../figures/Syn_logged_graphs')
 
 # 'program finished' flag
 print('\n ~~~****~~~****~~~ \n')

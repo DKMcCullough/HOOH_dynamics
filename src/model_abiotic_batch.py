@@ -21,6 +21,8 @@ import ODElib
 import random as rd
 
 
+
+
 #####################################################
 #set figure RC params 
 #####################################################
@@ -32,6 +34,7 @@ plt.rcParams["figure.dpi"] = 300
 #####################################################
 
 df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+#df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df = df_all
@@ -118,8 +121,30 @@ def get_model(df,priors):
                           H = priors['H0'],
                          )
     return a1
-#vroken rn  - get priors frm 
+
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+#B BROKEN PRIORS in odelib func call now. NOT WORKING - get priors from ?
  
+#####################################################
+#####################################################
+#####################################################
+#####################################################
+
+
+
+
+
+
+
+
 #find closest time 
 def get_residuals(self):
     mod = self.integrate(predict_obs=True)

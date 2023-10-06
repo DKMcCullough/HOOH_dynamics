@@ -30,7 +30,8 @@ plt.rcParams['legend.fontsize'] = 'small'
 #reading in data and configureing 
 #####################################################
 
-df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df = df_all
@@ -68,7 +69,7 @@ df_co = df_all.loc[df_all['assay'].str.contains('coculture', case=False)].copy()
 df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
 
 df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy() 
-df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
+df_S = df_mono.loc[~df_mono['organism'].str.contains('P', case=False)].copy() 
 
 
 df = df_P
@@ -109,8 +110,8 @@ for (t,nt) in zip(treats,range(ntreats)):
     ax1[1].set_ylabel('mean value')
     ax2[0].set_xlabel('Time (days)')
     ax2[0].set_ylabel('Cell Concentration mL-1')
-    ax2[1].set_xlabel('standard deviation')
-    ax2[1].set_ylabel('mean value')
+    ax2[1].set_xlabel('Average')
+    ax2[1].set_ylabel('Standard deviation')
     
 #####################################################
 # Set up loop of vol numbers inside treatment loop  

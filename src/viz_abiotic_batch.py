@@ -52,7 +52,7 @@ df_abiotic = df.loc[df['assay'].str.contains('abiotic', case=False)].copy()
 df_co = df.loc[df['assay'].str.contains('coculture', case=False)].copy()  
 df_mono = df.loc[~df['assay'].str.contains('coculture', case=False)].copy()  
 df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy() 
-df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
+df_S = df_mono.loc[~df_mono['organism'].str.contains('P', case=False)].copy() 
 
 #setting working df
 df = df_abiotic
