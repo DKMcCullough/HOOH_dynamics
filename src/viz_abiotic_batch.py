@@ -35,17 +35,31 @@ df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df = df_all
 
-#make unlogged avgs
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-
-#make logs of data
 df['log1'] = np.log(df['rep1'])
+df['log2'] = np.log(df['rep2'])
 df['log3'] = np.log(df['rep3'])
+df['log4'] = np.log(df['rep4'])
 
-#avg and std of logged data
+#####
+
+#bio rep avgs put together 
+df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
+df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
+df['std1'] = df[['rep1', 'rep3']].std(axis=1)
+df['std2'] = df[['rep2', 'rep4']].std(axis=1)
+#bio rep logged avgs and stdvs 
 df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
+df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
 df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
+df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
+
+
+#total avgs and stdvs
+df['abundance'] =  np.nanmean(np.r_[[df[i] for i in ['rep1','rep2','rep3','rep4']]],axis=0)
+df['sigma'] = np.std(np.r_[[df[i] for i in ['rep1','rep2','rep3','rep4']]],axis=0)
+df['log_abundance'] = np.nanmean(np.r_[[df[i] for i in ['log1','log2','log3','log4']]],axis=0)
+df['log_sigma'] = np.std(np.r_[[df[i] for i in ['log1','log2','log3','log4']]],axis=0)
+
 
 #splicing abiotic and mono or coculture data
 df_abiotic = df.loc[df['assay'].str.contains('abiotic', case=False)].copy()  
@@ -60,136 +74,78 @@ df = df_abiotic
 df0 = df.loc[df['assay'].str.contains('_0', case=False)].copy()
 df400 = df.loc[df['assay'].str.contains('_0', case=False)].copy()
 
-#####################################################
-# graphing abiotic data by assay in unlogged df
-#####################################################
-
-fig1, (ax1)= plt.subplots(2,1,sharex=True,figsize = (10,8))
-fig1.suptitle('Unlogged Abiotic Data', size =25 )
-fig1.supylabel('HOOH concentration (nM)')
-fig1.supxlabel('Time (Days)')
-ax1[0].set_title('Monocultures in 0 HOOH')
-ax1[1].set_title('Monocultures in 400 HOOH')
-
-ax1[0].semilogy()
-ax1[1].semilogy()
-
-# make space on the right for annotation (e.g. ROS=0, etc.)
-fig1.subplots_adjust(right=0.90, left=0.20,wspace = 0.25, hspace = 0.30)
+treats = df['assay'].unique()
+ntreats = treats.shape[0]
 
 
-#graphing data
-ax1[0].errorbar(df0['time'],df0['avg1'],yerr=df0['std1'], marker='o',label = 'avg unlogged')
-ax1[0].plot(df0['time'],df0['rep1'], label = 'rep1')
-ax1[0].plot(df0['time'],df0['rep3'], label = 'rep3')
-ax1[1].errorbar(df400['time'],df400['avg1'], yerr=df400['std1'],marker='o',label ='avg unlogged')
-ax1[1].plot(df400['time'],df400['rep1'], label = ' rep1')
-ax1[1].plot(df400['time'],df400['rep3'], label = 'rep3')
-#config legend 
-l1  = ax1[1].legend(loc = 'upper left')
-l1.draw_frame(False)
-
-plt.show()
-#save fig 
-fig1.savefig('../figures/abiotic_unlogged')
-
+    #setting up fig 1 for dyanmics 
 
 
 #####################################################
-# graphing abiotic data by assay in logged df
+# Set up large loop  (treatments) 
 #####################################################
 
-fig2, (ax2)= plt.subplots(2,1,sharex=True,figsize = (10,8))
-fig2.suptitle('Logged Abiotic Data', size =25 )
-fig2.supylabel('HOOH concentration (nM)')
-fig2.supxlabel('Time (Days)')
-ax1[0].set_title('Abitoic 0 HOOH Spike Data')
-ax2[1].set_title('Abitoic 400 HOOH Spike Data')
+for (t,nt) in zip(treats,range(ntreats)):
 
-ax2[0].semilogy()
-ax2[1].semilogy()
+    df = df_abiotic[((df_abiotic['assay']==t))].copy()
+    
+    fig1,ax1 = plt.subplots(1,2,figsize=[11,8]) #plot creation and config 
+    fig1.suptitle('Raw dynamics of'+ str(t)) #full title config
+    ax1[0].set_title('HOOH Concentration')
+    ax1[1].set_title('avg vs stdv')
+    fig1.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.9, wspace=0.35, hspace=0.30) #shift white space for better fig view
+    ax1[0].set_xlabel('Time (days)')
+    ax1[0].set_ylabel('HOOH concentration (\u03BCM)')
+    ax1[1].set_xlabel('Raw Mean')
+    ax1[1].set_ylabel('Raw standard deviation ')
 
-# make space on the right for annotation (e.g. ROS=0, etc.)
-fig2.subplots_adjust(right=0.90, left=0.20, wspace = 0.25, hspace = 0.35)
-
-
-#graphing data
-ax2[0].errorbar(df0['time'],df0['lavg1'],yerr=df0['stdlog1'], marker='o',label = 'avg loggged')
-ax2[0].plot(df0['time'],df0['log1'], label = 'log1')
-ax2[0].plot(df0['time'],df0['log3'], label = 'log3')
-ax2[1].errorbar(df400['time'],df400['lavg1'], yerr=df400['stdlog1'],marker='o',label ='avg logged')
-ax2[1].plot(df400['time'],df400['log1'], label = 'log1')
-ax2[1].plot(df400['time'],df400['log3'], label = 'log3')
-#config legend 
-l2  = ax2[1].legend(loc = 'upper left')
-l2.draw_frame(False)
-
-plt.show()
-
-#save fig 
-
-fig2.savefig('../figures/abiotic_logged')
-
-###############################
-#graph Stats of 0 assay  
-######################
-fig3,ax3 = plt.subplots(1,2,figsize=[10,8],dpi = 300)
-fig3.suptitle('(0 H spike Assay )')
-#config 
-ax3[0].set_xlabel('unlogged mean')
-ax3[0].set_ylabel('unllogged stdv')
-ax3[1].set_xlabel('logged mean')
-ax3[1].set_ylabel('standard deviation')
-ax3[0].semilogy()
-ax3[1].semilogy()
-
-fig3.subplots_adjust(right=0.90, left=0.20, wspace = 0.25, hspace = 0.35)
-
-#plot data
-
-ax3[0].plot(df0.avg1,df0.std1,label = 'unlogged stats')
-ax3[1].plot(df0.lavg1,df0.stdlog1,label = 'Logged stats')
-
-l3  = ax3[1].legend(loc = 'upper left')
-l3.draw_frame(False)
-l0  = ax3[0].legend(loc = 'upper left')
-l0.draw_frame(False)
-
-plt.show()
-
-fig3.savefig('../figures/0_abiotic_stats',dpi=300)
-
-#Stats of 400 assay  
-
-fig4,ax4 = plt.subplots(1,2,figsize=[10,8],dpi = 300)
-fig4.suptitle('400 H spike Assay ')
-
-ax4[0].set_xlabel('unlogged mean')
-ax4[0].set_ylabel('unlogged stdv')
-ax4[1].set_xlabel('mean')
-ax4[1].set_ylabel('standard deviation')
-ax4[0].semilogy()
-ax4[1].semilogy()
+    fig2,ax2 = plt.subplots(1,2,figsize=[11,8]) #plot creation and config 
+     #full title config
+    fig2.suptitle('Logged dynamics of '+ str(t))
+    ax2[0].set_title('HOOH concentration ')
+    ax2[1].set_title('Log avg vs stdv')
+    fig2.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.9, wspace=0.30, hspace=0.30) #shift white space for better fig view
+    ax2[0].set_xlabel('Time (days)')
+    ax2[0].set_ylabel('HOOH concentration (\u03BCM)')
+    ax2[1].set_xlabel('Log Mean')
+    ax2[1].set_ylabel('Log Standard deviation')
 
 
-ax4[0].plot(df400.avg1,df400.std1,label = 'unlogged stats')
-ax4[1].plot(df400.lavg1,df400.stdlog1,label = 'Logged stats')
-
-l4  = ax4[1].legend(loc = 'upper left')
-l4.draw_frame(False)
-l5  = ax4[0].legend(loc = 'upper left')
-l5.draw_frame(False)
-
-plt.show()
-
-fig4.savefig('../figures/400_abiotic_stats',dpi=300)
+    
+#####################################################
+# Set up loop of vol numbers inside treatment loop  
+#####################################################
 
 
-
-
-
-
-fig4.savefig('../figures/400_abiotic_stats',dpi=300)
+#setting working df as a single Experiment in df_all
+    ax1[0].plot(df.time,df.rep1, label = 'rep1')
+    ax1[0].plot(df.time,df.rep2, label = 'rep2')
+    ax1[0].plot(df.time,df.rep3, label = 'rep3')
+    ax1[0].plot(df.time,df.rep4, label = 'rep4')
+    ax1[0].errorbar(df.time,df.abundance, yerr=df.sigma, marker = '*', c='g',label =  'Mean')
+    ax1[0].errorbar(df.time,df.avg1, yerr=df.std1, marker = 'o', c='b',label =  'Avg 1')
+    ax1[0].errorbar(df.time,df.avg2, yerr=df.std2, marker = 'd', c='r',label =  'Avg 2')
+    ax1[1].scatter(df.abundance,df.sigma, c='g')
+    ax1[1].scatter(df.avg1,df.std1, c='b')
+    ax1[1].scatter(df.avg2,df.std2, c='r')
+    ax1[0].semilogy()
+    l1 = ax1[0].legend(loc = 'upper left')
+    l1.draw_frame(False)
+    ax2[0].plot(df.time,df.log1, label = 'l1')
+    ax2[0].plot(df.time,df.log2, label = 'l2')
+    ax2[0].plot(df.time,df.log3, label = 'l3')
+    ax2[0].plot(df.time,df.log4, label = 'l4')
+    ax2[0].errorbar(df.time,df.log_abundance, yerr=df.log_sigma, marker = '*', c='g',label =  'Log Mean')
+    ax2[0].errorbar(df.time,df.lavg1, yerr=df.stdlog1, marker = 'o', c='b',label =  'Log Avg 1')
+    ax2[0].errorbar(df.time,df.lavg2, yerr=df.stdlog2, marker = 'd', c='r',label =  'Log Avg 2')
+    ax2[1].scatter(df.log_abundance,df.log_sigma, c='g')
+    ax2[1].scatter(df.lavg1,df.stdlog1, c='b')
+    ax2[1].scatter(df.lavg2,df.stdlog2, c='r')
+    ax2[0].semilogy()
+    ax2[1].semilogy()
+    ax2[1].semilogx()
+    l2 = ax2[0].legend(loc = 'upper left')
+    l2.draw_frame(False)
 
 
 
@@ -198,6 +154,7 @@ fig4.savefig('../figures/400_abiotic_stats',dpi=300)
 
 
 
+plt.show
 
 
 
