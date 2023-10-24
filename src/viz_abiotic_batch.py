@@ -123,18 +123,35 @@ for (t,nt) in zip(treats,range(ntreats)):
     l2.draw_frame(False)
     raw_coor  = scipy.stats.pearsonr(df['abundance'],df['sigma'])
     log_coor = scipy.stats.pearsonr(df['log_abundance'],df['log_sigma'])
-    #raw_coor = df['abundance'].corr(df['sigma'])
-    #log_coor = df['log_abundance'].corr(df['log_sigma'])
-    ax3[0,nt].hist(raw_coor, color = 'orange')
-    ax3[0,1].text(1.2,0.5,'raw',horizontalalignment='center', verticalalignment='center', transform=ax3[0,1].transAxes)
-    ax3[1,nt].hist(log_coor,color = 'c')
-    ax3[1,1].text(1.2,0.5,'logged',horizontalalignment='center', verticalalignment='center', transform=ax3[1,1].transAxes)
+    raw_coor2 = df['abundance'].corr(df['sigma'])
+    log_coor2 = df['log_abundance'].corr(df['log_sigma'])
+    print(raw_coor, log_coor, raw_coor2, log_coor2)
+    ax3[0,nt].hist(raw_coor2, 4,color = 'red')
+    ax3[0,nt].hist(raw_coor.statistic(), 4,color = 'orange')
+    ax3[0,nt].text(1.2,0.5,'raw',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,1].transAxes)
+    ax3[1,nt].hist(log_coor2,4,color = 'b')
+    ax3[1,nt].hist(log_coor.stastic(),4,color = 'c')
+    ax3[1,nt].text(1.2,0.5,'logged',horizontalalignment='center', verticalalignment='center', transform=ax3[1,nt].transAxes)
+'''
+    for a in ax1[:,0].flat:
+        a.set_aspect(4)
 
-for a in ax1.flat:
-    a.set_aspect(7)
+    for a in ax2.flat:
+        a.set_aspect(27)
+'''#set y lim and xlim'
+#yrange/xrange' pick wichever ratio is bigger logged vs unlogged'''
 
-for a in ax2.flat:
-    a.set_aspect(7)
+
+#raw and logged (std vs mean)
+#loggrange , logx range, raw y range, raw xrange, log ratio and raw ratio, then find np.max(log or raw), then get it to do somthing prety
+#convert small to largge ratio via factor and then use that factor to stretch axes lim of smaller to equal the biger
+#get yranges to match and get y and x lim print out all numbers to the graph that we are making
+
+
+
+
+
+
 
 
 plt.xticks(fontsize = 14)
