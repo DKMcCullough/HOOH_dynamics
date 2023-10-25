@@ -102,6 +102,7 @@ ax3[0,1].set_title('( 400 abiotic) ')
 for (t,nt) in zip(treats,range(ntreats)):
 
     df = df_abiotic[((df_abiotic['assay']==t))].copy()
+    #ratios for graphing stretch
     raw_ratio =  (np.max(df.abundance/df.sigma))
     log_ratio =  (np.max(df.log_abundance/df.log_sigma))
     rats  = (raw_ratio,log_ratio)
@@ -131,14 +132,19 @@ for (t,nt) in zip(treats,range(ntreats)):
     raw_r,raw_p  = scipy.stats.pearsonr(df['abundance'],df['sigma'])
     log_r,log_p = scipy.stats.pearsonr(df['log_abundance'],df['log_sigma'])
     print(raw_r,log_r)
+    
     ax3[0,nt].hist(raw_r,color = 'red')
     ax3[0,0].text(0.3,0.5,'raw',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,0].transAxes)
     ax3[1,nt].hist(log_r,color = 'b')
     ax3[1,0].text(0.3,0.5,'logged',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,1].transAxes)
 
-    #ax2[ri,1].set_xlim(0, int(np.max()))
-plt.xlim(0, best_ratio)
-plt.ylim(0, best_ratio)
+
+#working of graph stretching
+    ax3[nt,1].set_xlim((stretch_rat[0])*df.abundance[0]),(stretch_rat[0])*df.abundance[-1])
+
+    
+    #plt.xlim(0, best_ratio)
+#plt.ylim(0, best_ratio)
 l1 = ax1[0,0].legend(loc = 'upper left')
 l1.draw_frame(False)
 l2 = ax2[1,0].legend(loc = 'upper left')
