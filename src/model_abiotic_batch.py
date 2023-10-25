@@ -170,7 +170,7 @@ Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 #setting state variiable  prior guess
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
 
-priors = {} #list of all priors to feed to odelib create
+priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
 
 #setting H mean for odelib search 
 H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]

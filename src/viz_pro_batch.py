@@ -34,6 +34,7 @@ plt.rcParams['legend.fontsize'] = 'small'
 df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
+df_all.fillna(0)
 df = df_all
 
 
@@ -113,6 +114,11 @@ for (t,nt) in zip(treats,range(ntreats)):
     ax2[1].set_xlabel('Average')
     ax2[1].set_ylabel('Standard deviation')
     
+    fig3,ax3 = plt.subplots(1,2,figsize = [8,6])
+    fig3.suptitle("Pearsons's R coorelations "+ str(t))
+    fig3.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.85, wspace=0.25, hspace=0.4)
+    ax3[0].set_title('Raw ')
+    ax3[1].set_title('Logged ')
 #####################################################
 # Set up loop of vol numbers inside treatment loop  
 #####################################################
@@ -126,7 +132,7 @@ for (t,nt) in zip(treats,range(ntreats)):
     ax1[1].scatter(df.avg1,df.std1, c='b')
     ax1[1].scatter(df.avg2,df.std2, c='r')
     ax1[0].semilogy()
-    l1 = ax1[0].legend(loc = 'upper left')
+    l1 = ax1[0].legend(loc = 'center')
     l1.draw_frame(False)
     ax2[0].errorbar(df.time,df.log_abundance, yerr=df.log_sigma, marker = '*', c='g',label =  'Log Mean')
     ax2[0].errorbar(df.time,df.lavg1, yerr=df.stdlog1, marker = 'o', c='b',label =  'Log Avg 1')
@@ -137,10 +143,19 @@ for (t,nt) in zip(treats,range(ntreats)):
     ax2[0].semilogy()
     ax2[1].semilogy()
     ax2[1].semilogx()
-    l2 = ax2[0].legend(loc = 'upper left')
+    l2 = ax2[0].legend(loc = 'center')
     l2.draw_frame(False)
 
+    raw_r,raw_p  = scipy.stats.pearsonr(df['abundance'],df['sigma'])
+    log_r,log_p = scipy.stats.pearsonr(df['log_abundance'],df['log_sigma'])
+    #print(raw_r,log_r)
+    ax3[0].hist(raw_r,color = 'red')
+    ax3[1].hist(log_r,color = 'b')
 
+
+fig1.savefig('../figures/Pro_'+(str(t))+'raw_graphs')
+fig2.savefig('../figures/Pro_'+(str(t))+'logged_graphs')
+fig3.savefig('../figures/Pro_'+(str(t))+'corr_graphs')
 
 
 
@@ -256,8 +271,7 @@ plt.show()
 fig4.savefig('../figures/monoculture_logged_graphs')
 '''
 
-fig1.savefig('../figures/Pro_raw_graphs')
-fig2.savefig('../figures/Pro_logged_graphs')
+
 
 plt.show() 
 

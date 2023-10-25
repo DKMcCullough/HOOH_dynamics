@@ -68,22 +68,22 @@ ntreats = treats.shape[0]
 #####################################################
 
 
-fig1,ax1 = plt.subplots(2,2,figsize=[11,8]) #plot creation and config 
+fig1,ax1 = plt.subplots(2,2,figsize=[13,9]) #plot creation and config 
 fig1.suptitle('Raw dynamics') #full title config
 ax1[0,0].set_title('HOOH Concentration')
 ax1[0,1].set_title('avg vs stdv')
-fig1.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.9, wspace=0.35, hspace=0.30) #shift white space for better fig view
+fig1.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.85, wspace=0.25, hspace=0.25) #shift white space for better fig view
 ax1[0,0].set_xlabel('Time (days)')
 ax1[0,0].set_ylabel('HOOH concentration (\u03BCM)')
 ax1[0,1].set_xlabel('Raw Mean')
 ax1[0,1].set_ylabel('Raw standard deviation ')
 
-fig2,ax2 = plt.subplots(2,2,figsize=[11,8]) #plot creation and config 
+fig2,ax2 = plt.subplots(2,2,figsize=[12,10]) #plot creation and config 
 #full title config
 fig2.suptitle('Logged dynamics ')
 ax2[0,0].set_title('HOOH concentration ')
 ax2[0,1].set_title('Log avg vs stdv')
-fig2.subplots_adjust(left=0.1, bottom=0.10, right=0.85, top=0.75, wspace=0.30, hspace=0.3) #shift white space for better fig view
+fig2.subplots_adjust(left=0.1, bottom=0.10, right=0.85, top=0.85, wspace=0.25, hspace=0.35) #shift white space for better fig view
 ax2[0,0].set_xlabel('Time (days)')
 ax2[0,0].set_ylabel('HOOH concentration (\u03BCM)')
 ax2[0,1].set_xlabel('Log Mean')
@@ -91,7 +91,7 @@ ax2[0,1].set_ylabel('Log Standard deviation')
 
 fig3,ax3 = plt.subplots(2,2,figsize = [8,6])
 fig3.suptitle("Pearsons's R coorelations")
-fig3.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.9, wspace=0.30, hspace=0.30)
+fig3.subplots_adjust(left=0.15, bottom=0.10, right=0.90, top=0.85, wspace=0.25, hspace=0.4)
 ax3[0,0].set_title('( 0 abiotic) ')
 ax3[0,1].set_title('( 400 abiotic) ')
     
@@ -102,6 +102,15 @@ ax3[0,1].set_title('( 400 abiotic) ')
 for (t,nt) in zip(treats,range(ntreats)):
 
     df = df_abiotic[((df_abiotic['assay']==t))].copy()
+    raw_ratio =  (np.max(df.abundance/df.sigma))
+    log_ratio =  (np.max(df.log_abundance/df.log_sigma))
+    rats  = (raw_ratio,log_ratio)
+    rats = np.rint(rats)
+    best_ratio = (np.max(rats))
+    print(best_ratio)
+    rat_dif = (rats/best_ratio)
+    stretch_rat = abs(rat_dif -1)
+    print(stretch_rat)
 #setting working df as a single Experiment in df_all
     ax1[nt,0].plot(df.time,df.rep1,color = 'pink', label = 'rep1')
     ax1[nt,0].plot(df.time,df.rep3, color = 'yellow',label = 'rep3')
@@ -109,35 +118,34 @@ for (t,nt) in zip(treats,range(ntreats)):
     ax1[nt,1].scatter(df.abundance,df.sigma, c='purple')
     ax1[nt,1].text(1.2,0.5,str(t),horizontalalignment='center', verticalalignment='center', transform=ax1[nt,1].transAxes)
     ax1[nt,0].semilogy()
-    l1 = ax1[0,0].legend(loc = 'upper left')
-    l1.draw_frame(False)
+
     ax2[nt,0].plot(df.time,df.log1, color = 'b', label = 'l1')
     ax2[nt,0].plot(df.time,df.log3, color = 'g',label = 'l3')
     ax2[nt,0].errorbar(df.time,df.log_abundance, yerr=df.log_sigma, marker = '*', c='c',label =  'Log Mean')
     ax2[nt,1].scatter(df.log_abundance,df.log_sigma, c='c')
-    ax1[nt,1].text(1.2,0.5,str(t),horizontalalignment='center', verticalalignment='center', transform=ax1[nt,1].transAxes)
+    ax2[nt,1].text(1.2,0.5,str(t),horizontalalignment='center', verticalalignment='center', transform=ax1[nt,1].transAxes)
     ax2[nt,0].semilogy()
     ax2[nt,1].semilogy()
     ax2[nt,1].semilogx()
-    l2 = ax2[1,0].legend(loc = 'upper left')
-    l2.draw_frame(False)
-    raw_coor  = scipy.stats.pearsonr(df['abundance'],df['sigma'])
-    log_coor = scipy.stats.pearsonr(df['log_abundance'],df['log_sigma'])
-    raw_coor2 = df['abundance'].corr(df['sigma'])
-    log_coor2 = df['log_abundance'].corr(df['log_sigma'])
-    print(raw_coor, log_coor, raw_coor2, log_coor2)
-    ax3[0,nt].hist(raw_coor2, 4,color = 'red')
-    ax3[0,nt].hist(raw_coor.statistic(), 4,color = 'orange')
-    ax3[0,nt].text(1.2,0.5,'raw',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,1].transAxes)
-    ax3[1,nt].hist(log_coor2,4,color = 'b')
-    ax3[1,nt].hist(log_coor.stastic(),4,color = 'c')
-    ax3[1,nt].text(1.2,0.5,'logged',horizontalalignment='center', verticalalignment='center', transform=ax3[1,nt].transAxes)
-'''
-    for a in ax1[:,0].flat:
-        a.set_aspect(4)
 
-    for a in ax2.flat:
-        a.set_aspect(27)
+    raw_r,raw_p  = scipy.stats.pearsonr(df['abundance'],df['sigma'])
+    log_r,log_p = scipy.stats.pearsonr(df['log_abundance'],df['log_sigma'])
+    print(raw_r,log_r)
+    ax3[0,nt].hist(raw_r,color = 'red')
+    ax3[0,0].text(0.3,0.5,'raw',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,0].transAxes)
+    ax3[1,nt].hist(log_r,color = 'b')
+    ax3[1,0].text(0.3,0.5,'logged',horizontalalignment='center', verticalalignment='center', transform=ax3[nt,1].transAxes)
+
+    #ax2[ri,1].set_xlim(0, int(np.max()))
+plt.xlim(0, best_ratio)
+plt.ylim(0, best_ratio)
+l1 = ax1[0,0].legend(loc = 'upper left')
+l1.draw_frame(False)
+l2 = ax2[1,0].legend(loc = 'upper left')
+l2.draw_frame(False)
+
+'''
+
 '''#set y lim and xlim'
 #yrange/xrange' pick wichever ratio is bigger logged vs unlogged'''
 

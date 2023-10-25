@@ -33,7 +33,7 @@ plt.rcParams['legend.fontsize'] = 'small'
 df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-
+df_all.fillna(0)
 df = df_all
 
 
