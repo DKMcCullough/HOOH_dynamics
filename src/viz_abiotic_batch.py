@@ -1,6 +1,6 @@
 '''
 
-name:   model_abiotic_batch.py 
+name:   viz_abiotic_batch.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
 
