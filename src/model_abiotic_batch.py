@@ -118,7 +118,7 @@ def get_model(df,priors):
                           Sh = priors['Sh'],
                           H0  = priors['H0'],
                           t_steps=1000,
-                          H = priors['H0'],
+                          H = 200,
                          )
     return a1
 
@@ -138,7 +138,10 @@ def get_model(df,priors):
 #####################################################
 #####################################################
 
-
+#send to dt and ECC before hack on friday 
+#have on git hub for play! 
+#abiotic model  - 
+#scling issus  - 
 
 
 

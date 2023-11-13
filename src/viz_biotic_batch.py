@@ -33,11 +33,12 @@ plt.rcParams["figure.dpi"] = 300
 df1 = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df2 = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 
-df_all = df1.join(other = df2, how = 'inner', on = 'assay', sort = True) #broken here
+df_all = df1.merge(right = df2, how = 'outer' ) 
 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df_all.fillna(0)
+
 df = df_all
 
 
