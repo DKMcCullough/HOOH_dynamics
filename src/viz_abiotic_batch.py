@@ -1,6 +1,10 @@
 '''
 
+<<<<<<< HEAD
 name:   viz_biotic_batch.py 
+=======
+name:   viz_abiotic_batch.py 
+>>>>>>> d35172b6c75f3ec8e5bd0b85e4562cd6fe4683ef
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
 
