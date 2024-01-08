@@ -3,8 +3,8 @@
 
 name:   model_pro_batch.py 
 
-location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
-
+location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
+    
 author: DKM
 
 goal: Loop model and graph 0 H Pro assay and model of said biomass via odelib
@@ -103,7 +103,7 @@ ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v', label = 'avg2
 ax1.errorbar(df4['time'],df4['abundance'],yerr=df4['std1'], marker='o', label = 'avg1')
 ax1.errorbar(df4['time'],df4['avg2'],yerr=df4['std2'], marker='v', label = 'avg2')
 
-
+plt.legend()
 
 #####################################################
 #   model param and state variable set up 
@@ -114,7 +114,7 @@ ax1.errorbar(df4['time'],df4['avg2'],yerr=df4['std2'], marker='v', label = 'avg2
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
 #setting how many MCMC chains you will run 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 
 # state variable names
@@ -136,9 +136,9 @@ SN_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1})
 #setting state variiable  prior guess
-P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+6})
-N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/10,'scale':1e+5})
+P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
+N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 
@@ -254,6 +254,7 @@ ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a0,posteriors0,100)
+
 
 #printing off graph
 plt.show()
