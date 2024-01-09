@@ -202,7 +202,9 @@ ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 
 ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
-plot_uncertainty(ax0,a0,posteriors0,100)
+
+a0.plot_uncertainty(ax0,posteriors0,'P',100)
+
 #ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
 plt.show()
