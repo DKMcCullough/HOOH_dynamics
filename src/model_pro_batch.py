@@ -122,9 +122,9 @@ pw = 1   #sigma for param search
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
 #setting state variiable  prior guess
-P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
+P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+6})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
@@ -202,7 +202,9 @@ ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 
 ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
+
 a0.plot_uncertainty(ax0,posteriors0,'P',100)
+
 #ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
 plt.show()
