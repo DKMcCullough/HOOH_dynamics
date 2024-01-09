@@ -19,21 +19,20 @@ import matplotlib.pyplot as plt
 import scipy 
 import ODElib
 import random as rd
+import sys
 
 
-
-
-#####################################################
-#set figure RC params 
-#####################################################
-plt.rcParams["figure.dpi"] = 300
 
 
 #####################################################
 # read in data and formatting
 #####################################################
+df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
+df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
-df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
+df_all = df_1
+
+#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 #df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
@@ -118,30 +117,14 @@ def get_model(df,priors):
                           Sh = priors['Sh'],
                           H0  = priors['H0'],
                           t_steps=1000,
-                          H = 200,
+                          H = 100, #H0_mean
                          )
     return a1
 
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#####################################################
-#B BROKEN PRIORS in odelib func call now. NOT WORKING - get priors from ?
- 
-#####################################################
-#####################################################
-#####################################################
-#####################################################
 
-#send to dt and ECC before hack on friday 
-#have on git hub for play! 
-#abiotic model  - 
-#scling issus  - 
+#####################################################
+#####################################################
+#####################################################
 
 
 
@@ -181,7 +164,7 @@ H0_mean = df.loc[df['time'] == 0, 'abundance'].iloc[0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 1000
+nits = 10000
 
 
 #####################################
@@ -189,6 +172,7 @@ nits = 1000
 #####################################
 
 a0 = get_model(df0,priors) # initialising model for 0 df
+#sys.exit()
 a4 = get_model(df4,priors) # initialising model for 400 df
  
 
@@ -337,8 +321,13 @@ ax4[1].scatter(a4res['res'], a4res['abundance'],label = '400 H', color = c4)
 
 #print out plot
 fig4.savefig('../figures/abiotic_0and400_residuals')
+'''
+pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
+pframe0.to_csv("../data/inits/abiotic0.csv")
 
-
+pframe4 = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
+pframe4.to_csv("../data/inits/abiotic4.csv")
+'''
 # 'program finished' flag
 print('\n ~~~****~~~****~~~ \n')
 print('\n Done my guy \n')

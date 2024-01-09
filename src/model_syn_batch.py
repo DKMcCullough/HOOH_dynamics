@@ -1,7 +1,7 @@
 
 '''
 
-name:   model_pro_batch.py 
+name:   model_syn_batch.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
     
@@ -31,7 +31,6 @@ df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset'
 
 df_all = df_1
 
-
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
@@ -46,7 +45,10 @@ df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy()
 df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
 
 #setting working df as pro only 
-df = df_P
+df = df_S
+df = df.loc[~df['strain'].str.contains('WH8102', case=False)].copy()  #cutting out cat - syn  
+
+
 
 #####################################################
 #config data in df from raw for odelib usefulness
@@ -82,12 +84,12 @@ df4 = df.loc[df['assay'].str.contains('4', case=False)]  #assay 400 H (actually 
 #####################################################
 # fig set up and main title 
 fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
-fig2.suptitle('Pro  Monocultures')
+fig2.suptitle('Cat + Syn  Monocultures')
 
 #format fig  
-ax0.set_title('Pro in 0 HOOH ') #graph title for graph 1
+ax0.set_title('Syn in 0 HOOH ') #graph title for graph 1
 ax0.semilogy() #setting y axis to be logged b/c cell data
-ax1.set_title('Pro in 400 HOOH ') #graph title for graph 2
+ax1.set_title('Syn in 400 HOOH ') #graph title for graph 2
 ax1.semilogy()#setting y axis to be logged b/c cell data
 ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
 ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
@@ -110,14 +112,15 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
-inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
+inits0 = pd.read_csv("../data/inits/Syn_inits0.csv")
+
 
 #setting how many MCMC chains you will run 
 nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 
 # state variable names
-snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
+snames = ['S','N','H'] #order must match all further model mentions (same fro params) 
 
 # define priors for parameters
 pw = 1   #sigma for param search
@@ -133,16 +136,16 @@ dp_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,
 rho_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 SN_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':4})
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
-Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
-P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
+S0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 
 #still not sure what part of fitting algor this is used for
-P0_mean = 50000
+S0_mean = 50000
 N0_mean = 900000
 H0_mean = 80
 
@@ -152,7 +155,7 @@ H0_mean = 80
 #####################################################
 def get_model(df):
     M = ODElib.ModelFramework(ODE=mono_0H,
-                          parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','P0','N0','H0'],
+                          parameter_names=['deltah','Sh','rho','Qnp','SN','k1','k2','dp','S0','N0','H0'],
                           state_names = snames,
                           dataframe=df,
                           deltah = deltah_prior.copy(),
@@ -163,11 +166,11 @@ def get_model(df):
                           k1 = k1_prior.copy(),
                           k2 = k2_prior.copy(),
                           dp = dp_prior.copy(),
-                          P0 = P0_prior.copy(),
+                          S0 =  S0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
                           t_steps=1000,
-                          P = P0_mean,
+                          S = S0_mean,
                           N = N0_mean,
                           H = H0_mean
                             )
@@ -179,35 +182,29 @@ def set_best_params(model,posteriors,snames):
     bestchain = posteriors.iloc[im]["chain#"]
     posteriors = posteriors[posteriors["chain#"]==bestchain]
     model.set_parameters(**posteriors.loc[im][model.get_pnames()].to_dict())
-    model.set_inits(**{o:posteriors.loc[im][model.get_pnames()].to_dict()[o+'0'] for o in ['P']})
+    model.set_inits(**{o:posteriors.loc[im][model.get_pnames()].to_dict()[o+'0'] for o in ['S']})
 #    model.set_inits(**{o:posteriors.loc[im][a1.get_pnames()].to_dict()[o+'0'] for o in ['H']})
 
 def plot_uncertainty(ax,model,posteriors,ntimes):
     for a in range(ntimes):
         im = rd.choice(posteriors.index)
-        model.set_inits(**{'P':posteriors.loc[im][model.get_pnames()].to_dict()['P0']})
+        model.set_inits(**{'S':posteriors.loc[im][model.get_pnames()].to_dict()['S0']})
         #model.set_inits(**{'H':posteriors.loc[im][model.get_pnames()].to_dict()['H0']})
         model.set_parameters(**posteriors.loc[im][model.get_pnames()].to_dict())
         mod = model.integrate()
-        ax.plot(mod.time,mod['P'],c=str(0.8),lw=1,zorder=1)
+        ax.plot(mod.time,mod['S'],c=str(0.8),lw=1,zorder=1)
         #ax.plot(mod.time,mod['H'],c=str(0.8),lw=1,zorder=1)
 
 
 def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     deltah,Sh,rho,Qnp,SN,k1,k2,dp = params[0], params[1], params[2], params[3], params[4], params[5],params[6],params[7]
-    P,N,H = y[0],y[1],y[2]
+    S,N,H = y[0],y[1],y[2]
     ksp=int(k2/k1) #calculating model param ks in loop but k1 and k2 are fed separately by odelib
-    dPdt = (k2 * N /( (ksp) + N) )*P - (dp *P)     
-    dNdt =  SN - ((k2 * N /( (ksp) + N) )*P* (int(Qnp))) - rho*N    
+    dSdt = (k2 * N /( (ksp) + N) )*S - (dp *S)     
+    dNdt =  SN - ((k2 * N /( (ksp) + N) )*S* (int(Qnp))) - rho*N    
     dHdt = Sh - deltah*H  #phi being P cell-specific detox rate
-    return [dPdt,dNdt,dHdt]
+    return [dSdt,dNdt,dHdt]
 
-#find closesst time 
-def get_residuals(self):
-    mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)   #this is not same species 
-    mod['res'] = res
-    return(mod)
 
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
@@ -225,7 +222,7 @@ set_best_params(a0,posteriors0,snames)
 # run model with optimal params
 mod0 = a0.integrate()
 
-a0res = get_residuals(a0)
+
 
 #####################################################
 # graphing model vs data in 0 H and associated error
@@ -240,12 +237,12 @@ fig3.suptitle('Pro in 0 H Model') #setting main title of fig
 fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
 ax0.semilogy()
-ax0.set_title('Pro dynamics ')
+ax0.set_title('Syn dynamics ')
 ax1.set_title('Model comparison to data')
 
 ax0.set_xlabel('days')
 ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('Final P value')
+ax1.set_ylabel('r-squared')
 ax1.set_xlabel('iteration number ')
 
 l3 = ax0.legend(loc = 'lower right')
@@ -257,9 +254,10 @@ l3.draw_frame(False)
 ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
 ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
 
-ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
+ax0.plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' model best fit')
 plot_uncertainty(ax0,a0,posteriors0,100)
-ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
+ax1.plot(mod0['S'],df0['abundance'])
+
 #printing off graph
 plt.show()
 

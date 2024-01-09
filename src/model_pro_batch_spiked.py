@@ -1,7 +1,7 @@
 
 '''
 
-name:   model_pro_batch.py 
+name:   model_pro_batch-spiked.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
     
@@ -22,10 +22,10 @@ import ODElib
 import random as rd
 import sys
 
-
 ######################################################
 #reading in data and configureing 
 #####################################################
+
 df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
@@ -110,7 +110,7 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
-inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
+inits0 = pd.read_csv("../data/inits/pro9215_inits4.csv")
 
 #setting how many MCMC chains you will run 
 nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -245,8 +245,8 @@ ax1.set_title('Model comparison to data')
 
 ax0.set_xlabel('days')
 ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('Final P value')
-ax1.set_xlabel('iteration number ')
+ax1.set_ylabel('P value)
+ax1.set_xlabel('Residual')
 
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
