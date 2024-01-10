@@ -133,6 +133,7 @@ k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,
 k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
 kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.06})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
 P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+6})
@@ -149,13 +150,14 @@ H0_mean = inits4['H0'][0]
 #####################################################
 def get_model(df):
     M = ODElib.ModelFramework(ODE=mono_4H,
-                          parameter_names=['k1','k2','kdam','phi','P0','N0','H0'],
+                          parameter_names=['k1','k2','kdam','phi','Sh','P0','N0','H0'],
                           state_names = snames,
                           dataframe=df,
                           k1 = k1_prior.copy(),
                           k2 = k2_prior.copy(),
                           kdam = kdam_prior.copy(),
                           phi = phi_prior.copy(),
+                          Sh = Sh_prior.copy(),
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
@@ -167,12 +169,12 @@ def get_model(df):
     return M
 
 def mono_4H(y,t,params): #no kdam or phi here (or make 0)
-    k1,k2, kdam, phi = params[0], params[1], params[2],params[3]
+    k1,k2, kdam, phi, Sh = params[0], params[1], params[2],params[3], params[4]
     P,N,H = max(y[0],0),max(y[1],0),y[2]
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - kdam*P*H    
     dNdt =  - (k2 * N /( (ksp) + N) )*P
-    dHdt = - phi*P*H
+    dHdt = Sh- phi*P*H
     return [dPdt,dNdt,dHdt]
 
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
@@ -182,7 +184,7 @@ a4 = get_model(df4)
 
 #broken here!!!!!!!!!!
 # do fitting
-posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','k2','N0']),print_report=True) #, )
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','k2','Sh','N0']),print_report=True) #, )
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # run model with optimal params
@@ -201,6 +203,7 @@ fig3.suptitle('Pro in 400 H Model') #setting main title of fig
 fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
 
 ax3[0].semilogy()
+ax3[1].semilogy()
 ax3[0].set_title('Pro dynamics ')
 ax3[1].set_title('HOOH dynamics')
 
@@ -235,13 +238,14 @@ plt.show()
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,4,figsize=[12,8])
+fig4,ax4 = plt.subplots(1,3,figsize=[9,7])
 #set titles and config graph 
 fig4.suptitle('Pro Monoculture parameters in 400 HOOH ')
 ax4[0].set_title('Pro Model Dynamic output')
 ax4[1].set_title('P0')
 ax4[2].set_title('kdam')
-ax4[3].set_title('phi')
+
+fig4.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.20)
 
 ax4[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
 #make legends
@@ -256,19 +260,13 @@ ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abunda
 ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label=' Model P best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'P',100)
 
-#ax0.plot(mod4.time,mod4['P'],color='r',lw=1.5,label=' Model P best fit')
-#a4.plot_uncertainty(a4,posteriors4,'P',10)
-
-
-
 # plot histograms of parameter search results 
 ax4[1].hist(posteriors4.P0)
 ax4[2].hist(posteriors4.kdam)
-ax4[3].hist(posteriors4.phi)
 
 #show full graph 
 plt.show()
-fig4.savefig('../figures/pro_odelib4_params')
+fig4.savefig('../figures/pro_odelib4_Pparams')
 
 
 #########################################################
@@ -276,32 +274,31 @@ fig4.savefig('../figures/pro_odelib4_params')
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,4,figsize=[12,8])
+fig5,ax5 = plt.subplots(1,3,figsize=[9,7])
 fig5.suptitle('HOOH parmaters ')
 ax5[0].set_title('HOOH Model Dynamic output')
 ax5[1].set_title('H0')
-ax5[2].set_title('kdam')
-ax5[3].set_title('phi')
+ax5[2].set_title('phi')
 
+fig5.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.20)
 ax5[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
 #make legends
 l5 = ax5[0].legend(loc = 'upper left')
 l5.draw_frame(False)
 
 ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], marker='o',label = 'H data ')
-ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model P best fit')
+ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model H best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 
 # plot histograms of parameter search results 
 ax5[1].hist(posteriors4.H0)
 ax5[2].hist(posteriors4.phi)
-ax5[3].hist(posteriors4.kdam)
 
 
 #show full graph 
 plt.show()
-
+fig5.savefig('../figures/pro_odelib4_Hparams')
 
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())

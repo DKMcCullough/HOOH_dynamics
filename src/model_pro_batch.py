@@ -146,6 +146,13 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     dNdt =  - (k2 * N /( (ksp) + N) )*P
     return [dPdt,dNdt]
 
+#find closest time 
+def get_residuals(self):
+    mod = self.integrate(predict_obs=True)
+    res = (mod.abundance - self.df.abundance)   #this is not same species 
+    mod['res'] = res
+    return(mod)
+
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_models
@@ -159,26 +166,28 @@ posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,p
 # run model with optimal params
 mod0 = a0.integrate()
 
+a0res = get_residuals(a0)  #is this using the best fit or just a first run???
+
 #####################################################
 # graphing model vs data in 0 H and associated error
 #####################################################
 
 ###### fig set up
-fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,7)) #fig creationg of 1 by 2
+fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (6,5)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model') #setting main title of fig
 
 ####### fig config and naming 
 
-fig3.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.30)
+fig3.subplots_adjust(right=0.9, wspace = 0.40, hspace = 0.20)
 
 ax0.semilogy()
 ax0.set_title('Pro dynamics ')
-ax1.set_title('Model comparison to data')
+ax1.set_title('Model residuals')
 
-ax0.set_xlabel('days')
-ax0.set_ylabel('cell concentration')
-ax1.set_ylabel('Final P value')
-ax1.set_xlabel('iteration number ')
+ax0.set_xlabel('Time (days)')
+ax0.set_ylabel('Cells (ml-1)')
+ax1.set_ylabel('Data P value')
+ax1.set_xlabel('Residual')
 
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
@@ -191,9 +200,9 @@ ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 
-a0.plot_uncertainty(ax0,posteriors0,'P',100)
+a0.plot_uncertainty(ax0,posteriors0,'P',1000)
 
-#ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
+ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
 plt.show()
 
@@ -205,7 +214,7 @@ plt.show()
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,5,figsize=[20,7])
+fig4,ax4 = plt.subplots(1,5,figsize=[10,8])
 #set titles and config graph 
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
 ax4[0].set_title('Model Dynamic output')
@@ -219,7 +228,7 @@ ax4[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
 #shift fig subplots
-fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
+fig4.subplots_adjust(right=0.90, wspace = 0.30, hspace = 0.20)
 
 
 #graph data, model, and uncertainty 
