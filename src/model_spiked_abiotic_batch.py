@@ -145,7 +145,7 @@ snames = ['H']
 pw = 1
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
-deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
+deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':300})
@@ -190,7 +190,7 @@ c4 = 'darkviolet'
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config 
+fig1,ax1 = plt.subplots(1,3,figsize=[8,5]) #plot creation and config 
 #set titles of subplots
 fig1.suptitle('Abiotic HOOH Model Output') #full title config
 fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
@@ -198,7 +198,7 @@ ax1[0].set_title('400 H Model-Data Dynamics')
 fig1.supylabel('HOOH Concentration nM/mL')
 ax1[1].set_title('Sh')
 ax1[2].set_title('deltah')
-ax1[1].text(3.5, -15, 'Frequency')
+ax1[1].text(3.3, -130, 'Frequency')
 
 
 fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
