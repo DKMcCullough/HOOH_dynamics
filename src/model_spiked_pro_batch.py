@@ -57,7 +57,7 @@ df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
-
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.1
 
 #setting working df for model as far as abundance and log abundance values 
 #df.rename(columns = {'avg1':'abundance'}, inplace = True) #reaneme main df column to be fit by odelib 
@@ -119,7 +119,7 @@ plt.legend()
 inits4 = pd.read_csv("../data/inits/pro9215_inits4.csv")
 
 #setting how many MCMC chains you will run 
-nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
@@ -161,7 +161,7 @@ def get_model(df):
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
-                          t_steps=10000,
+                          t_steps=1000,
                           P = P0_mean,
                           N = N0_mean,
                           H = H0_mean,
