@@ -1,6 +1,6 @@
 '''
 
-name:   model_abiotic_batch.py 
+name:   model_spiked_abiotic_batch.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
 
@@ -20,8 +20,6 @@ import scipy
 import ODElib
 import random as rd
 import sys
-
-
 
 
 #####################################################
@@ -69,10 +67,10 @@ df0 = df.loc[~ df['assay'].str.contains('4', case=False)]
 df4 = df.loc[df['assay'].str.contains('4', case=False)] 
 
 ## Reading in inits files for 0 and 400 models respectively
-inits0 = pd.read_csv("../data/inits/abiotic0.csv")
+#inits0 = pd.read_csv("../data/inits/abiotic0.csv")
 #priors0 = inits0.to_dict()
 
-#inits4 = pd.read_csv("../data/inits/abiotic4.csv")
+inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 #priors4 = inits4.to_dict()
 
 #####################################################
@@ -150,12 +148,12 @@ pw = 1
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':10})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':300})
 
 priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
 
 #setting H mean for odelib search 
-H0_mean = df0.loc[df0['time'] == 0, 'abundance'].iloc[0]
+H0_mean = df4.loc[df4['time'] == 0, 'abundance'].iloc[0]
 
 
 
@@ -167,21 +165,21 @@ nits = 10000
 # Create and Run model on 0 and 400 df
 #####################################
 
-a0 = get_model(df0,priors) # initialising model for 0 df
+a4 = get_model(df4,priors) # initialising model for 0 df
 #sys.exit()
 
 
 # do fitting for 0 an 400 model 
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1, print_report=True)
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1, print_report=True)
 
 #new way to use set best params funct
-a0.set_best_params(posteriors0)   #new func working for best params 
+a4.set_best_params(posteriors4)   #new func working for best params 
 
 # run model with optimal params for 0 an 400 model 
-mod0 = a0.integrate()
+mod4 = a4.integrate()
 
 #get residuals from model 
-a0res = get_residuals(a0)  #is this using the best fit or just a first run???
+a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 
 
 #########################################################
@@ -196,7 +194,7 @@ fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config
 #set titles of subplots
 fig1.suptitle('Abiotic HOOH Model Output') #full title config
 fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
-ax1[0].set_title('Model-Data Dynamics')
+ax1[0].set_title('400 H Model-Data Dynamics')
 fig1.supylabel('HOOH Concentration nM/mL')
 ax1[1].set_title('Sh')
 ax1[2].set_title('deltah')
@@ -214,17 +212,17 @@ l2.draw_frame(False)
 #graph dynamics of data and model (best model line), and posterior guesses (grey lines) of 0 and 400 respectively
 
 #plot dynamics of data and model for 0 assay 
-ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'abiotic - 0 H ') #data of 0 H assay
-ax1[0].plot(mod0.time,mod0['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-plot_uncertainty(ax1[0],a0,posteriors0,100) #plotting 100 itterations of model search for 0 H assay 
+ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = 'abiotic - 4 H ') #data of 0 H assay
+ax1[0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+plot_uncertainty(ax1[0],a4,posteriors4,100) #plotting 100 itterations of model search for 0 H assay 
 #plot 400 assay dynamics and models
 #ax1[1].plot(df4.time,df4.abundance, marker='o',color = c4, label = 'abiotic - 400 H ')#data of 400 H
 
 # plot histograms of params next to dynamics graphs
-ax1[1].hist((np.log(posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
-ax1[2].hist((np.log(posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
+ax1[1].hist((np.log(posteriors4.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
+ax1[2].hist((np.log(posteriors4.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
 
-fig1.savefig('../figures/abiotic_0_dynamics')
+fig1.savefig('../figures/abiotic_4_dynamics')
 
 ########################################
 #graph parameters against one another 
@@ -244,15 +242,15 @@ plt.legend()
 fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.25, hspace = 0.30) #shift white space for better fig view
 
 #graphing each assay's parameters against each other 
-ax2[0].scatter(posteriors0.Sh,posteriors0.deltah,color = c0)
-ax2[1].scatter(np.log(posteriors0.Sh),np.log(posteriors0.deltah),color = c0)
+ax2[0].scatter(posteriors4.Sh,posteriors4.deltah,color = c0)
+ax2[1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c0)
 
 #ax2[1,0].set_yscale('log')
 
 
 #show full graph and save fig
 
-fig2.savefig('../figures/abiotic_0_params')
+fig2.savefig('../figures/abiotic_4_params')
 
 
 #################################
@@ -272,13 +270,13 @@ ax3[1].set_ylabel('Log deltah')
 
 
 #graphing iteration number vs parameter numbert logged 
-ax3[0].scatter(posteriors0.iteration,np.log(posteriors0.Sh),color = c0)
-ax3[1].scatter(posteriors0.iteration,np.log(posteriors0.deltah),color = c0)
+ax3[0].scatter(posteriors4.iteration,np.log(posteriors4.Sh),color = c0)
+ax3[1].scatter(posteriors4.iteration,np.log(posteriors4.deltah),color = c0)
 
 
 
 #print out plot
-fig3.savefig('../figures/abiotic_0_TRACE')
+fig3.savefig('../figures/abiotic_4_TRACE')
 
 
 #########################################
@@ -295,15 +293,15 @@ l4 = ax4.legend()
 l4.draw_frame(False)
 
 #plotting residual function output residual and abundance columns 
-ax4.scatter(a0res['res'], a0res['abundance'],label = '0 H', color = c0) #where )
+ax4.scatter(a4res['res'], a4res['abundance'],label = '0 H', color = c0) #where )
 
 #how to get residuals from all posterior runs not just best???
 
 #print out plot
-fig4.savefig('../figures/abiotic_0_residuals')
+fig4.savefig('../figures/abiotic_4_residuals')
 
-pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-pframe0.to_csv("../data/inits/abiotic0.csv")
+pframe4 = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
+pframe4.to_csv("../data/inits/abiotic4.csv")
 
 
 # 'program finished' flag
@@ -312,5 +310,8 @@ print('\n Done my guy \n')
 print('\n ~~~****~~~****~~~ \n')
 print('\n Im free Im free! Im done calculating!' )
 print('\n ~~~****~~~****~~~ \n')
+
+
+
 
 
