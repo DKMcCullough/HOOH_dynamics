@@ -129,8 +129,8 @@ N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #still not sure what part of fitting algor this is used for
-P0_mean = 50000
-N0_mean = 900000
+P0_mean = inits0['P0'][0]
+N0_mean = inits0['N0'][0]
 
 #####################################################
 #functions  for modeling and graphing model uncertainty 

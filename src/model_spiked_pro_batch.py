@@ -118,7 +118,7 @@ plt.legend()
 inits4 = pd.read_csv("../data/inits/pro9215_inits4.csv")
 
 #setting how many MCMC chains you will run 
-nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
