@@ -56,6 +56,7 @@ df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
 df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
+df['log_sigma'] = 0.2
 
 
 #setting working df for model as far as abundance and log abundance values 
@@ -167,7 +168,7 @@ def get_model(df):
 
 def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     k1,k2, kdam, phi = params[0], params[1], params[2],params[3]
-    P,N,H = y[0],y[1],y[2]
+    P,N,H = max(y[0],0),max(y[1],0),y[2]
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - kdam*P*H    
     dNdt =  - (k2 * N /( (ksp) + N) )*P
