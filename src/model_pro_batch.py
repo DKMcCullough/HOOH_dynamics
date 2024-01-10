@@ -55,7 +55,7 @@ df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
 df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
-
+df['log_sigma'] = 0.2
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
@@ -82,11 +82,11 @@ ax1.set_xlabel('Time (days)')#settign x axis label for graph 2
 #graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
 #graph 0 H assay even and odd avgs 
-ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='v', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='v', label = 'avg2')
 # graph 400 H assay even and odd avgs
-ax1.errorbar(df4['time'],df4['abundance'],yerr=df4['std1'], marker='o', label = 'avg1')
-ax1.errorbar(df4['time'],df4['avg2'],yerr=df4['std2'], marker='v', label = 'avg2')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abundance'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'avg1')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'avg2')
 
 plt.legend()
 
@@ -99,7 +99,7 @@ plt.legend()
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
 #setting how many MCMC chains you will run 
-nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N'] #order must match all further model mentions (same fro params) 
@@ -132,7 +132,7 @@ def get_model(df):
                           k2 = k2_prior.copy(),
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
-                          t_steps=10000,
+                          t_steps=1000,
                           P = P0_mean,
                           N = N0_mean,
                             )
@@ -140,7 +140,7 @@ def get_model(df):
 
 def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     k1,k2 = params[0], params[1]
-    P,N = y[0],y[1]
+    P,N = max(y[0],0),max(y[1],0),
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P     
     dNdt =  - (k2 * N /( (ksp) + N) )*P
@@ -149,7 +149,7 @@ def mono_0H(y,t,params): #no kdam or phi here (or make 0)
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_models
-a0 = get_model(df0) 
+a0 = get_model(df) 
 
 #broken here!!!!!!!!!!
 # do fitting
@@ -186,8 +186,8 @@ l3.draw_frame(False)
 
 #graphing data from df to see 2 different biological reps represented
 
-ax0.errorbar(df0['time'],df0['abundance'],yerr=df0['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0['time'],df0['avg2'],yerr=df0['std2'], marker='o', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='o', label = 'avg2')
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 
@@ -223,7 +223,7 @@ fig4.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
 
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0.time, df0.abundance, marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(df0[df0['organism']== 'P']['time'], df0[df0['organism']== 'P']['abundance'], marker='o',label = 'Pro Mono - 0 H ')
 ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
 
