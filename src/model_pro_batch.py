@@ -22,7 +22,6 @@ import ODElib
 import random as rd
 import sys
 
-
 ######################################################
 #reading in data and configureing 
 #####################################################
@@ -35,46 +34,35 @@ df_all = df_1
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-
-#slicing data into abiotic, biotic, and Pro only dataframes
-
-df_abiotic = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
-df_co = df_all.loc[df_all['assay'].str.contains('coculture', case=False)].copy()  
 df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
 
-df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy() 
-df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
-
-#setting working df as pro only 
-df = df_P
-
-#####################################################
-#config data in df from raw for odelib usefulness
-#####################################################
-
-#making avg columns of technical reps (std here only for graphing, not logged here)
+df = df_mono
 df['log1'] = np.log(df['rep1'])
 df['log2'] = np.log(df['rep2'])
 df['log3'] = np.log(df['rep3'])
 df['log4'] = np.log(df['rep4'])
 df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
 df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
+df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
 df['std1'] = df[['rep1', 'rep3']].std(axis=1)
 df['std2'] = df[['rep2', 'rep4']].std(axis=1)
+df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
 
 df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
 df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
+df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
 df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
 df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
+df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
-#setting working df for model as far as abundance and log abundance values 
-df.rename(columns = {'avg1':'abundance'}, inplace = True) #reaneme main df column to be fit by odelib 
-df.rename(columns = {'lavg1':'log_abundance'}, inplace = True) #reaneme log of main df column to be fit by odelib 
 
-#splitting df of Pro into 0 and 400 H assays 
-df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
-df4 = df.loc[df['assay'].str.contains('4', case=False)]  #assay 400 H (actually around 360 nM in data)
 
+#slicing data into abiotic, biotic, and Pro only dataframes
+df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
+df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
+
+
+df = df0[df0['organism']== 'P']
 #####################################################
 #plotting data and error within biological reps 
 #####################################################
@@ -111,7 +99,7 @@ plt.legend()
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
 #setting how many MCMC chains you will run 
-nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N'] #order must match all further model mentions (same fro params) 
@@ -144,7 +132,7 @@ def get_model(df):
                           k2 = k2_prior.copy(),
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
-                          t_steps=1000,
+                          t_steps=10000,
                           P = P0_mean,
                           N = N0_mean,
                             )
@@ -176,7 +164,7 @@ mod0 = a0.integrate()
 #####################################################
 
 ###### fig set up
-fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2
+fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,7)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model') #setting main title of fig
 
 ####### fig config and naming 

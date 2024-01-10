@@ -118,7 +118,7 @@ plt.legend()
 inits4 = pd.read_csv("../data/inits/pro9215_inits4.csv")
 
 #setting how many MCMC chains you will run 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N','H'] #order must match all further model mentions (same fro params) 
@@ -139,9 +139,9 @@ H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #still not sure what part of fitting algor this is used for
-P0_mean = 50000
-N0_mean = 900000
-H0_mean = 1000
+P0_mean = inits4['P0'][0]
+N0_mean = inits4['N0'][0]
+H0_mean = inits4['H0'][0]
 
 #####################################################
 #functions  for modeling and graphing model uncertainty 
@@ -158,7 +158,7 @@ def get_model(df):
                           P0 = P0_prior.copy(),
                           N0  = N0_prior.copy(),
                           H0  = H0_prior.copy(),
-                          t_steps=1000,
+                          t_steps=10000,
                           P = P0_mean,
                           N = N0_mean,
                           H = H0_mean,
