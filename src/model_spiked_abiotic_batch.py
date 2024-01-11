@@ -185,23 +185,23 @@ a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 #########################################################
 # graphing df and models together
 #########################################################
-c0 = 'darkgreen'
-c4 = 'darkviolet'
+c0 = 'darkviolet'
+
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[8,5]) #plot creation and config 
+fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config 
 #set titles of subplots
 fig1.suptitle('Abiotic HOOH Model Output') #full title config
-fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+fig1.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.30) #shift white space for better fig view
 ax1[0].set_title('400 H Model-Data Dynamics')
-fig1.supylabel('HOOH Concentration nM/mL')
+fig1.supylabel('HOOH Concentration')
 ax1[1].set_title('Sh')
 ax1[2].set_title('deltah')
-ax1[1].text(3.3, -130, 'Frequency')
+ax1[1].text(2.3, -130, 'Frequency')
 
 
-fig1.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+fig1.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.30) #shift white space for better fig view
 
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
@@ -230,16 +230,20 @@ fig1.savefig('../figures/abiotic_4_dynamics')
 
 #graph set up
 
-fig2,ax2 = plt.subplots(1,2, figsize=[8,5])
-fig2.suptitle('Deltah vs Sh ')
-fig2.supylabel('ln deltah')
-fig2.supxlabel('ln Sh')
+fig2,ax2 = plt.subplots(1,2, figsize=[9,6])
+fig2.suptitle('Parameter Interactions ')
+
+ax2[0].set_ylabel('deltah')
+ax2[0].set_xlabel('Sh')
+ax2[1].set_ylabel('ln (deltah)')
+ax2[1].set_xlabel('ln (Sh)')
+
 #ax2.set_title('0 HOOH')
 
 plt.legend()
 #adding text for more labels of graph
 
-fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.25, hspace = 0.30) #shift white space for better fig view
+fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.45, hspace = 0.30) #shift white space for better fig view
 
 #graphing each assay's parameters against each other 
 ax2[0].scatter(posteriors4.Sh,posteriors4.deltah,color = c0)
@@ -257,9 +261,9 @@ fig2.savefig('../figures/abiotic_4_params')
 #graphing logged parameter values
 ##################################
 #crating and config of fig 3
-fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,5]) #make plot
+fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[10,5]) #make plot
 fig3.suptitle('Trace plots for Logged Params ') #set main title 
-fig3.subplots_adjust(right=0.90, wspace = 0.25, top = 0.85) #shift white space for better fig view
+fig3.subplots_adjust(right=0.90, wspace = 0.45, top = 0.85) #shift white space for better fig view
 fig3.supxlabel('Model Iteration') #set overall x title 
 #ax3[0].set_title('0 HOOH')
 #ax3[1].set_title('400 HOOH ')

@@ -63,32 +63,45 @@ df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1
 
 
 df = df0[df0['organism']== 'P']
+
+
+
 #####################################################
 #plotting data and error within biological reps 
 #####################################################
 # fig set up and main title 
 fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
 fig2.suptitle('Pro  Monocultures')
+fig2.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.20)
+
 
 #format fig  
-ax0.set_title('Pro in 0 HOOH ') #graph title for graph 1
+ax0.set_title('Pro in 0 HOOH ',fontsize = 16) #graph title for graph 1
 ax0.semilogy() #setting y axis to be logged b/c cell data
-ax1.set_title('Pro in 400 HOOH ') #graph title for graph 2
+ax1.set_title('Pro in 400 HOOH ',fontsize = 13) #graph title for graph 2
 ax1.semilogy()#setting y axis to be logged b/c cell data
-ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
-ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
-ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
+ax0.set_xlabel('Time (days)',fontsize = 12) #settign x axis label for graph 1
+ax0.set_ylabel('Cells (ml$^{-1}$)',fontsize = 12)  #setting y label for both subgraphs 
+ax1.set_xlabel('Time (days)',fontsize = 12)#settign x axis label for graph 2 
+
 
 #graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
 #graph 0 H assay even and odd avgs 
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg1'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
 ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='v', label = 'avg2')
-# graph 400 H assay even and odd avgs
-ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abundance'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'avg1')
-ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
 
-plt.legend()
+# graph 400 H assay even and odd avgs
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg1'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'avg1')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'avg2')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abundance'],yerr=df4[df4['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+
+
+l1 = ax0.legend(loc = 'lower right')
+l1.draw_frame(False)
+
+fig2.savefig('../figures/pro_data_0and4')
 
 #####################################################
 #   model param and state variable set up 
@@ -99,7 +112,7 @@ plt.legend()
 inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
 
 #setting how many MCMC chains you will run 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N'] #order must match all further model mentions (same fro params) 
@@ -173,40 +186,39 @@ a0res = get_residuals(a0)  #is this using the best fit or just a first run???
 #####################################################
 
 ###### fig set up
-fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (6,5)) #fig creationg of 1 by 2
-fig3.suptitle('Pro in 0 H Model') #setting main title of fig
+fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,7)) #fig creationg of 1 by 2
+fig3.suptitle('Pro in 0 H Model',fontsize = '16') #setting main title of fig
 
 ####### fig config and naming 
 
 fig3.subplots_adjust(right=0.9, wspace = 0.40, hspace = 0.20)
 
 ax0.semilogy()
-ax0.set_title('Pro dynamics ')
-ax1.set_title('Model residuals')
+ax0.set_title('Pro dynamics ',fontsize = '14')
+ax1.set_title('Model residuals',fontsize = '14')
 
-ax0.set_xlabel('Time (days)')
-ax0.set_ylabel('Cells (ml-1)')
-ax1.set_ylabel('Data P value')
-ax1.set_xlabel('Residual')
+ax0.set_xlabel('Time (days)',fontsize = '14')
+ax0.set_ylabel('Cells(ml$^{-1}$)',fontsize = '14')
+ax1.set_ylabel('Data P value',fontsize = '14')
+ax1.set_xlabel('Residual',fontsize = '14')
 
+
+
+#model and residuals
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
+a0.plot_uncertainty(ax0,posteriors0,'P',100)
+
+ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
+
+#printing off graph
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-
-#graphing data from df to see 2 different biological reps represented
-
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='o', label = 'avg2')
-
-ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
-
-a0.plot_uncertainty(ax0,posteriors0,'P',1000)
-
-ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
-#printing off graph
 plt.show()
 
 
+fig3.savefig('../figures/pro_odelib0_fit')
 
 
 #########################################################
@@ -214,45 +226,57 @@ plt.show()
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,5,figsize=[10,8])
+fig4,ax4 = plt.subplots(1,5,figsize=[12,7])
 #set titles and config graph 
 fig4.suptitle('Monoculture parameters in 0 HOOH ')
-ax4[0].set_title('Model Dynamic output')
-ax4[1].set_title('P0')
-ax4[2].set_title('N0')
-ax4[3].set_title('k1')
-ax4[4].set_title('k2')
-
-ax4[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
-#make legends
-l4 = ax4[0].legend(loc = 'upper left')
-l4.draw_frame(False)
+#ax4[0].set_title('Pro  dynamics', fontsize = 16)
+#plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
+ax4[1].set_title('P0', fontsize = 14)
+ax4[2].set_title('N0', fontsize = 14)
+ax4[3].set_title('k1', fontsize = 14)
+ax4[4].set_title('k2', fontsize = 14)
+ax4[0].set_xlabel('Time (days)', fontsize = 14)
+ax4[3].set_xlabel('Parameter Value Frequency', fontsize = 16)
+ax4[3].xaxis.set_label_coords(0.75, -0.15)
+ax4[0].set_ylabel('Cells(ml$^{-1}$)', fontsize = 14)
 #shift fig subplots
-fig4.subplots_adjust(right=0.90, wspace = 0.30, hspace = 0.20)
+fig4.subplots_adjust(right=0.85, wspace = 0.45, hspace = 0.20)
 
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']== 'P']['time'], df0[df0['organism']== 'P']['abundance'], marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(df0[df0['organism']== 'P']['time'], df0[df0['organism']== 'P']['abundance'],color = 'g', marker='o',label = 'Pro Mono - 0 H ')
 ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
+ax4[0].tick_params(axis='x', labelsize=14)
+ax4[0].tick_params(axis='y', labelsize=14)
 
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
 a0.plot_uncertainty(ax0,posteriors0,'P',100)
 
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors0.P0)
-ax4[2].hist(posteriors0.N0)
-ax4[3].hist(posteriors0.k1)
-ax4[4].hist(posteriors0.k2)
+ax4[1].hist(posteriors0.P0, color = 'g')
+ax4[1].tick_params(axis='x', labelsize=14)
+ax4[1].tick_params(axis='y', labelsize=14)
+ax4[2].hist(posteriors0.N0, color = 'g')
+ax4[2].tick_params(axis='x', labelsize=14)
+ax4[2].tick_params(axis='y', labelsize=14)
+ax4[3].hist(posteriors0.k1, color = 'g')
+ax4[3].tick_params(axis='x', labelsize=14)
+ax4[3].tick_params(axis='y', labelsize=14)
+ax4[4].hist(posteriors0.k2, color = 'g')
+ax4[4].tick_params(axis='x', labelsize=14)
+ax4[4].tick_params(axis='y', labelsize=14)
 
+l4 = ax4[0].legend(loc = 'lower right', fontsize = 9)
+l4.draw_frame(False)
 #show full graph 
 plt.show()
 
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe.to_csv('../data/inits/pro9215_inits0.csv')
 
-fig4.savefig('../figures/pro_odelib0')
+fig4.savefig('../figures/pro_odelib0_params')
 
 print("I'm done bro! ")
 
