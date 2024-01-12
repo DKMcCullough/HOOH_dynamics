@@ -219,21 +219,20 @@ fig3.savefig('../figures/syn0H_fits')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,5,figsize=[10,5])
+fig4,ax4 = plt.subplots(1,3,figsize=[10,5])
 #set titles and config graph 
 fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14 )
 #fig4.axes(fontsize = 10)
 
 
 
-ax4[0].set_title('Model Dynamic output', fontsize = 12)
+ax4[0].set_title('Model Dynamic output', fontsize = 16)
 ax4[1].set_title('S0', fontsize = 12)
-ax4[2].set_title('N0', fontsize = 12)
-ax4[3].set_title('k1', fontsize = 12)
-ax4[4].set_title('k2', fontsize = 12)
+ax4[2].set_title('k2', fontsize = 12)
 ax4[0].semilogy()
-ax4[3].set_xlabel('Parameter Value Frequency', fontsize = 16)
-ax4[3].xaxis.set_label_coords(0.88, -0.2)
+ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_ylabel('Frequency', fontsize = 12)
+ax4[1].xaxis.set_label_coords(0.88, -0.2)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
@@ -255,15 +254,10 @@ a0.plot_uncertainty(ax0,posteriors0,'S',100)
 ax4[1].hist(posteriors0.S0)
 ax4[1].tick_params(axis='x', labelsize=14)
 ax4[1].tick_params(axis='y', labelsize=14)
-ax4[2].hist(posteriors0.N0)
+
+ax4[2].hist(posteriors0.k2)
 ax4[2].tick_params(axis='x', labelsize=14)
 ax4[2].tick_params(axis='y', labelsize=14)
-ax4[3].hist(posteriors0.k1)
-ax4[3].tick_params(axis='x', labelsize=14)
-ax4[3].tick_params(axis='y', labelsize=14)
-ax4[4].hist(posteriors0.k2)
-ax4[4].tick_params(axis='x', labelsize=14)
-ax4[4].tick_params(axis='y', labelsize=14)
 
 
 #show full graph 

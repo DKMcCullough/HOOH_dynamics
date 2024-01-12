@@ -126,7 +126,7 @@ k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,
 k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
 #setting state variiable  prior guess
 P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
-N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+6})
+N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2e+8})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #still not sure what part of fitting algor this is used for
@@ -186,7 +186,7 @@ a0res = get_residuals(a0)  #is this using the best fit or just a first run???
 #####################################################
 
 ###### fig set up
-fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,7)) #fig creationg of 1 by 2
+fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (7,4)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model',fontsize = '16') #setting main title of fig
 
 ####### fig config and naming 
@@ -205,7 +205,7 @@ ax1.set_xlabel('Residual',fontsize = '14')
 
 
 #model and residuals
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['sigma'], marker='d', label = 'Pro Data MEAN')
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 a0.plot_uncertainty(ax0,posteriors0,'P',100)
 
@@ -226,47 +226,41 @@ fig3.savefig('../figures/pro_odelib0_fit')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,5,figsize=[12,7])
+fig4,ax4 = plt.subplots(1,3,figsize=[7,4])
 #set titles and config graph 
-fig4.suptitle('Monoculture parameters in 0 HOOH ')
+fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14)
 #ax4[0].set_title('Pro  dynamics', fontsize = 16)
 #plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
-ax4[1].set_title('P0', fontsize = 14)
-ax4[2].set_title('N0', fontsize = 14)
-ax4[3].set_title('k1', fontsize = 14)
-ax4[4].set_title('k2', fontsize = 14)
-ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[3].set_xlabel('Parameter Value Frequency', fontsize = 16)
-ax4[3].xaxis.set_label_coords(0.75, -0.15)
-ax4[0].set_ylabel('Cells(ml$^{-1}$)', fontsize = 14)
+ax4[1].set_title('P0', fontsize = 12)
+ax4[2].set_title('k2', fontsize = 12)
+ax4[0].set_xlabel('Time (days)', fontsize = 12)
+ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_ylabel('Frequency', fontsize = 12)
+ax4[1].xaxis.set_label_coords(0.85, -0.1)
+ax4[0].set_ylabel('Cells(ml$^{-1}$)', fontsize = 12)
 #shift fig subplots
-fig4.subplots_adjust(right=0.85, wspace = 0.45, hspace = 0.20)
+fig4.subplots_adjust(right=0.80, wspace = 0.35, hspace = 0.20)
 
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']== 'P']['time'], df0[df0['organism']== 'P']['abundance'],color = 'g', marker='o',label = 'Pro Mono - 0 H ')
+ax4[0].plot(df0[df0['organism']== 'P']['time'], df0[df0['organism']== 'P']['abundance'],color = 'g', marker='o',label = 'Pro data')
 ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
 ax4[0].tick_params(axis='x', labelsize=14)
 ax4[0].tick_params(axis='y', labelsize=14)
 
-ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
+ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model best fit')
 a0.plot_uncertainty(ax0,posteriors0,'P',100)
 
 
 # plot histograms of parameter search results 
 ax4[1].hist(posteriors0.P0, color = 'g')
-ax4[1].tick_params(axis='x', labelsize=14)
-ax4[1].tick_params(axis='y', labelsize=14)
-ax4[2].hist(posteriors0.N0, color = 'g')
-ax4[2].tick_params(axis='x', labelsize=14)
-ax4[2].tick_params(axis='y', labelsize=14)
-ax4[3].hist(posteriors0.k1, color = 'g')
-ax4[3].tick_params(axis='x', labelsize=14)
-ax4[3].tick_params(axis='y', labelsize=14)
-ax4[4].hist(posteriors0.k2, color = 'g')
-ax4[4].tick_params(axis='x', labelsize=14)
-ax4[4].tick_params(axis='y', labelsize=14)
+ax4[1].tick_params(axis='x', labelsize=12)
+ax4[1].tick_params(axis='y', labelsize=12)
+
+ax4[2].hist(posteriors0.k2, color = 'g')
+ax4[2].tick_params(axis='x', labelsize=12)
+ax4[2].tick_params(axis='y', labelsize=12)
 
 l4 = ax4[0].legend(loc = 'lower right', fontsize = 9)
 l4.draw_frame(False)

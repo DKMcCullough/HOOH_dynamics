@@ -57,7 +57,7 @@ df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.1
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 
 #setting working df for model as far as abundance and log abundance values 
 #df.rename(columns = {'avg1':'abundance'}, inplace = True) #reaneme main df column to be fit by odelib 
@@ -136,7 +136,7 @@ phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':12})
 #setting state variiable  prior guess
 S0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
-N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+5})
+N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+7})
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':100})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
@@ -177,6 +177,12 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     dHdt = 12- phi*S*H
     return [dSdt,dNdt,dHdt]
 
+def get_residuals(self):
+    mod = self.integrate(predict_obs=True)
+    res = (mod.abundance - self.df.abundance)   #this is not same species 
+    mod['res'] = res
+    return(mod)
+
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_models
@@ -190,12 +196,13 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,s
 # run model with optimal params
 mod4 = a4.integrate()
 
+
 #####################################################
 # graphing model vs data in 0 H and associated error
 #####################################################
 
 ###### fig set up
-fig3, ax3 = plt.subplots(1,2,figsize = (7,6)) #fig creationg of 1 by 2
+fig3, ax3 = plt.subplots(1,2,figsize = (8,5)) #fig creationg of 1 by 2
 fig3.suptitle('Syn in 400 H Model') #setting main title of fig
 
 ####### fig config and naming 
@@ -239,7 +246,7 @@ plt.show()
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[9,7])
+fig4,ax4 = plt.subplots(1,3,figsize=[10,5])
 #set titles and config graph 
 fig4.suptitle('Syn Monoculture parameters in 400 HOOH ', fontsize = 16)
 ax4[0].set_title('Syn Model Dynamic output', fontsize = 14)
@@ -247,10 +254,13 @@ ax4[1].set_title('S0', fontsize = 14)
 ax4[2].set_title('kdam', fontsize = 14)
 
 ax4[0].semilogy()
-fig4.subplots_adjust(right=0.85, wspace = 0.25, hspace = 0.20)
 
-ax4[1].set_xlabel('Parameter Value Frequency', fontsize = 16)
+fig4.subplots_adjust(right=0.80, wspace = 0.25, hspace = 0.20)
 
+ax4[1].set_xlabel('Parameter Value', fontsize = 14)
+ax4[1].set_ylabel('Frequency', fontsize = 14)
+
+ax4[0].set_ylabel('Cells (ml-1)')
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
@@ -284,15 +294,18 @@ fig4.savefig('../figures/syn_odelib4_Sparams')
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,3,figsize=[9,7])
-fig5.suptitle('HOOH parmaters ', fontsize = 16)
+fig5,ax5 = plt.subplots(1,3,figsize=[10,5])
+fig5.suptitle('HOOH parmaters ', fontsize = 14)
 ax5[0].set_title('HOOH Model Dynamic output', fontsize = 14)
 ax5[1].set_title('H0', fontsize = 14)
 ax5[2].set_title('phi', fontsize = 14)
 
 ax5[0].semilogy()
-fig5.subplots_adjust(right=0.85, wspace = 0.30, hspace = 0.20)
-ax5[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
+fig5.subplots_adjust(right=0.85, wspace = 0.45, hspace = 0.20)
+ax5[1].set_xlabel('Parameter Value', fontsize = 14)
+ax5[1].set_ylabel('Frequency', fontsize = 13)
+ax5[0].set_ylabel('HOOH concentration', fontsize = 14)
+ax5[0].set_xlabel('Time (Days)', fontsize = 14)
 #make legends
 l5 = ax5[0].legend(loc = 'upper left')
 l5.draw_frame(False)

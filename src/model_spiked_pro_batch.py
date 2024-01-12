@@ -57,8 +57,7 @@ df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.1
-
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 #setting working df for model as far as abundance and log abundance values 
 #df.rename(columns = {'avg1':'abundance'}, inplace = True) #reaneme main df column to be fit by odelib 
 #df.rename(columns = {'lavg1':'log_abundance'}, inplace = True) #reaneme log of main df column to be fit by odelib 
@@ -136,7 +135,7 @@ phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
 P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
-N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+6})
+N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+7})
 H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':100})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
@@ -174,8 +173,15 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - kdam*P*H    
     dNdt =  - (k2 * N /( (ksp) + N) )*P
-    dHdt = 12- phi*P*H
+    dHdt = 16- phi*P*H
     return [dPdt,dNdt,dHdt]
+
+
+def get_residuals(self):
+    mod = self.integrate(predict_obs=True)
+    res = (mod.abundance - self.df.abundance)   #this is not same species 
+    mod['res'] = res
+    return(mod)
 
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
@@ -195,7 +201,7 @@ mod4 = a4.integrate()
 #####################################################
 
 ###### fig set up
-fig3, ax3 = plt.subplots(1,2,figsize = (9,7)) #fig creationg of 1 by 2
+fig3, ax3 = plt.subplots(1,2,figsize = (8,5)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 400 H Model') #setting main title of fig
 
 ####### fig config and naming 
@@ -238,15 +244,20 @@ fig3.savefig('../figures/pro_data_400')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[9,7])
+fig4,ax4 = plt.subplots(1,3,figsize=[7,4])
 #set titles and config graph 
 fig4.suptitle('Pro Monoculture parameters in 400 HOOH ')
 ax4[0].set_title('Pro dyanmics')
 ax4[1].set_title('P0')
 ax4[2].set_title('kdam')
 
+ax4[0].semilogy()
+ax4[0].set_ylabel('Cell concentration')
+ax4[0].set_xlabel('Time (Days)')
 
-ax4[2].set_xlabel('Parameter Value Frequency', fontsize = 16)
+
+ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_ylabel('Frequency', fontsize = 12)
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
@@ -273,15 +284,19 @@ fig4.savefig('../figures/pro_odelib4_Pparams')
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,3,figsize=[9,7])
+fig5,ax5 = plt.subplots(1,3,figsize=[7,4])
 fig5.suptitle('HOOH parmaters in 400 HOOH')
 ax5[0].set_title('HOOH dynamics')
 ax5[1].set_title('H0')
 ax5[2].set_title('phi')
 
+ax5[0].set_ylabel('HOOH concentration')
+ax5[0].set_xlabel('Time (Days)')
 fig5.subplots_adjust(right=0.85, wspace = 0.45, hspace = 0.20)
-ax5[1].set_xlabel('Parameter Value Frequency', fontsize = 16)
-#make legends
+
+ax5[1].set_xlabel('Parameter Value', fontsize = 12)
+ax5[1].set_ylabel('Frequency', fontsize = 12)
+
 l5 = ax5[0].legend(loc = 'upper left')
 l5.draw_frame(False)
 

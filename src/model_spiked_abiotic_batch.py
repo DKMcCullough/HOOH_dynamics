@@ -22,53 +22,48 @@ import random as rd
 import sys
 
 
-#####################################################
-# read in data and formatting
+######################################################
+#reading in data and configureing 
 #####################################################
 df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
 df_all = df_1
 
+
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-#df_all = pd.read_csv("../data/BCC_2-5-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df = df_all
+df_a = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
 
-#make unlogged avgs
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-
-#make logs of data
+df = df_a
 df['log1'] = np.log(df['rep1'])
+df['log2'] = np.log(df['rep2'])
 df['log3'] = np.log(df['rep3'])
+df['log4'] = np.log(df['rep4'])
+df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
+df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
+df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
+df['std1'] = df[['rep1', 'rep3']].std(axis=1)
+df['std2'] = df[['rep2', 'rep4']].std(axis=1)
+df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
 
-#avg and std of logged data
 df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
+df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
+df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
 df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
+df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
+df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
-#splicing abiotic and mono or coculture data
-df_abiotic = df.loc[df['assay'].str.contains('abiotic', case=False)].copy()  
-df_co = df.loc[df['assay'].str.contains('coculture', case=False)].copy()  
-df_mono = df.loc[~df['assay'].str.contains('coculture', case=False)].copy()  
-df_P = df_mono.loc[df_mono['organism'].str.contains('P', case=False)].copy() 
-df_S = df_mono.loc[df_mono['organism'].str.contains('S', case=False)].copy() 
+df['log_sigma'] = 0.2
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 
-#setting working df
-df = df_abiotic
+#slicing data into abiotic, biotic, and Pro only dataframes
+df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
+df4 = df.loc[(df['assay'].str.contains('4', case=False))]
 
-df = df.rename(columns={"avg1": "abundance"}) #renaming raw to abundance for odelib to graph against
-df = df.rename(columns={"stdlog1": "log_sigma"}) #renaming raw to abundance for odelib to graph against
-
-
-#splitting df into 0 HOOH and 400 HOOH assay dfs 
-df0 = df.loc[~ df['assay'].str.contains('4', case=False)] 
-df4 = df.loc[df['assay'].str.contains('4', case=False)] 
 
 ## Reading in inits files for 0 and 400 models respectively
-#inits0 = pd.read_csv("../data/inits/abiotic0.csv")
-#priors0 = inits0.to_dict()
 
 inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 #priors4 = inits4.to_dict()
@@ -76,12 +71,13 @@ inits4 = pd.read_csv("../data/inits/abiotic4.csv")
 #####################################################
 #functions  for modeling and graphing model uncertainty 
 #####################################################
+'''
 def set_best_params(model,posteriors,snames):
     im = posteriors.loc[posteriors.chi==min(posteriors.chi)].index[0]
     bestchain = posteriors.iloc[im]["chain#"]
     posteriors = posteriors[posteriors["chain#"]==bestchain]
-    model.set_parameters(**posteriors.loc[im][a0.get_pnames()].to_dict())
-    model.set_inits(**{o:posteriors.loc[im][a0.get_pnames()].to_dict()[o+'0'] for o in ['H']})
+    model.set_parameters(**posteriors.loc[im][a4.get_pnames()].to_dict())
+    model.set_inits(**{o:posteriors.loc[im][a4.get_pnames()].to_dict()[o+'0'] for o in ['H']})
 
 ###############
 #####only set for 0 a for idk if 400 model is working correctly. #######
@@ -95,7 +91,7 @@ def plot_uncertainty(ax,model,posteriors,ntimes):
         mod = model.integrate()
         ax.plot(mod.time,mod['H'],c=str(0.8),lw=1,zorder=1)
 
-
+'''
 #actual model that will be run by the odelib model framework
 def abiotic(y,t,params):
     deltah,Sh = params[0], params[1]
@@ -111,9 +107,9 @@ def get_model(df,priors):
                           parameter_names=['deltah','Sh', 'H0'],
                           state_names = snames,
                           dataframe=df,
-                          deltah = priors['deltah'],
-                          Sh = priors['Sh'],
-                          H0  = priors['H0'],
+                          deltah = deltah_prior.copy(),
+                          Sh = Sh_prior.copy(),
+                          H0  = H0_prior.copy(),
                           t_steps=1000,
                           H = H0_mean
                          )
@@ -153,8 +149,7 @@ H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw
 priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
 
 #setting H mean for odelib search 
-H0_mean = df4.loc[df4['time'] == 0, 'abundance'].iloc[0]
-
+H0_mean = inits4['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
@@ -165,22 +160,17 @@ nits = 10000
 # Create and Run model on 0 and 400 df
 #####################################
 
-a4 = get_model(df4,priors) # initialising model for 0 df
-#sys.exit()
+a4 = get_model(df4,priors) 
 
+#broken here!!!!!!!!!!
+# do fitting
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
+#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
-# do fitting for 0 an 400 model 
-posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1, print_report=True)
-
-#new way to use set best params funct
-a4.set_best_params(posteriors4)   #new func working for best params 
-
-# run model with optimal params for 0 an 400 model 
+# run model with optimal params
 mod4 = a4.integrate()
 
-#get residuals from model 
-a4res = get_residuals(a4)  #is this using the best fit or just a first run???
-
+a4res = get_residuals(a4)
 
 #########################################################
 # graphing df and models together
@@ -214,7 +204,8 @@ l2.draw_frame(False)
 #plot dynamics of data and model for 0 assay 
 ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = 'abiotic - 4 H ') #data of 0 H assay
 ax1[0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-plot_uncertainty(ax1[0],a4,posteriors4,100) #plotting 100 itterations of model search for 0 H assay 
+a4.plot_uncertainty(ax1[0],posteriors4,'H',100)
+#plot_uncertainty(ax1[0],a4,posteriors4,100) #plotting 100 itterations of model search for 0 H assay 
 #plot 400 assay dynamics and models
 #ax1[1].plot(df4.time,df4.abundance, marker='o',color = c4, label = 'abiotic - 400 H ')#data of 400 H
 
