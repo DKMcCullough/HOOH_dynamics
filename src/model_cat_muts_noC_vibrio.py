@@ -62,7 +62,7 @@ dfw = df0   #setting working df
 
 Ss = df['strain'].unique()
 nSs = Ss.shape[0]
-colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','fushia','mediumpurple','yellow','orange']
+colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','fucshia','mediumpurple','yellow','orange']
 
 
 for (s,ns) in zip( Ss,range(nSs)):
@@ -87,11 +87,11 @@ for (s,ns) in zip( Ss,range(nSs)):
     pw = 1
 
     #setting param prior guesses and inititaing as an odelib param class in odelib
-    k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.0002})
+    k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.002})
     k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.5})
     #setting state variiable  prior guess
     D0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+4})
-    N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
+    N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+5})
     #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
     #still not sure what part of fitting algor this is used for
@@ -205,10 +205,11 @@ for (s,ns) in zip( Ss,range(nSs)):
     ###################
     fig2,ax2 = plt.subplots(1,3,sharex=True,figsize=[8,5]) 
     
-    ax2[0].set_title('Model Dynamic output', fontsize = 16)
+    ax2[0].set_title(('MHM Model Dynamics for '+str(s)), fontsize = 16)
     ax2[1].set_title('D0', fontsize = 12)
     ax2[2].set_title('k2', fontsize = 12)
     ax2[0].semilogy()
+    ax2[0].set_xlim(xmin =0 , xmax =48)
     ax2[1].set_xlabel('Parameter Value', fontsize = 12)
     ax2[1].set_ylabel('Frequency', fontsize = 12)
     ax2[1].xaxis.set_label_coords(0.88, -0.2)
@@ -247,7 +248,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     ##################################
     #crating and config of fig 3
     fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,5]) #make plot
-    fig3.suptitle('Trace plots for Params in 0H') #set main title 
+    fig3.suptitle((str(s) +' MHMnoC Trace plots in 0H')) #set main title 
     fig3.subplots_adjust(right=0.90, wspace = 0.55, top = 0.90) #shift white space for better fig view
     fig3.supxlabel('Model Iteration') #set overall x title 
     
