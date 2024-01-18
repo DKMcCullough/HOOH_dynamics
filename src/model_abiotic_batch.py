@@ -184,7 +184,7 @@ ax1[2].set_xlabel('Parameter Value (Logged)')
 
 #plot dynamics of data and model for 0 assay 
 ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-ax1[0].plot(mod0.time,mod0['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+ax1[0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
 
 # plot histograms of params next to dynamics graphs
@@ -286,9 +286,9 @@ ax5.set_ylabel('HOOH Concentration nM/mL')
 ax5.set_xlabel('Time (days)')
 
 #plot dynamics of data and model for 0 assay 
-ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-#ax1[0].plot(mod0.time,mod0['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-#a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
+ax5.plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
+ax5.plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+a0.plot_uncertainty(ax5,posteriors0,'H',100)
 
 
 #config legends

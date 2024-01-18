@@ -203,7 +203,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     
     
     ###################
-    fig2,ax2 = plt.subplots(1,3,sharex=True,figsize=[8,5]) 
+    fig2,ax2 = plt.subplots(1,3, figsize=[8,5]) 
     
     ax2[0].set_title(('MHM Model Dynamics for '+str(s)), fontsize = 16)
     ax2[1].set_title('D0', fontsize = 12)
@@ -247,7 +247,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     #graphing trace of Param values
     ##################################
     #crating and config of fig 3
-    fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,5]) #make plot
+    fig3,ax3 = plt.subplots(1,2, figsize=[8,5]) #make plot
     fig3.suptitle((str(s) +' MHMnoC Trace plots in 0H')) #set main title 
     fig3.subplots_adjust(right=0.90, wspace = 0.55, top = 0.90) #shift white space for better fig view
     fig3.supxlabel('Model Iteration') #set overall x title 

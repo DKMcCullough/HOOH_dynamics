@@ -82,7 +82,7 @@ df = df4
 #plotting data and error within biological reps 
 #####################################################
 # fig set up and main title 
-fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
+fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (9,5))
 fig2.suptitle('Pro  Monoculture in 400 nM HOOH')
 fig2.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
 
@@ -201,7 +201,7 @@ mod4 = a4.integrate()
 #####################################################
 
 ###### fig set up
-fig3, ax3 = plt.subplots(1,2,figsize = (8,5)) #fig creationg of 1 by 2
+fig3, ax3 = plt.subplots(1,2,figsize = (9,5)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 400 H Model') #setting main title of fig
 
 ####### fig config and naming 
@@ -244,7 +244,7 @@ fig3.savefig('../figures/pro_data_400')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[7,4])
+fig4,ax4 = plt.subplots(1,3,figsize=[10,4])
 #set titles and config graph 
 fig4.suptitle('Pro Monoculture parameters in 400 HOOH ')
 ax4[0].set_title('Pro dyanmics')
@@ -284,7 +284,7 @@ fig4.savefig('../figures/pro_odelib4_Pparams')
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,3,figsize=[7,4])
+fig5,ax5 = plt.subplots(1,3,figsize=[10,4])
 fig5.suptitle('HOOH parmaters in 400 HOOH')
 ax5[0].set_title('HOOH dynamics')
 ax5[1].set_title('H0')

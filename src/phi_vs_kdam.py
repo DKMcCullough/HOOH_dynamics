@@ -26,8 +26,8 @@ import pandas as pd
 
 
 df = pd.DataFrame({'names' : ('Syn WH7803','Pro MIT9215'),
-                                'phis' : [2.34E-06,9.32E-17],
-                                'kdams' : [6.20E-06,0.00281796] }, 
+                                'phis' : [1.71E-06,2.82E-12],
+                                'kdams' : [0.00132393992680983,0.00322116921322925] }, 
                                 columns=['names','phis', 'kdams'])
 
 #Not all of the data sets have cocurrent HOOH measurements so Phi is less constrained and therefore can be biassing the conclusions a lot. 
