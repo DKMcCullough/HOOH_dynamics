@@ -270,7 +270,10 @@ pframe.to_csv('../data/inits/MIT9313_inits0.csv')
 
 fig4.savefig('../figures/pro_odelib0')
 
-print("I'm done bro! ")
 
+# 'program finished' flag
 
+print('\n ~~~****~~~****~~~ \n')
+print('\n Im free Im free! Im done calculating!' )
+print('\n ~~~****~~~****~~~ \n')
 

@@ -334,7 +334,10 @@ pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/MIT9313_inits4.csv')
 
 
-print("I'm done bro! ")
 
+# 'program finished' flag
 
+print('\n ~~~****~~~****~~~ \n')
+print('\n Im free Im free! Im done calculating!' )
+print('\n ~~~****~~~****~~~ \n')
 

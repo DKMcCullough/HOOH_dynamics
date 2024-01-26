@@ -1,6 +1,6 @@
 '''
 
-name:   model_abiotic_batch.py 
+name:   model_spiked_abiotic_batch_2.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/Monocultures/src'
 
@@ -12,6 +12,7 @@ working on: ln of data in df for uncertainty, loop of all dfs in df_all for mode
 
 '''
 
+
 #read in needed packages 
 import pandas as pd
 import numpy as np
@@ -22,15 +23,10 @@ import random as rd
 import sys
 
 
-
-
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
-
-df_all = df_1
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
@@ -60,20 +56,19 @@ df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 df['log_sigma'] = 0.2
 df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 
-
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False))]
 
 
 ## Reading in inits files for 0 and 400 models respectively
-inits0 = pd.read_csv("../data/inits/abiotic0.csv")
 
+inits4 = pd.read_csv("../data/inits/abiotic_spike_2.csv")
+#priors4 = inits4.to_dict()
 
 #####################################################
 #functions  for modeling and graphing model uncertainty 
 #####################################################
-
 
 #actual model that will be run by the odelib model framework
 def abiotic(y,t,params):
@@ -85,7 +80,7 @@ def abiotic(y,t,params):
 
 
 #initiating the model as a class in odelib (give us use of the methods in this class - like integrate :-) 
-def get_model(df):
+def get_model(df,priors):
     a1=ODElib.ModelFramework(ODE=abiotic,
                           parameter_names=['deltah','Sh', 'H0'],
                           state_names = snames,
@@ -97,7 +92,6 @@ def get_model(df):
                           H = H0_mean
                          )
     return a1
-
 
 
 #####################################################
@@ -124,79 +118,79 @@ snames = ['H']
 #sigma we give model to search withi for each param
 pw = 1
 
-#priors
-
 #setting param prior guesses and inititaing as an odelib param class in odelib
-deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
+deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':3})
 #setting state variiable  prior guess
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':20})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':100})
 
 priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
 
 #setting H mean for odelib search 
-H0_mean = inits0['H0'][0]
+H0_mean = inits4['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 1000
+nits = 100000
 
 
 #####################################
 # Create and Run model on 0 and 400 df
 #####################################
 
-a0 = get_model(df0) 
+a4 = get_model(df4,priors) 
 
-#broken here!!!!!!!!!!
+
 # do fitting
-posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
-#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
 
 # run model with optimal params
-mod0 = a0.integrate()
+mod4 = a4.integrate()
 
-a0res = get_residuals(a0)  #is this using the best fit or just a first run???
-
+a4res = get_residuals(a4)
 
 #########################################################
 # graphing df and models together
 #########################################################
-c0 = 'darkgreen'
+c0 = 'blueviolet'
 
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[9,4]) #plot creation and config 
+fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config 
 #set titles of subplots
-fig1.suptitle('Abiotic HOOH Model Output') #full title config
+fig1.suptitle('Abiotic HOOH Model Output',fontsize = '16') #full title config
 fig1.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.30) #shift white space for better fig view
-ax1[0].set_title('HOOH Dynamics')
-ax1[0].set_ylabel('HOOH Concentration nM/mL')
-ax1[0].set_xlabel('Time (days)')
-ax1[1].set_title('Sh')
-ax1[1].set_ylabel('Frequency')
-ax1[1].set_xlabel('Parameter Value')
-ax1[2].set_title('deltah')
-ax1[2].set_ylabel('Frequency')
-ax1[2].set_xlabel('Parameter Value (Logged)')
+ax1[0].set_title('HOOH Dynamics',fontsize = '12')
+ax1[0].set_ylabel('HOOH Concentration nM/mL',fontsize = '12')
+ax1[0].set_xlabel('Time (days)',fontsize = '12')
+ax1[1].set_title('Sh',fontsize = '12')
+ax1[1].set_ylabel('Frequency',fontsize = '12')
+ax1[1].set_xlabel('Parameter Value',fontsize = '12')
+ax1[2].set_title('deltah',fontsize = '12')
+ax1[2].set_ylabel('Frequency',fontsize = '12')
+ax1[2].set_xlabel('Parameter Value',fontsize = '12')
+
 
 
 #plot dynamics of data and model for 0 assay 
-ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-ax1[0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
+ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = 'abiotic - 4 H ') #data of 0 H assay
+ax1[0].errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0) #data of 0 H assay
+ax1[0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+a4.plot_uncertainty(ax1[0],posteriors4,'H',100)
 
 # plot histograms of params next to dynamics graphs
-ax1[1].hist(((posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
-ax1[2].hist(((posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
+ax1[1].hist((posteriors4.Sh), facecolor=c0) #graphing Sh of 0 H assay 
+ax1[2].hist((posteriors4.deltah), facecolor=c0) #graphing deltah of 0 H assay 
 
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
 
 
-fig1.savefig('../figures/abiotic_0_dynamics')
+
+
+fig1.savefig('../figures/abiotic_4_dynamics')
 
 ########################################
 #graph parameters against one another 
@@ -204,14 +198,15 @@ fig1.savefig('../figures/abiotic_0_dynamics')
 
 #graph set up
 
-fig2,ax2 = plt.subplots(1,2, figsize=[7,4])
-fig2.suptitle('Parameter Interactions ')
+fig2,ax2 = plt.subplots(1,2, figsize=[9,6])
+fig2.suptitle('Parameter Interactions ',fontsize = '14')
 
-ax2[0].set_ylabel('deltah')
-ax2[0].set_xlabel('Sh')
-ax2[1].set_ylabel('ln (deltah)')
-ax2[1].set_xlabel('ln (Sh)')
+ax2[0].set_ylabel('deltah',fontsize = '12')
+ax2[0].set_xlabel('Sh',fontsize = '12')
+ax2[1].set_ylabel('log (deltah)',fontsize = '12')
+ax2[1].set_xlabel('log (Sh)',fontsize = '12')
 
+#ax2.set_title('0 HOOH')
 
 plt.legend()
 #adding text for more labels of graph
@@ -219,39 +214,41 @@ plt.legend()
 fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.45, hspace = 0.30) #shift white space for better fig view
 
 #graphing each assay's parameters against each other 
-ax2[0].scatter(posteriors0.Sh,posteriors0.deltah,color = c0)
-ax2[1].scatter(np.log(posteriors0.Sh),np.log(posteriors0.deltah),color = c0)
+ax2[0].scatter(posteriors4.Sh,posteriors4.deltah,color = c0)
+ax2[1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c0)
 
 #ax2[1,0].set_yscale('log')
 
 
 #show full graph and save fig
 
-fig2.savefig('../figures/abiotic_0_params')
+fig2.savefig('../figures/abiotic_4_params')
 
 
 #################################
 #graphing logged parameter values
 ##################################
 #crating and config of fig 3
-fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,5]) #make plot
-fig3.suptitle('Trace plots for Logged Params ') #set main title 
-fig3.subplots_adjust(right=0.90, wspace = 0.55, top = 0.90) #shift white space for better fig view
-fig3.supxlabel('Model Iteration') #set overall x title 
-
-ax3[0].set_ylabel('Log Sh')
-ax3[1].set_ylabel('Log deltah')
+fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot
+fig3.suptitle('Trace plots for Logged Params ',fontsize = '16') #set main title 
+fig3.subplots_adjust(right=0.90, wspace = 0.45, top = 0.85) #shift white space for better fig view
+fig3.supxlabel('Model Iteration', fontsize = '14') #set overall x title 
+#ax3[0].set_title('0 HOOH')
+#ax3[1].set_title('400 HOOH ')
+ax3[0].set_ylabel('Sh',fontsize = '12')
+ax3[1].set_ylabel('deltah',fontsize = '12')
 
 #ax3[:,:].set_yscale('log')
 
 
 #graphing iteration number vs parameter numbert logged 
-ax3[0].scatter(posteriors0.iteration,np.log(posteriors0.Sh),color = c0)
-ax3[1].scatter(posteriors0.iteration,np.log(posteriors0.deltah),color = c0)
+ax3[0].scatter(posteriors4.iteration,(posteriors4.Sh),color = c0)
+ax3[1].scatter(posteriors4.iteration,(posteriors4.deltah),color = c0)
+
 
 
 #print out plot
-fig3.savefig('../figures/abiotic_0_TRACE')
+fig3.savefig('../figures/abiotic_4_TRACE')
 
 
 #########################################
@@ -259,58 +256,55 @@ fig3.savefig('../figures/abiotic_0_TRACE')
 ##########################################
 
 #making and confing of residuals plot
-fig4,ax4 = plt.subplots(figsize=[8,5])
-fig4.suptitle('Residuals vs Model Fit Value ')
-fig4.supylabel('Model Value (H)')
-fig4.supxlabel('Residual')
-#config legends for data differentialtion 
-l4 = ax4.legend()
+fig4, (ax0,ax1)= plt.subplots(1,2,figsize = (8,4)) #fig creationg of 1 by 2
+fig4.suptitle('Abiotic HOOH 400 spike Model',fontsize = '16') #setting main title of fig
+
+####### fig config and naming 
+
+fig4.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20, top = 0.8)
+
+ax0.semilogy()
+ax0.set_title('HOOH dynamics ',fontsize = '16')
+ax1.set_title('Model residuals',fontsize = '12')
+
+ax0.set_xlabel('Time (days)',fontsize = '12')
+ax0.set_ylabel('HOOH (nM)',fontsize = '12')
+ax1.set_ylabel('Data H value',fontsize = '12')
+ax1.set_xlabel('Residual',fontsize = '12')
+
+
+
+#model and residuals
+ax0.plot(df4.time,df4.abundance, marker='o',color = c0, label = 'HOOH data mean') #data of 0 H assay
+ax0.errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0) #data of 0 H assay
+ax0.plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+a4.plot_uncertainty(ax0,posteriors4,'H',100)
+
+ax1.scatter(a4res['res'], a4res['abundance'],color = c0, label = '400H spike')
+
+#printing off graph
+l4 = ax0.legend(loc = 'upper right')
 l4.draw_frame(False)
-
-#plotting residual function output residual and abundance columns 
-ax4.scatter(a0res['res'], a0res['abundance'],label = '0 H', color = c0) #where )
-
-#how to get residuals from all posterior runs not just best???
-
-#print out plot
-fig4.savefig('../figures/abiotic_0_residuals')
-
-
-##########################
-fig5,ax5 = plt.subplots(figsize=[7,6]) #plot creation and config 
-#set titles of subplots
-fig5.suptitle('Abiotic HOOH Production') #full title config
-
-ax5.set_title('HOOH Dynamics')
-ax5.set_ylabel('HOOH Concentration nM/mL')
-ax5.set_xlabel('Time (days)')
-
-#plot dynamics of data and model for 0 assay 
-ax5.plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-ax5.plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-a0.plot_uncertainty(ax5,posteriors0,'H',100)
-
-
-#config legends
-l1 = ax1[0].legend(loc = 'lower right')
-l1.draw_frame(False)
-
-
-
 
 plt.show()
 
 
+fig4.savefig('../figures/abiotic_4_residuals')
 
-pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-pframe0.to_csv("../data/inits/abiotic0.csv")
+
+#saving best params as the new inits file for the next file run. 
+
+pframe4 = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
+pframe4.to_csv("../data/inits/abiotic_spike_2.csv")
 
 
 # 'program finished' flag
-print('\n ~~~****~~~****~~~ \n')
-print('\n Done my guy \n')
+
 print('\n ~~~****~~~****~~~ \n')
 print('\n Im free Im free! Im done calculating!' )
 print('\n ~~~****~~~****~~~ \n')
+
+
+
 
 

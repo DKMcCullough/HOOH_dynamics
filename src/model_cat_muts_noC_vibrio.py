@@ -62,7 +62,7 @@ dfw = df0   #setting working df
 
 Ss = df['strain'].unique()
 nSs = Ss.shape[0]
-colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','fucshia','mediumpurple','yellow','orange']
+colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','pink','mediumpurple','yellow','orange']
 
 
 for (s,ns) in zip( Ss,range(nSs)):
@@ -87,7 +87,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     pw = 1
 
     #setting param prior guesses and inititaing as an odelib param class in odelib
-    k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.002})
+    k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':.200})
     k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.5})
     #setting state variiable  prior guess
     D0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+4})
@@ -111,7 +111,7 @@ for (s,ns) in zip( Ss,range(nSs)):
                                   k2 = k2_prior.copy(),
                                   D0 = D0_prior.copy(),
                                   N0  = N0_prior.copy(),
-                                  t_steps=1000,
+                                  t_steps=10000,
                                   D = D0_mean,
                                   N = N0_mean,
                                   )
@@ -123,6 +123,8 @@ for (s,ns) in zip( Ss,range(nSs)):
         ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
         dDdt = (k2 * N /( (ksp) + N) )*D     
         dNdt =  - (k2 * N /( (ksp) + N) )*D
+        print('D, dDdt, N, dNdt')
+        print(D, dDdt, N, dNdt)
         return [dDdt,dNdt]
     
     
@@ -189,7 +191,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     
     ax0.plot(mod0.time,mod0['D'],c='r',lw=1.5,label=' model best fit')
     
-    a0.plot_uncertainty(ax0,posteriors0,'D',1000)
+    a0.plot_uncertainty(ax0,posteriors0,'D',100)
     
     ax1.scatter(a0res['res'], a0res['abundance'],color = c0,label = '0H case')
     
@@ -209,7 +211,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     ax2[1].set_title('D0', fontsize = 12)
     ax2[2].set_title('k2', fontsize = 12)
     ax2[0].semilogy()
-    ax2[0].set_xlim(xmin =0 , xmax =48)
+    ax2[0].set_xlim(xmin =0 , xmax =35)
     ax2[1].set_xlabel('Parameter Value', fontsize = 12)
     ax2[1].set_ylabel('Frequency', fontsize = 12)
     ax2[1].xaxis.set_label_coords(0.88, -0.2)

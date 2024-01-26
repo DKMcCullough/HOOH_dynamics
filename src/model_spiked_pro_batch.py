@@ -173,7 +173,7 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - kdam*P*H    
     dNdt =  - (k2 * N /( (ksp) + N) )*P
-    dHdt = 16- phi*P*H
+    dHdt = Sh- phi*P*H
     return [dPdt,dNdt,dHdt]
 
 
@@ -319,7 +319,8 @@ pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/pro9215_inits4.csv')
 
 
-print("I'm done bro! ")
+# 'program finished' flag
 
-
-
+print('\n ~~~****~~~****~~~ \n')
+print('\n Im free Im free! Im done calculating!' )
+print('\n ~~~****~~~****~~~ \n')
