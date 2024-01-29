@@ -120,9 +120,9 @@ pw = 1
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
-Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':3})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
-H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':100})
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':360})
 
 priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
 
@@ -131,7 +131,7 @@ H0_mean = inits4['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 100000
+nits = 10000
 
 
 #####################################
@@ -160,7 +160,7 @@ c0 = 'blueviolet'
 fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config 
 #set titles of subplots
 fig1.suptitle('Abiotic HOOH Model Output',fontsize = '16') #full title config
-fig1.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.30) #shift white space for better fig view
+fig1.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
 ax1[0].set_title('HOOH Dynamics',fontsize = '12')
 ax1[0].set_ylabel('HOOH Concentration nM/mL',fontsize = '12')
 ax1[0].set_xlabel('Time (days)',fontsize = '12')
@@ -171,7 +171,7 @@ ax1[2].set_title('deltah',fontsize = '12')
 ax1[2].set_ylabel('Frequency',fontsize = '12')
 ax1[2].set_xlabel('Parameter Value',fontsize = '12')
 
-
+ax1[0].set_ylim([20, 600])
 
 #plot dynamics of data and model for 0 assay 
 ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = 'abiotic - 4 H ') #data of 0 H assay
@@ -197,30 +197,25 @@ fig1.savefig('../figures/abiotic_4_dynamics')
 ########################################
 
 #graph set up
-
 fig2,ax2 = plt.subplots(1,2, figsize=[9,6])
 fig2.suptitle('Parameter Interactions ',fontsize = '14')
-
+ax2[0].set_title('Raw',fontsize = '12')
+ax2[1].set_title('Logged',fontsize = '12')
+#axes labels
 ax2[0].set_ylabel('deltah',fontsize = '12')
 ax2[0].set_xlabel('Sh',fontsize = '12')
 ax2[1].set_ylabel('log (deltah)',fontsize = '12')
 ax2[1].set_xlabel('log (Sh)',fontsize = '12')
-
-#ax2.set_title('0 HOOH')
-
-plt.legend()
-#adding text for more labels of graph
-
+#editing locations of subplots
 fig2.subplots_adjust(right=0.90, left=0.15,wspace = 0.45, hspace = 0.30) #shift white space for better fig view
 
 #graphing each assay's parameters against each other 
 ax2[0].scatter(posteriors4.Sh,posteriors4.deltah,color = c0)
 ax2[1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c0)
 
-#ax2[1,0].set_yscale('log')
 
+plt.legend()
 
-#show full graph and save fig
 
 fig2.savefig('../figures/abiotic_4_params')
 
@@ -229,14 +224,14 @@ fig2.savefig('../figures/abiotic_4_params')
 #graphing logged parameter values
 ##################################
 #crating and config of fig 3
-fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot
+fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[9,6]) #make plot
 fig3.suptitle('Trace plots for Logged Params ',fontsize = '16') #set main title 
 fig3.subplots_adjust(right=0.90, wspace = 0.45, top = 0.85) #shift white space for better fig view
 fig3.supxlabel('Model Iteration', fontsize = '14') #set overall x title 
-#ax3[0].set_title('0 HOOH')
-#ax3[1].set_title('400 HOOH ')
-ax3[0].set_ylabel('Sh',fontsize = '12')
-ax3[1].set_ylabel('deltah',fontsize = '12')
+ax3[0].set_title('Sh',fontsize = '14')
+ax3[1].set_title('deltah',fontsize = '14')
+ax3[0].set_ylabel('Sh value',fontsize = '12')
+ax3[1].set_ylabel('deltah value',fontsize = '14')
 
 #ax3[:,:].set_yscale('log')
 
@@ -261,16 +256,19 @@ fig4.suptitle('Abiotic HOOH 400 spike Model',fontsize = '16') #setting main titl
 
 ####### fig config and naming 
 
-fig4.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20, top = 0.8)
+fig4.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2)
 
 ax0.semilogy()
-ax0.set_title('HOOH dynamics ',fontsize = '16')
+ax0.set_title('HOOH dynamics ',fontsize = '14')
 ax1.set_title('Model residuals',fontsize = '12')
 
 ax0.set_xlabel('Time (days)',fontsize = '12')
 ax0.set_ylabel('HOOH (nM)',fontsize = '12')
 ax1.set_ylabel('Data H value',fontsize = '12')
 ax1.set_xlabel('Residual',fontsize = '12')
+
+ax0.set_ylim([20, 600])
+ax1.set_ylim([20, 600])
 
 
 
@@ -280,10 +278,10 @@ ax0.errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0) #d
 ax0.plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 a4.plot_uncertainty(ax0,posteriors4,'H',100)
 
-ax1.scatter(a4res['res'], a4res['abundance'],color = c0, label = '400H spike')
+ax1.errorbar(a4res['res'], a4res['abundance'],yerr=df4.sigma,color = c0,marker = 'o', markersize = 4, ls = 'none',elinewidth=2, label = '400H spike')
 
 #printing off graph
-l4 = ax0.legend(loc = 'upper right')
+l4 = ax0.legend(loc = 'lower right')
 l4.draw_frame(False)
 
 plt.show()

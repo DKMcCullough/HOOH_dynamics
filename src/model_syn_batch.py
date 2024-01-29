@@ -30,10 +30,8 @@ import sys
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
-df_all = df_1
 
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)

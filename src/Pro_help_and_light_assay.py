@@ -224,22 +224,22 @@ for s,ns in zip(orgs,range(norgs)):
 
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
-            k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
-            k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
+            k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':20000})
+            k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.3})
             kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
-            phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.06})
+            phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
             Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
 #setting state variiable  prior guess
-            P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':1e+6})
+            P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+4})
             N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':2e+7})
-            H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':100})
+            H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw/1,'scale':200})
 #pw/10 for state variable initial conditions (P0, H0, N0) bc we theoretically have a better handle on thier values. (not completely holding constant like Qnp but not as loose as params either)
 
 #still not sure what part of fitting algor this is used for
             P0_mean = inits4['P0'][0]
             N0_mean = inits4['N0'][0]
-            H0_mean = inits4['H0'][0]
-
+            #H0_mean = inits4['H0'][0]
+            H0_mean = 200 #from asssay 
             #####################################################
             #functions  for modeling and graphing model uncertainty 
             #####################################################
@@ -264,7 +264,7 @@ for s,ns in zip(orgs,range(norgs)):
 
 ###### fig set up
             fig3, ax3 = plt.subplots(1,2,figsize = (9,5)) #fig creationg of 1 by 2
-            fig3.suptitle(str(s)+' in 400 H Model') #setting main title of fig
+            fig3.suptitle(str(s)+' in HEPES H Model') #setting main title of fig
 
             ####### fig config and naming 
             
@@ -280,9 +280,7 @@ for s,ns in zip(orgs,range(norgs)):
             ax3[1].set_ylabel('HOOH concentration')
             ax3[1].set_xlabel('Time (days)')
             
-            l3 = ax3[0].legend(loc = 'lower right')
-            l3.draw_frame(False)
-
+            
 
             #graphing data from df to see 2 different biological reps represented
 
@@ -293,6 +291,8 @@ for s,ns in zip(orgs,range(norgs)):
             ax3[1].errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['abundance'],yerr=df4[df4['organism']=='H']['sigma'],c = 'goldenrod', marker='o', label = 'Mean H')
             ax3[1].plot(mod4.time,mod4['H'],color ='r',lw=2.0,label=' H model best fit')
             a4.plot_uncertainty(ax3[1],posteriors4,'H',100)
+            l3 = ax3[0].legend(loc = 'lower right')
+            l3.draw_frame(False)
 
             #ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
             #printing off graph
@@ -308,7 +308,7 @@ for s,ns in zip(orgs,range(norgs)):
             # set up graph
             fig4,ax4 = plt.subplots(1,3,figsize=[10,4])
             #set titles and config graph 
-            fig4.suptitle(str(s)+' Monoculture parameters in Hepes')
+            fig4.suptitle(str(s)+' Monoculture parameters in HEPES')
             ax4[0].set_title(str(s)+' dyanmics')
             ax4[1].set_title('P0')
             ax4[2].set_title('kdam')
@@ -348,7 +348,7 @@ for s,ns in zip(orgs,range(norgs)):
 
             #HOOH dynamics 
             fig5,ax5 = plt.subplots(1,3,figsize=[10,4])
-            fig5.suptitle('HOOH parmaters in 400 HOOH')
+            fig5.suptitle('HOOH parmaters in HEPES')
             ax5[0].set_title('HOOH dynamics')
             ax5[1].set_title('H0')
             ax5[2].set_title('phi')
@@ -360,9 +360,6 @@ for s,ns in zip(orgs,range(norgs)):
             ax5[1].set_xlabel('Parameter Value', fontsize = 12)
             ax5[1].set_ylabel('Frequency', fontsize = 12)
 
-            l5 = ax5[0].legend(loc = 'upper left')
-            l5.draw_frame(False)
-
             ax5[0].errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['abundance'],yerr=df4[df4['organism']=='H']['sigma'],c = 'g', marker='o', label = 'Mean H')
             ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model H best fit')
             a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
@@ -372,6 +369,9 @@ for s,ns in zip(orgs,range(norgs)):
             ax5[1].hist(posteriors4.H0,color =  'goldenrod')
             ax5[2].hist(posteriors4.phi, color =  'goldenrod')
 
+
+            l5 = ax5[0].legend(loc = 'upper left')
+            l5.draw_frame(False)
 
             #show full graph 
             plt.show()

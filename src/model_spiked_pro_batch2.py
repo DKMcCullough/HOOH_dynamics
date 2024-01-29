@@ -1,7 +1,7 @@
 
 '''
 
-name:   model_spiked_pro_batch.py 
+name:   model_spiked_pro_batch2.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
     
@@ -26,10 +26,9 @@ import sys
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
-df_all = df_1
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
+
 
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
@@ -115,7 +114,7 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
-inits4 = pd.read_csv("../data/inits/pro9215_inits4.csv")
+inits4 = pd.read_csv("../data/inits/pro_MIT9215_inits4_2.csv")
 
 #setting how many MCMC chains you will run 
 nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -224,7 +223,7 @@ l3.draw_frame(False)
 
 #graphing data from df to see 2 different biological reps represented
 
-ax3[0].errorbar(df4[df4['organism']=='P']['time'],df4[df4['organism']=='P']['abundance'],yerr=df4[df4['organism']=='P']['std1'],c = 'g', marker='o', label = 'Mean P')
+ax3[0].errorbar(df4[df4['organism']=='P']['time'],df4[df4['organism']=='P']['abundance'],yerr=df4[df4['organism']=='P']['std1'],c = 'lightgreen', marker='o', label = 'Mean P')
 ax3[0].plot(mod4.time,mod4['P'],color ='r',lw=1.5,label=' P model best fit')
 a4.plot_uncertainty(ax3[0],posteriors4,'P',100)
 
@@ -236,7 +235,7 @@ a4.plot_uncertainty(ax3[1],posteriors4,'H',100)
 #printing off graph
 plt.show()
 
-fig3.savefig('../figures/pro_data_400')
+fig3.savefig('../figures/pro2_data_400')
 
 
 #########################################################
@@ -266,7 +265,7 @@ fig4.subplots_adjust(right=0.90, wspace = 0.45, hspace = 0.30)
 
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  'g',marker='o',label = 'Pro Mono - 4 H ')
+ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  'lightgreen',marker='o',label = 'Pro Mono - 4 H ')
 ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label=' Model P best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'P',100)
 
@@ -276,7 +275,7 @@ ax4[2].hist(posteriors4.kdam,color =  'g')
 
 #show full graph 
 plt.show()
-fig4.savefig('../figures/pro_odelib4_Pparams')
+fig4.savefig('../figures/pro2_odelib4_Pparams')
 
 
 #########################################################
@@ -312,11 +311,11 @@ ax5[2].hist(posteriors4.phi, color =  'goldenrod')
 
 #show full graph 
 plt.show()
-fig5.savefig('../figures/pro_odelib4_Hparams')
+fig5.savefig('../figures/pro2_odelib4_Hparams')
 
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
-pframe.to_csv('../data/inits/pro9215_inits4.csv')
+pframe.to_csv("../data/inits/pro_MIT9215_inits4_2.csv")
 
 
 # 'program finished' flag

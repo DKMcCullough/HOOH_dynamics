@@ -1,7 +1,7 @@
 
 '''
 
-name:   model_pro_batch.py 
+name:   model_pro_batch1.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
     
@@ -25,10 +25,7 @@ import sys
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_1 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-df_2 = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
-
-df_all = df_1
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
@@ -101,7 +98,7 @@ ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abun
 l1 = ax0.legend(loc = 'lower right')
 l1.draw_frame(False)
 
-fig2.savefig('../figures/pro_data_0and4')
+fig2.savefig('../figures/pro1_data_0and4')
 
 #####################################################
 #   model param and state variable set up 
@@ -109,7 +106,7 @@ fig2.savefig('../figures/pro_data_0and4')
 #####################################################
 
 #reading in csv file with inititl guesses for all parameter values ( SH, deltah, H0)
-inits0 = pd.read_csv("../data/inits/pro9215_inits0.csv")
+inits0 = pd.read_csv("../data/inits/pro_MIT9215_inits0_1.csv")
 
 #setting how many MCMC chains you will run 
 nits = 10000 # number of iterations - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -122,8 +119,8 @@ pw = 1
 
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
-k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':2000})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 #setting state variiable  prior guess
 P0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':1e+5})
 N0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2e+8})
@@ -166,7 +163,6 @@ def get_residuals(self):
     mod['res'] = res
     return(mod)
 
-#df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
 # get_model of df using function
 a0 = get_model(df) 
@@ -185,12 +181,12 @@ a0res = get_residuals(a0)
 #####################################################
 
 ###### fig set up
-fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (8,4)) #fig creationg of 1 by 2
+fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,4)) #fig creationg of 1 by 2
 fig3.suptitle('Pro in 0 H Model',fontsize = '16') #setting main title of fig
 
 ####### fig config and naming 
 
-fig3.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20)
+fig3.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20, left = 0.1)
 
 ax0.semilogy()
 ax0.set_title('Pro dynamics ',fontsize = '16')
@@ -217,7 +213,7 @@ l3.draw_frame(False)
 plt.show()
 
 
-fig3.savefig('../figures/pro_odelib0_fit')
+fig3.savefig('../figures/pro1_odelib0_fit')
 
 
 #########################################################
@@ -225,7 +221,7 @@ fig3.savefig('../figures/pro_odelib0_fit')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[8,5])
+fig4,ax4 = plt.subplots(1,3,figsize=[11,5])
 #set titles and config graph 
 fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14)
 fig4.subplots_adjust(right=0.9, wspace = 0.40, hspace = 0.20)
@@ -238,7 +234,9 @@ ax4[2].set_title('k2', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Parameter Value', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[1].xaxis.set_label_coords(0.85, -0.1)
+ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+ax4[2].set_ylabel('Frequency', fontsize = 12)
+#ax4[1].xaxis.set_label_coords(0.85, -0.1)
 ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 12)
 ax4[0].tick_params(axis='x', labelsize=12)
 ax4[0].tick_params(axis='y', labelsize=12)
@@ -269,10 +267,10 @@ plt.show()
 
 #update inits file withg best model params
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-pframe.to_csv('../data/inits/pro9215_inits0.csv')
+pframe.to_csv('../data/inits/pro_MIT9215_inits0_1.csv')
 
 
-fig4.savefig('../figures/pro_odelib0_params')
+fig4.savefig('../figures/pro1_odelib0_params')
 
 
 

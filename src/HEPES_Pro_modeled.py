@@ -15,6 +15,9 @@ from scipy.integrate import *
 import pandas as pd
 import numpy as np      
 import matplotlib.pyplot as plt   
+import ODElib
+import random as rd
+import sys
 
 
 
@@ -96,7 +99,7 @@ for a,n in zip(assays,range(nassays)):
         plt.yticks(fontsize = 14)
 
     plt.show()
-    fig1.savefig('../figures/Hproduction_'+str(a)+'_data.png')
+    #fig1.savefig('../figures/Hproduction_'+str(a)+'_data.png')
 
 
 
@@ -111,9 +114,12 @@ Ts = df['time']
 fig2,(ax2) = plt.subplots(figsize = (6,5))
 fig2.suptitle('HOOH production from HEPES buffer', size = 17)
 ax2.set_ylabel('HOOH concentration (\u03BCM)', size = 14)
-
 ax2.set_xlabel('Time (days)', size = 14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
 
+
+#plot data
 ax2.errorbar(x = Ts,y = Hepes,yerr= hepes_std, c='r', marker = 'o', linestyle = ':',label='HEPES data')
 
 
@@ -181,15 +187,133 @@ ode_solutions = odeint(HsODEint,3.5,times)
 
 
 plt.plot(times,ode_solutions,c='g', linestyle = ':', label = 'Model via Odeint Approximation')
+
+
+####################################
+
+#ODE int
+
+####################################
+
+
+from scipy.integrate import odeint
+
+def HsODEint(H,t):
+	dHdt = S_HOOH-delta*H
+	#print(dHdt,t,H)
+	return dHdt
+
+
+ode_solutions = odeint(HsODEint,3.5,times)
+
+
+plt.plot(times,ode_solutions,c='dodgerblue', linestyle = ':', label = 'Model via Odeint Approximation')
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 
 
+
+#####################################################
+
+#ODElib
+
+#####################################################
+
+inits4 = pd.read_csv("../data/inits/hepes_3way.csv")
+
+
+#####################################################
+#functions  for modeling and graphing model uncertainty 
+#####################################################
+
+#actual model that will be run by the odelib model framework
+def abiotic(y,t,params):
+    deltah,Sh = params[0], params[1]
+    H = y[0]
+    dHdt = Sh - deltah*H 
+    return [dHdt]
+
+
+#initiating the model as a class in odelib (give us use of the methods in this class - like integrate :-) 
+def get_model(df):
+    a1=ODElib.ModelFramework(ODE=abiotic,
+                          parameter_names=['deltah','Sh', 'H0'],
+                          state_names = snames,
+                          dataframe=df,
+                          deltah = deltah_prior.copy(),
+                          Sh = Sh_prior.copy(),
+                          H0  = H0_prior.copy(),
+                          t_steps=1000,
+                          H = H0_mean
+                         )
+    return a1
+
+
+
+#find closest time to that of data in best model and comparing values
+def get_residuals(self):
+    mod = self.integrate(predict_obs=True)
+    res = (mod.abundance - self.df.abundance)   #this is not same species 
+    mod['res'] = res
+    return(mod)
+
+
+#####################################################
+#model param and state variable set up 
+#####################################################
+
+# state variable names
+snames = ['H']
+
+#sigma we give model to search withi for each param
+pw = 1
+
+#setting param prior guesses and inititaing as an odelib param class in odelib
+deltah_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.02})
+Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
+#setting state variiable  prior guess
+H0_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':300})
+
+priors = {'deltah' :deltah_prior,'Sh' : Sh_prior,'H0' : H0_prior} #list of all priors to feed to odelib create
+
+#setting H mean for odelib search 
+H0_mean = inits4['H0'][0]
+
+
+# nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
+nits = 10000
+
+
+#####################################
+# Create and Run model on 0 and 400 df
+#####################################
+
+a4 = get_model(df) 
+
+#broken here!!!!!!!!!!
+# do fitting
+posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
+#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
+
+# run model with optimal params
+mod4 = a4.integrate()
+#calculating residuals of model
+a4res = get_residuals(a4)
+
+#plot model and search
+plt.plot(mod4.time,mod4['H'],c='r',lw=1.5,label = 'Model best fit via Odelib') #best model fit of 0 H assay
+a4.plot_uncertainty(plt,posteriors4,'H',100)
+
+
+
+#set full figure legend
+plt.legend(loc = 'lower right')
+plt.show()
 plt.legend(loc = 'lower right')
 plt.show()
 
-	
-fig2.savefig('../figures/HEPES_3way')
+    
+fig2.savefig('../figures/HEPES_pro_modeled')
 
 
 # 'program finished' flag
