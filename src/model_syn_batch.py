@@ -22,10 +22,7 @@ import ODElib
 import random as rd
 import sys
 
-#rc for ploting
-#plt.tick_params(axis='both', which='major', labelsize=14)
-#plt.yticks(fontsize=12)
-#plt.xticks(fontsize=12)
+#
 
 ######################################################
 #reading in data and configureing 
@@ -59,10 +56,30 @@ df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
+
+vol = 52
+
+#vol52 colors Syn WH7803
+c0 = 'cornflowerblue'
+c1 = 'darkorange'
+
+#vol28 colors Syn WH7803 also 
+#c0 = 'dodgerblue'
+#c1 = 'tomato'
+
+#vol53 colors WSyn CC9605 
+#c0 = 'steelblue'
+#c1 = 'chocolate'
+
+#vol54 colors Syn WH7802 
+#c0 = 'darkcyan'
+#c1 = 'lightcoral'
+
 
 #slicing data into abiotic, biotic, and Pro only dataframes
-df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 52)]  #assay 0 H 
-df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 52)]
+df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
+df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
 
 
 df = df0[df0['organism']== 'S']
@@ -71,25 +88,28 @@ df = df0[df0['organism']== 'S']
 #####################################################
 # fig set up and main title 
 fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
-fig2.suptitle('Syn  Monocultures')
+fig2.suptitle('Syn '+str(vol)+'  Monocultures')
 
 #format fig  
-ax0.set_title('Syn in 0 HOOH ') #graph title for graph 1
+ax0.set_title('Syn'+str(vol)+ 'in 0 HOOH ') #graph title for graph 1
 ax0.semilogy() #setting y axis to be logged b/c cell data
-ax1.set_title('Syn in 400 HOOH ') #graph title for graph 2
+ax1.set_title('Syn '+str(vol)+ 'in 400 HOOH ') #graph title for graph 2
 ax1.semilogy()#setting y axis to be logged b/c cell data
 ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
 ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
 ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
-
+ax1.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
 #graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
 #graph 0 H assay even and odd avgs 
-ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['abundance'],yerr=df0[df0['organism']== 'S']['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['avg2'],yerr=df0[df0['organism']== 'S']['std2'], marker='v', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['avg1'],yerr=df0[df0['organism']== 'S']['std1'],color = c0, marker='o', label = 'avg1')
+ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['avg2'],yerr=df0[df0['organism']== 'S']['std2'], color = c0,marker='v', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['abundance'],yerr=df0[df0['organism']== 'S']['sigma'], color = c0,marker='v', label = 'MEAN')
+
 # graph 400 H assay even and odd avgs
-ax1.errorbar(df4[df4['organism']== 'S']['time'],df4[df4['organism']== 'S']['abundance'],yerr=df4[df4['organism']== 'S']['std1'], marker='o', label = 'avg1')
-ax1.errorbar(df4[df4['organism']== 'S']['time'],df4[df4['organism']== 'S']['avg2'],yerr=df4[df4['organism']== 'S']['std2'], marker='v', label = 'avg2')
+ax1.errorbar(df4[df4['organism']== 'S']['time'],df4[df4['organism']== 'S']['abundance'],yerr=df4[df4['organism']== 'S']['std1'], color = c0,marker='o', label = 'avg1')
+ax1.errorbar(df4[df4['organism']== 'S']['time'],df4[df4['organism']== 'S']['avg2'],yerr=df4[df4['organism']== 'S']['std2'],color = c0, marker='v', label = 'avg2')
+ax1.errorbar(df4[df4['organism']== 'S']['time'],df4[df4['organism']== 'S']['abundance'],yerr=df4[df4['organism']== 'S']['sigma'],color = c0, marker='v', label = 'MEAN')
 
 plt.legend()
 
@@ -99,10 +119,10 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
-inits0 = pd.read_csv("../data/inits/MIT9313_inits0.csv")
+inits0 = pd.read_csv('../data/inits/syn_vol'+str(vol)+'_inits0.csv')
 
 #setting how many MCMC chains you will run 
-nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['S','N'] #order must match all further model mentions (same fro params) 
@@ -177,20 +197,21 @@ a0res = get_residuals(a0)  #is this using the best fit or just a first run???
 
 ###### fig set up
 fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2
-fig3.suptitle('Syn in 0 H Model') #setting main title of fig
+fig3.suptitle('Syn '+str(vol)+ ' in 0 H Model') #setting main title of fig
 
 ####### fig config and naming 
 
-fig3.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20)
+fig3.subplots_adjust(right=0.90, wspace = 0.45, left = 0.10, hspace = 0.20, bottom = 0.2)
 
 ax0.semilogy()
-ax0.set_title('Syn dynamics ')
-ax1.set_title('Model residuals')
+ax0.set_title('Syn '+str(vol)+ '  dynamics ',fontsize = '16')
+ax1.set_title('Model residuals',fontsize = '14')
 
-ax0.set_xlabel('Time (days)')
-ax0.set_ylabel('Cells (ml-1)')
-ax1.set_ylabel('Data S value')
-ax1.set_xlabel('Residual')
+ax0.set_xlabel('Time (days)',fontsize = '14')
+ax0.set_ylabel('Cells(ml$^{-1}$)',fontsize = '14')
+ax1.set_ylabel('Data S value',fontsize = '14')
+ax1.set_xlabel('Residual',fontsize = '14')
+
 
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
@@ -198,18 +219,15 @@ l3.draw_frame(False)
 
 #graphing data from df to see 2 different biological reps represented
 
-ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['abundance'],yerr=df0[df0['organism']== 'S']['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['avg2'],yerr=df0[df0['organism']== 'S']['std2'], marker='o', label = 'avg2')
-
+ax0.errorbar(df0[df0['organism']== 'S']['time'],df0[df0['organism']== 'S']['abundance'],yerr=df0[df0['organism']== 'S']['sigma'], color = c0,marker='v', label = 'MEAN S')
 ax0.plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' model best fit')
-
 a0.plot_uncertainty(ax0,posteriors0,'S',1000)
 
 ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
 plt.show()
 
-fig3.savefig('../figures/syn0H_fits')
+fig3.savefig('../figures/syn'+str(vol)+ '_0H_fits')
 
 
 #########################################################
@@ -219,54 +237,58 @@ fig3.savefig('../figures/syn0H_fits')
 # set up graph
 fig4,ax4 = plt.subplots(1,3,figsize=[10,5])
 #set titles and config graph 
-fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14 )
+fig4.suptitle('Syn Vol '+str(vol)+ '  parameters in 0 HOOH ', fontsize = 14 )
 #fig4.axes(fontsize = 10)
 
 
 
-ax4[0].set_title('Model Dynamic output', fontsize = 16)
+ax4[0].set_title('Model Dynamic output', fontsize = 12)
 ax4[1].set_title('S0', fontsize = 12)
-ax4[2].set_title('k2', fontsize = 12)
-ax4[0].semilogy()
+ax4[2].set_title('\u03BC', fontsize = 12)
+ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Parameter Value', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[1].xaxis.set_label_coords(0.88, -0.2)
+ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+ax4[2].set_ylabel('Frequency', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
-#make legends
-l4 = ax4[0].legend(loc = 'upper left')
-l4.draw_frame(False)
+ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 12)
+ax4[0].tick_params(axis='x', labelsize=12)
+ax4[0].tick_params(axis='y', labelsize=12)
+ax4[1].tick_params(axis='x', labelsize=12)
+ax4[1].tick_params(axis='y', labelsize=12)
+ax4[2].tick_params(axis='x', labelsize=12)
+ax4[2].tick_params(axis='y', labelsize=12)
+
+
+
 #shift fig subplots
-fig4.subplots_adjust(right=0.95, wspace = 0.45, left = 0.05, hspace = 0.20, bottom = 0.2)
+fig4.subplots_adjust(right=0.90, wspace = 0.45, left = 0.10, hspace = 0.20, bottom = 0.2)
 
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'], marker='o',label = 'Syn Mono - 0 H ')
+ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = 'Syn Mono - 0 H ')
+ax4[0].errorbar(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'], yerr = df0[df0['organism']== 'S']['sigma'], color = c0, marker='o')
 ax4[0].plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' Model S best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'S',100)
 
-ax0.plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' Model S best fit')
-a0.plot_uncertainty(ax0,posteriors0,'S',100)
-
-
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors0.S0)
-ax4[1].tick_params(axis='x', labelsize=14)
-ax4[1].tick_params(axis='y', labelsize=14)
+ax4[1].hist(posteriors0.S0 , facecolor = c0)
+ax4[2].hist(posteriors0.k2 , facecolor = c0)
 
-ax4[2].hist(posteriors0.k2)
-ax4[2].tick_params(axis='x', labelsize=14)
-ax4[2].tick_params(axis='y', labelsize=14)
 
+#make legends
+l4 = ax4[0].legend(loc = 'upper left')
+l4.draw_frame(False)
 
 #show full graph 
 plt.show()
-fig4.savefig('../figures/syn0H_odelib')
+fig4.savefig('../figures/syn '+str(vol)+ '_0H_odelib')
 
 
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-pframe.to_csv('../data/inits/MIT9313_inits0.csv')
+pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
-fig4.savefig('../figures/pro_odelib0')
+fig4.savefig('../figures/syn'+str(vol)+'_odelib0')
 
 
 # 'program finished' flag

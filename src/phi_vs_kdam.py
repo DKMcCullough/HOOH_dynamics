@@ -23,33 +23,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-
-
-df = pd.DataFrame({'names' : ('Syn WH7803','Pro MIT9215'),
-                                'phis' : [1.71E-06,2.82E-12],
-                                'kdams' : [0.00132393992680983,0.00322116921322925] }, 
+df = pd.DataFrame({'names' : ('Syn WH7803_vol52','Syn WH7803_vol28','Syn CC9605_vol53','Pro MIT9215_sample1','Pro MIT9215_sample2'),
+                                'phis' : [1.94E-06,1.64E-06,1.61E-06,3.95E-15,1.87E-15],
+                                'kdams' : [0.001390782,0.001691207,0.000656184,0.003121548,0.005126291] }, 
                                 columns=['names','phis', 'kdams'])
 
 #Not all of the data sets have cocurrent HOOH measurements so Phi is less constrained and therefore can be biassing the conclusions a lot. 
-fig3, (ax1)= plt.subplots(figsize = (7,5))
+fig3, (ax1)= plt.subplots(figsize = (8,6))
 fig3.suptitle('Tradeoffs', fontsize = 17)
-ax1.set_ylabel('phi',fontsize = 15)
-ax1.set_xlabel('kdam',fontsize = 15)
-ax1.tick_params(axis = 'both', which = 'both', length = 6, labelsize = 14)
+ax1.set_xlabel('\u03C6',fontsize = 14)
+ax1.set_ylabel('kdam',fontsize = 14)
+ax1.tick_params(axis = 'both', which = 'both', length = 4, labelsize = 12)
 
 
-#ax1.set_xticklabels(labels = 'kdam' ,fontsize = 14)
-#ax1.set_yticklabels(labels = 'phi' ,fontsize = 14)
+ax1.set_xlim([0.0000000000000001, 0.0001]) #phi
+ax1.set_ylim([0.0001, 0.01]) #kdam
 
-colors = ['orange','g']
-#shape = [+,-,+,-,-,-,-] #HAVE THIS COORS[PMDWOTJ GENES]
+
+colors = ['cornflowerblue','dodgerblue','steelblue','g','lightgreen']
+markers = ['o','o','o','d','d'] #HAVE THIS COORS[PMDWOTJ GENES]
 
 #df.plot.scatter(x='kdams', y='phis',xlabel = 'kdam', ylabel = 'phi',label = 'names')
 for i, r in df.iterrows():
-    ax1.plot(r['kdams'], r['phis'], 'o',c = colors[i], markersize=7, linewidth=0.1, label=r['names'])
+    ax1.plot(r['phis'], r['kdams'], 'o',c = colors[i], marker = markers[i],markersize=10, linewidth=0.1, label=r['names'])
 
 #plt.axes(fontsize = 12)
-plt.legend(loc='best')
+l3 = plt.legend(loc = 'lower left', fontsize = 10)
+#l3.draw_frame(False)
+
 
 
 

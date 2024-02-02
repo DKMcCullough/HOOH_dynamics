@@ -153,7 +153,7 @@ a0res = get_residuals(a0)  #is this using the best fit or just a first run???
 # graphing df and models together
 #########################################################
 
-c0 = 'forestgreen'
+c0 = 'plum'
 
 
 # Set up graph for Dynamics and param histograms
@@ -177,7 +177,7 @@ ax1[0].set_ylim([20, 600])
 
 #plot dynamics of data and model for 0 assay 
 ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-ax1[0].plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+ax1[0].plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
 
 # plot histograms of params next to dynamics graphs
@@ -269,7 +269,7 @@ ax1.set_ylim([20, 600])
 #model and residuals
 ax0.plot(df0.time,df0.abundance, marker='o',color = c0, label = 'HOOH data mean') #data of 0 H assay
 ax0.errorbar(df0.time,df0.abundance, yerr = df0.sigma, marker='o',color = c0) #data of 0 H assay
-ax0.plot(mod0.time,mod0['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+ax0.plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 a0.plot_uncertainty(ax0,posteriors0,'H',100)
 
 ax1.errorbar(a0res['res'], a0res['abundance'],yerr=df4.sigma,color = c0,marker = 'o', markersize = 4, ls = 'none',elinewidth=2,label = '0H spike')

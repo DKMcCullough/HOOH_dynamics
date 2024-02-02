@@ -108,7 +108,9 @@ for a,n in zip(assays,range(nassays)):
 
 df = df_all[(df_all['ID'] =='UH18301') & (df_all['Treatment']=='HEPES') & (df_all['organism'] == 'H')]
 
-
+##############################
+#plot data
+##############################
 
 fig2,(ax2) = plt.subplots(figsize = (7,6))
 fig2.suptitle('HOOH production from HEPES buffer', size = 16)
@@ -146,7 +148,7 @@ ax2.plot(times,Hs,c='c',linestyle = '-',label='Model via Analytical Solution')
 
 #############################
 
-#Euler's Integration
+#Euler's Integration soution 
 
 ############################
 
@@ -165,7 +167,7 @@ ax2.plot(times,HsEuler,c='g',linestyle = '--',label = "Model via Euler's Aproxim
 
 ####################################
 
-#ODE int
+#ODE int solution 
 
 ####################################
 
@@ -259,25 +261,23 @@ nits = 10000
 
 
 #####################################
-# Create and Run model on 0 and 400 df
+# Create and Run model 
 #####################################
 
+#create model 
 a4 = get_model(df) 
 
-#broken here!!!!!!!!!!
-# do fitting
+# generate posterior distributions pf parameters (MCMC walk) 
 posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
-#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
-# run model with optimal params
+# run model with optimal params 
 mod4 = a4.integrate()
 #calculating residuals of model
 a4res = get_residuals(a4)
 
 #plot model and search
 plt.plot(mod4.time,mod4['H'],c='r',lw=1.5,label = 'Model best fit via Odelib') #best model fit of 0 H assay
-a4.plot_uncertainty(plt,posteriors4,'H',100)
-
+a4.plot_uncertainty(plt,posteriors4,'H',100)  #100 of the earches of MCMC
 
 
 #set full figure legend
@@ -287,7 +287,7 @@ plt.show()
 	
 fig2.savefig('../figures/HEPES_3way')
 
-
+#save over csv inits for saving of bast params
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/hepes_3way.csv')
 
