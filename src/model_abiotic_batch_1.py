@@ -21,8 +21,7 @@ import ODElib
 import random as rd
 import sys
 
-
-
+plt.rcParams["font.family"] = "Times New Roman"
 
 ######################################################
 #reading in data and configureing 
@@ -158,26 +157,29 @@ c0 = 'plum'
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[9,4]) #plot creation and config 
+fig1,ax1 = plt.subplots(1,3,figsize=[12,5]) #plot creation and config 
 #set titles of subplots
-fig1.suptitle('Abiotic HOOH Model Output', fontsize = 14) #full title config
+#fig1.suptitle('Abiotic HOOH Model Output', fontsize = 14) #full title config
 fig1.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-ax1[0].set_title('HOOH Dynamics', fontsize = 12)
-ax1[0].set_ylabel('HOOH Concentration nM/mL', fontsize = 12)
+ax1[0].set_title(r'H$_2$O$_2$ Dynamics', fontsize = 12)
+ax1[0].set_ylabel(r'H$_2$O$_2$ Concentration nM/mL', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
-ax1[1].set_title('Sh', fontsize = 12)
+ax1[1].set_title(r'$S_H$', fontsize = 12)
 ax1[1].set_ylabel('Frequency', fontsize = 12)
 ax1[1].set_xlabel('Parameter Value', fontsize = 12)
-ax1[2].set_title('deltah', fontsize = 12)
+ax1[2].set_title(r'$\delta_H$', fontsize = 12)
 ax1[2].set_ylabel('Frequency', fontsize = 12)
 ax1[2].set_xlabel('Parameter Value', fontsize = 12)
 
-ax1[0].set_ylim([20, 600])
+#ax1[0].set_ylim([20, 600])
 
+for (ax,l) in zip(ax1,'abc'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #plot dynamics of data and model for 0 assay 
-ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = 'H data ') #data of 0 H assay
-ax1[0].plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label=' model best fit') #best model fit of 0 H assay
+ax1[0].plot(df0.time,df0.abundance, marker='o',color = c0, label = r'H$_2$O$_2$ data ') #data of 0 H assay
+ax1[0].plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label='Model best fit') #best model fit of 0 H assay
+
 a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
 
 # plot histograms of params next to dynamics graphs
@@ -190,6 +192,8 @@ l1.draw_frame(False)
 
 #save fig
 fig1.savefig('../figures/abiotic1_0_dynamics')
+
+plt.show()
 
 ########################################
 #graph parameters against one another 
