@@ -157,10 +157,10 @@ c0 = 'plum'
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[12,5]) #plot creation and config 
+fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config 
 #set titles of subplots
 #fig1.suptitle('Abiotic HOOH Model Output', fontsize = 14) #full title config
-fig1.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
+fig1.subplots_adjust(wspace=0.3) #shift white space for better fig view
 ax1[0].set_title(r'H$_2$O$_2$ Dynamics', fontsize = 12)
 ax1[0].set_ylabel(r'H$_2$O$_2$ Concentration nM/mL', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
