@@ -22,6 +22,7 @@ import ODElib
 import random as rd
 import sys
 
+plt.rcParams["font.family"] = "Times New Roman"
 
 ######################################################
 #reading in data and configureing 
@@ -54,7 +55,7 @@ df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
+df.loc[df['organism'] == 'H', 'log_sigma'] = 0.04
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
@@ -146,26 +147,27 @@ c0 = 'slateblue'
 
 # Set up graph for Dynamics and param histograms
 
-fig1,ax1 = plt.subplots(1,3,figsize=[10,7]) #plot creation and config 
-#set titles of subplots
-fig1.suptitle('Abiotic HOOH Model Output',fontsize = '16') #full title config
-fig1.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-ax1[0].set_title('HOOH Dynamics',fontsize = '12')
-ax1[0].set_ylabel('HOOH Concentration nM/mL',fontsize = '12')
-ax1[0].set_xlabel('Time (days)',fontsize = '12')
-ax1[1].set_title('Sh',fontsize = '12')
-ax1[1].set_ylabel('Frequency',fontsize = '12')
-ax1[1].set_xlabel('Parameter Value',fontsize = '12')
-ax1[2].set_title('deltah',fontsize = '12')
-ax1[2].set_ylabel('Frequency',fontsize = '12')
-ax1[2].set_xlabel('Parameter Value',fontsize = '12')
+fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config 
+fig1.subplots_adjust(wspace=0.3) #shift white space for better fig view
+ax1[0].set_title(r'H$_2$O$_2$ Dynamics', fontsize = 12)
+ax1[0].set_ylabel(r'H$_2$O$_2$ Concentration nM/mL', fontsize = 12)
+ax1[0].set_xlabel('Time (days)', fontsize = 12)
+ax1[1].set_title(r'$S_H$', fontsize = 12)
+ax1[1].set_ylabel('Frequency', fontsize = 12)
+ax1[1].set_xlabel('Parameter Value', fontsize = 12)
+ax1[2].set_title(r'$\delta_H$', fontsize = 12)
+ax1[2].set_ylabel('Frequency', fontsize = 12)
+ax1[2].set_xlabel('Parameter Value', fontsize = 12)
 
-ax1[0].set_ylim([20, 600])
+#ax1[0].set_ylim([20, 600])
+
+for (ax,l) in zip(ax1,'abc'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #plot dynamics of data and model for 0 assay 
-ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = 'abiotic - 4 H ') #data of 0 H assay
+ax1[0].plot(df4.time,df4.abundance, marker='o',color = c0, label = r'H$_2$O$_2$ data ') #data of 0 H assay
+ax1[0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label='Model best fit') #best model fit of 0 H assay
 ax1[0].errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0) #data of 0 H assay
-ax1[0].plot(mod4.time,mod4['H'],c='k',lw=1.5,label=' model best fit') #best model fit of 0 H assay
 a4.plot_uncertainty(ax1[0],posteriors4,'H',100)
 
 # plot histograms of params next to dynamics graphs
@@ -176,7 +178,7 @@ ax1[2].hist((posteriors4.deltah), facecolor=c0) #graphing deltah of 0 H assay
 l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
 
-
+plt.show()
 
 
 fig1.savefig('../figures/abiotic1_4_dynamics')
