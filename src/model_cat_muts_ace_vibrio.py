@@ -37,7 +37,7 @@ df_all = df_aceMHM
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'Time(hrs)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_a = df_all.loc[df_all['id'].str.contains('abiotic', case=False)].copy()  
+#df_a = df_all.loc[df_all['id'].str.contains('abiotic', case=False)].copy()  
 
 df = df_all
 
@@ -53,18 +53,22 @@ df['log_sigma'] = df[['log1','log2', 'log3']].std(axis=1)
 df['log_sigma'] = 0.2
 df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 
-df = df[df['id'] =='CatMutsNoC_growth'] #set id of assay we are fitting
-
-df0 = df.loc[(df['treatment(nM)']==0)]  #assay 0 H 
-df15 = df.loc[(df['treatment(nM)']==1500)] #assay of spiked HOOH
-
-dfw = df0   #setting working df
 
 
-Ss = df['strain'].unique()
+
+df0 = df[df['id'] =='Stationary_MHMacetate_1500nMspike'] #set id of assay we are fitting
+df15 = df[df['id'] =='Stationary_MHMacetate_0nMspike']
+#df0 = df.loc[(df['treatment(nM)']==0)]  #assay 0 H 
+#df15 = df.loc[(df['treatment(nM)']==1500)] #assay of spiked HOOH
+
+#dfw = df15   #setting working df
+dfw = df15
+
+Ss = dfw['strain'].unique()
 nSs = Ss.shape[0]
-colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','fucshia','mediumpurple','yellow','orange']
+colors = ['k','lawngreen','forestgreen','seagreen','dodgerblue','deepskyblue','b','violet','pink','mediumpurple','yellow','orange']
 
+#time 25 is actually 24hrsbut had to up to 25 for data set splicing 
 
 for (s,ns) in zip( Ss,range(nSs)):
     
@@ -78,7 +82,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     df = dfw[dfw['strain']==s]  #slicing working df by strain (different mutants) 
 
     ## Reading in inits files for 0 and 400 models respectively
-    inits0 = pd.read_csv("../data/inits/MHMace_inits0.csv")
+    inits0 = pd.read_csv('../data/inits/MHMace_'+str(s)+'_inits0.csv')
 
 
     #####################################################
@@ -139,7 +143,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     
     
     # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-    nits = 10000
+    nits = 1000
     
     
     #####################################
@@ -190,7 +194,7 @@ for (s,ns) in zip( Ss,range(nSs)):
     
     ax0.plot(mod0.time,mod0['D'],c='r',lw=1.5,label=' model best fit')
     
-    a0.plot_uncertainty(ax0,posteriors0,'D',1000)
+    a0.plot_uncertainty(ax0,posteriors0,'D',100)
     
     ax1.scatter(a0res['res'], a0res['abundance'],color = c0,label = '0H case')
     
@@ -261,14 +265,14 @@ for (s,ns) in zip( Ss,range(nSs)):
     ax3[1].scatter(posteriors0.iteration,(posteriors0.k2),color = c0)
     
     #print out plot
-    fig3.savefig('../figures/MHMnoC_'+s+'0_TRACE')
+    fig3.savefig('../figures/MHMace_'+s+'0_TRACE')
     
     
     plt.show()
     
 
     pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-    pframe0.to_csv("../data/inits/MHMnoC_inits0.csv")
+    pframe0.to_csv('../data/inits/MHMace_'+str(s)+'_inits0.csv')
 
 
 
@@ -281,7 +285,7 @@ for (s,ns) in zip( Ss,range(nSs)):
 
 
 
-
+'''
 
 
 inits15 = pd.read_csv("../data/inits/MHMace_inits1500.csv")
@@ -355,7 +359,7 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
 # Create and Run model on 0 and 400 df
 #####################################
 
-a15 = get_model(df15) 
+a15 = get_model(dfw) 
 
 posteriors15 = a15.MCMC(chain_inits=inits15,iterations_per_chain=nits,cpu_cores=1,print_report=True) #, )
 
@@ -388,7 +392,7 @@ ax4[2].set_ylabel('Frequency')
 ax4[2].set_xlabel('Parameter Value (Logged)')
 
 
-'''
+
 #format fig  
 ax3[0].set_title(S +' dynamics') #graph title for graph 1
 ax3[0].semilogy() #setting y axis to be logged b/c cell data
@@ -412,7 +416,7 @@ ax1.errorbar(df15[df15['organism']=='H']['time'],df15[df15['organism']=='H']['ab
 ax3[2].scatter(a0res['res'], a0res['abundance'],label = '0 H', color = c0) #where )
 
 
-'''
+
 
 
 
@@ -487,7 +491,7 @@ pframe15.to_csv("../data/inits/MHMace_inits1500.csv")
 #vibrio modeling
 ##############################
 
-
+'''
 
 
 # 'program finished' flag
