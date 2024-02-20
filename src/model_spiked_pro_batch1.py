@@ -225,7 +225,7 @@ ax3[1].errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['abu
 ax3[1].plot(mod4.time,mod4['H'],color ='r',lw=2.0,label=' H model best fit')
 a4.plot_uncertainty(ax3[1],posteriors4,'H',100)
 
-l3 = ax3[0].legend(loc = 'lower right')
+l3 = ax3[0].legend(loc = 'lower left')
 l3.draw_frame(False)
 
 
@@ -267,7 +267,7 @@ ax4[1].hist(posteriors4.P0, color =  c0)
 ax4[2].hist(posteriors4.kdam,color = c0)
 
 #make legends
-l4 = ax4[0].legend(loc = 'upper left')
+l4 = ax4[0].legend(loc = 'lower left')
 l4.draw_frame(False)
 #show full graph 
 
@@ -295,7 +295,7 @@ ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abunda
 ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
-l5 = ax5[0].legend(loc = 'upper left')
+l5 = ax5[0].legend(loc = 'lower left')
 l5.draw_frame(False)
 
 # plot histograms of parameter search results 
