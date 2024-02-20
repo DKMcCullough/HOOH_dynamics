@@ -22,6 +22,8 @@ import ODElib
 import random as rd
 import sys
 
+plt.rcParams["font.family"] = "Times New Roman"
+
 ######################################################
 #reading in data and configureing 
 #####################################################
@@ -52,7 +54,7 @@ df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
 df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
-df['log_sigma'] = 0.2
+df['log_sigma'] = 0.1
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
@@ -150,7 +152,8 @@ def get_model(df):
 
 def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     k1,k2 = params[0], params[1]
-    P,N = max(y[0],0),max(y[1],0),
+    #P,N = max(y[0],0),max(y[1],0),
+    P,N = y[0],y[1]
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P     
     dNdt =  - (k2 * N /( (ksp) + N) )*P
@@ -210,29 +213,22 @@ ax1.scatter(a0res['res'], a0res['abundance'],c=c0, label = '0H case')
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-plt.show()
-
-
 fig3.savefig('../figures/pro1_odelib0_fit')
-
 
 #########################################################
 #graphing model vs data and params histograms 
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[11,5])
+fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 #set titles and config graph 
-fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14)
-fig4.subplots_adjust(right=0.9, wspace = 0.40, hspace = 0.20)
-ax4[0].set_ylim([100, 5000000])
-
+fig4.subplots_adjust(wspace = 0.40)
+ax4[0].set_ylim([2e+5, 4e+6])
 
 #ax4[0].set_title('Pro  dynamics', fontsize = 16)
 #plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
-ax4[0].set_title('Pro Dynamics', fontsize = 12)
-ax4[1].set_title('P0', fontsize = 12)
-ax4[2].set_title('\u03BC', fontsize = 12)
+ax4[1].set_title(r'$P_0$', fontsize = 12)
+ax4[2].set_title(r'$\mu_{max}$', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Parameter Value', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
@@ -248,12 +244,15 @@ ax4[2].tick_params(axis='x', labelsize=12)
 ax4[2].tick_params(axis='y', labelsize=12)
 
 #shift fig subplots
-fig4.subplots_adjust(right=0.90, wspace = 0.55, hspace = 0.20)
+fig4.subplots_adjust(wspace = 0.3)
+ax4[0].semilogy()
 
+for (ax,l) in zip(ax4,'abc'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #graph data, model, and uncertainty 
-ax4[0].errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'], c=c0, marker='d', label = 'Pro Data MEAN')
-ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
+ax4[0].errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'], c=c0, marker='d', label = r'$Prochlorococcus$')
+ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label='Model best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
 
 # plot histograms of parameter search results 

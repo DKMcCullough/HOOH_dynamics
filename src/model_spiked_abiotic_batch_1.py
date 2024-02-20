@@ -122,7 +122,7 @@ H0_mean = inits4['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 10000
+nits = 100000
 
 
 #####################################

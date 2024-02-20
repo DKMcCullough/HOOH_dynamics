@@ -22,12 +22,12 @@ import ODElib
 import random as rd
 import sys
 
+plt.rcParams["font.family"] = "Times New Roman"
 
 ######################################################
 #reading in data and configureing 
 #####################################################
 df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
@@ -75,12 +75,9 @@ c1 = 'darkorange'
 #c0 = 'darkcyan'
 #c1 = 'lightcoral'
 
-
-
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
-
 
 df = df4
 
@@ -89,9 +86,7 @@ df = df4
 #####################################################
 
 #making avg columns of technical reps (std here only for graphing, not logged here)
-
 #splitting df of Pro into 0 and 400 H assays 
- 
 
 #####################################################
 #plotting data and error within biological reps 
@@ -100,7 +95,6 @@ df = df4
 fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
 fig2.suptitle('Syn Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
 fig2.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
-
 
 #format fig  
 ax0.set_title('Syn Vol '+str(vol)+' dynamics') #graph title for graph 1
@@ -140,7 +134,6 @@ snames = ['S','N','H'] #order must match all further model mentions (same fro pa
 
 # define priors for parameters
 pw = 1   #sigma for param search
-
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
@@ -209,34 +202,28 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,s
 
 # run model with optimal params
 mod4 = a4.integrate()
-
 a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 
 #####################################################
 # graphing model vs data in 0 H and associated error
 #####################################################
-
 ###### fig set up
-
-
-
 
 #########################################################
 #graphing P model vs data and params histograms 
 #########################################################
 
-# set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[10,5])
-#set titles and config graph 
-fig4.suptitle('Syn '+str(vol)+'Monoculture parameters in 400 HOOH ', fontsize = 16)
-ax4[0].set_title('Dynamic output', fontsize = 14)
-ax4[1].set_title('S0', fontsize = 14)
-ax4[2].set_title('kdam', fontsize = 14)
+figall,axall = plt.subplots(2,3,figsize=[12,8])
+figall.subplots_adjust(wspace=0.3,hspace=0.3)
+ax4,ax5 = axall[0,:],axall[1,:]
 
+# set up graph
+#set titles and config graph 
+ax4[1].set_title(r'$S_0$', fontsize = 14)
+ax4[2].set_title(r'$\kappa_{dam}$', fontsize = 14)
 ax4[0].semilogy()
 
-
-ax4[0].set_ylabel('Cells (ml$^{-1}$)')
+ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 14)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
 ax4[1].set_xlabel('Parameter Value', fontsize = 14)
 ax4[1].set_ylabel('Frequency', fontsize = 14)
@@ -249,11 +236,10 @@ ax4[2].tick_params(axis='x', labelsize=14)
 ax4[2].tick_params(axis='y', labelsize=14)
 
 #shift fig subplots
-fig4.subplots_adjust(right=0.95, wspace = 0.45, left = 0.10, hspace = 0.30, bottom = 0.2)
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='S']['time'], df4[df4['organism']=='S']['abundance'], color = c0, marker='o',label = 'Syn data')
-ax4[0].plot(mod4.time,mod4['S'],color='r',lw=1.5,label=' Model S best fit')
+ax4[0].plot(df4[df4['organism']=='S']['time'], df4[df4['organism']=='S']['abundance'], color = c0, marker='o',label = r'$Synechococcus$')
+ax4[0].plot(mod4.time,mod4['S'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'S',100)
 
 # plot histograms of parameter search results 
@@ -264,33 +250,23 @@ ax4[2].hist(posteriors4.kdam, facecolor = c0)
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
 #show full graph 
-plt.show()
-fig4.savefig('../figures/syn'+str(vol)+ '_odelib4_Sparams')
-
 
 #########################################################
 #graphing H model vs data and params histograms 
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,3,figsize=[10,5])
-fig5.suptitle('HOOH parmaters with Syn '+str(vol), fontsize = 14)
-ax5[0].set_title('HOOH Dynamics ', fontsize = 14)
-ax5[1].set_title('H0', fontsize = 14)
-ax5[2].set_title('\u03C6', fontsize = 14)
+ax5[1].set_title(r'$H_0$', fontsize = 14)
+ax5[2].set_title('$\phi_{max}$', fontsize = 14)
 
 ax5[0].semilogy()
-fig5.subplots_adjust(right=0.95, wspace = 0.45, left = 0.10, hspace = 0.30, bottom = 0.2)
-ax5[0].set_ylim([100, 500])
 
-ax5[0].set_ylabel('HOOH concentration', fontsize = 14)
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 14)
 ax5[0].set_xlabel('Time (Days)', fontsize = 14)
 ax5[1].set_xlabel('Parameter Value', fontsize = 14)
 ax5[1].set_ylabel('Frequency', fontsize = 13)
 ax5[2].set_xlabel('Parameter Value', fontsize = 14)
 ax5[2].set_ylabel('Frequency', fontsize = 13)
-
-
 
 ax5[1].tick_params(axis='x', labelsize=14)
 ax5[1].tick_params(axis='y', labelsize=14)
@@ -298,8 +274,8 @@ ax5[2].tick_params(axis='x', labelsize=14)
 ax5[2].tick_params(axis='y', labelsize=14)
 
 #plot dynamics and models
-ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color = c1, marker='o',label = 'H data ')
-ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model H best fit')
+ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color = c1, marker='o',label = 'Hydrogen peroxide')
+ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
@@ -310,11 +286,11 @@ ax5[2].hist(posteriors4.phi, facecolor = c1)
 l5 = ax5[0].legend(loc = 'upper right')
 l5.draw_frame(False)
 #show full graph 
-plt.show()
-fig5.savefig('../figures/syn_odelib4_Hparams')
 
+for (ax,l) in zip(axall.flatten(),'abcdef'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
-
+figall.savefig('../figures/syn_odelib4_Hparams')
 
 #####residuals
 fig6, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2

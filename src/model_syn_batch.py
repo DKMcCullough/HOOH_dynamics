@@ -22,7 +22,7 @@ import ODElib
 import random as rd
 import sys
 
-#
+plt.rcParams["font.family"] = "Times New Roman"
 
 ######################################################
 #reading in data and configureing 
@@ -178,6 +178,7 @@ def get_residuals(self):
 
 #df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
 
+
 # get_models
 a0 = get_model(df) 
 
@@ -225,7 +226,6 @@ a0.plot_uncertainty(ax0,posteriors0,'S',1000)
 
 ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
-plt.show()
 
 fig3.savefig('../figures/syn'+str(vol)+ '_0H_fits')
 
@@ -235,16 +235,13 @@ fig3.savefig('../figures/syn'+str(vol)+ '_0H_fits')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[10,5])
+fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 #set titles and config graph 
-fig4.suptitle('Syn Vol '+str(vol)+ '  parameters in 0 HOOH ', fontsize = 14 )
 #fig4.axes(fontsize = 10)
 
 
-
-ax4[0].set_title('Model Dynamic output', fontsize = 12)
-ax4[1].set_title('S0', fontsize = 12)
-ax4[2].set_title('\u03BC', fontsize = 12)
+ax4[1].set_title(r'$S_0$', fontsize = 12)
+ax4[2].set_title(r'$\mu_{max}$', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Parameter Value', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
@@ -259,22 +256,23 @@ ax4[1].tick_params(axis='y', labelsize=12)
 ax4[2].tick_params(axis='x', labelsize=12)
 ax4[2].tick_params(axis='y', labelsize=12)
 
-
-
 #shift fig subplots
-fig4.subplots_adjust(right=0.90, wspace = 0.45, left = 0.10, hspace = 0.20, bottom = 0.2)
-
+fig4.subplots_adjust(wspace = 0.3)
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = 'Syn Mono - 0 H ')
+ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = r'$Synechococcus$')
 ax4[0].errorbar(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'], yerr = df0[df0['organism']== 'S']['sigma'], color = c0, marker='o')
-ax4[0].plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' Model S best fit')
+ax4[0].plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' Model best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'S',100)
 
 # plot histograms of parameter search results 
 ax4[1].hist(posteriors0.S0 , facecolor = c0)
 ax4[2].hist(posteriors0.k2 , facecolor = c0)
 
+ax4[0].semilogy()
+
+for (ax,l) in zip(ax4,'abc'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
