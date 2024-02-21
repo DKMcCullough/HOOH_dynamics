@@ -68,7 +68,7 @@ dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08
 
 #coculture #s coculture_1,28     1,52    1,53         1,54       1,55      
 
-A = ('coculture_1,54')
+A = ('coculture_1,55')
 
 df = dfw[dfw['assay']== A]
 
@@ -207,6 +207,7 @@ ax1.set_xlabel('Time (days)')#settign x axis label for graph 2
 ax1.set_ylabel('HOOH (nM)')
 ax2.set_xlabel('Time (days)') #settign x axis label for graph 1
 ax2.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
+ax0.set_ylim([1e+3, 4e+6])
 
 #graph P
 ax0.errorbar(df[df['organism']=='P']['time'],df[df['organism']=='P']['avg1'],yerr=df[df['organism']=='P']['std1'], marker='o', label = 'avg1')
@@ -256,6 +257,7 @@ ax3[2].set_ylabel('Cells (ml$^{-1}$)')
 ax3[2].set_xlabel('Time (days)')
 
 #graphing data from df to see 2 different biological reps represented
+ax3[0].set_ylim([1e+3, 4e+6])
 
 ax3[0].errorbar(df[df['organism']=='P']['time'],df[df['organism']=='P']['abundance'],yerr=df[df['organism']=='P']['std1'],c = c0, marker='o', label = 'Data Mean')
 ax3[0].plot(mod4.time,mod4['P'],color ='r',lw=1.5,label=' Model best fit')

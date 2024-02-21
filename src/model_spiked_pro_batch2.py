@@ -33,6 +33,12 @@ df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
 
+#####################################################
+#config data in df from raw for odelib usefulness
+#####################################################
+
+#splitting df of Pro into 0 and 400 H assays 
+ 
 df = df_mono
 df['log1'] = np.log(df['rep1'])
 df['log2'] = np.log(df['rep2'])
@@ -54,26 +60,16 @@ df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
 df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
-#setting working df for model as far as abundance and log abundance values 
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
-
+df4 = df4[df4.time < 6]
 
 df = df4
 
 c0 = 'lightgreen'
 c1 = 'goldenrod'
-
-#####################################################
-#config data in df from raw for odelib usefulness
-#####################################################
-
-#making avg columns of technical reps (std here only for graphing, not logged here)
-
-#splitting df of Pro into 0 and 400 H assays 
- 
 
 #####################################################
 #plotting data and error within biological reps 
@@ -93,7 +89,6 @@ ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
 ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
 ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
 ax1.set_ylabel('HOOH (nM)')
-#graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
 #graph 0 H assay even and odd avgs 
 ax0.errorbar(df4[df4['organism']=='P']['time'],df4[df4['organism']=='P']['avg1'],yerr=df4[df4['organism']=='P']['std1'], marker='o', label = 'avg1')
@@ -170,15 +165,9 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P - kdam*P*H    
     dNdt =  - (k2 * N /( (ksp) + N) )*P
-    dHdt = Sh- phi*P*H
+    dHdt = 8 - phi*P*H
     return [dPdt,dNdt,dHdt]
 
-
-def get_residuals(self):
-    mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)   #this is not same species 
-    mod['res'] = res
-    return(mod)
 
 #####################################################
 #modeling and fitting 
@@ -187,13 +176,14 @@ def get_residuals(self):
 # get_models
 a4 = get_model(df4) 
 
+#broken here!!!!!!!!!!
 # do fitting
 posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','k2','N0']),print_report=True) #, )
+#posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # run model with optimal params
 mod4 = a4.integrate()
 
-a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 
 #####################################################
 # graphing model vs data in 0 H and associated error
@@ -205,19 +195,17 @@ fig3.suptitle('Pro in 400 H Model') #setting main title of fig
 
 ####### fig config and naming 
 
-fig3.subplots_adjust(right=0.95, wspace = 0.45, left = 0.05, hspace = 0.30, bottom = 0.2)
+fig3.subplots_adjust(right=0.85, wspace = 0.50, hspace = 0.30)
 
 ax3[0].semilogy()
 ax3[1].semilogy()
 ax3[0].set_title('Pro dynamics ', fontsize = 14)
 ax3[1].set_title('HOOH dynamics', fontsize = 14)
 
-ax3[0].set_xlabel('Time (days)')
 ax3[0].set_ylabel('Cells (ml$^{-1}$)')
 ax3[0].set_xlabel('Time (days)')
 ax3[1].set_ylabel('HOOH (nM)')
 ax3[1].set_xlabel('Time (days)')
-
 
 
 #graphing data from df to see 2 different biological reps represented
@@ -230,8 +218,9 @@ ax3[1].errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['abu
 ax3[1].plot(mod4.time,mod4['H'],color ='r',lw=2.0,label=' H model best fit')
 a4.plot_uncertainty(ax3[1],posteriors4,'H',100)
 
-l3 = ax3[0].legend(loc = 'lower right')
+l3 = ax3[0].legend(loc = 'lower left')
 l3.draw_frame(False)
+
 
 #save graph
 
@@ -243,16 +232,15 @@ fig3.savefig('../figures/pro2_data_400')
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[10,4])
+figall,axall = plt.subplots(2,3,figsize=[12,8])
+figall.subplots_adjust(wspace=0.3,hspace=0.3)
+ax4,ax5 = axall[0,:],axall[1,:]
 #set titles and config graph 
-fig4.suptitle('Pro Monoculture parameters in 400 HOOH ')
-ax4[0].set_title('Pro dyanmics')
-ax4[1].set_title('P0')
-ax4[2].set_title('kdam')
-ax4[0].set_ylim([100, 5000000])
+ax4[1].set_title(r'$P_0$')
+ax4[2].set_title(r'$\kappa_{dam}$')
 
 ax4[0].semilogy()
-ax4[0].set_ylabel('Cell concentration')
+ax4[0].set_ylabel('Cells (ml$^{-1}$)')
 ax4[0].set_xlabel('Time (Days)')
 
 
@@ -261,66 +249,56 @@ ax4[1].set_ylabel('Frequency', fontsize = 12)
 ax4[2].set_xlabel('Parameter Value', fontsize = 12)
 ax4[2].set_ylabel('Frequency', fontsize = 12)
 
-#shift fig subplots
-fig4.subplots_adjust(right=0.95, wspace = 0.45, left = 0.1, hspace = 0.30, bottom = 0.2)
-
+ax4[0].set_ylim([100, 5000000])
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  c0,marker='o',label = 'MEAN Pro')
-ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label=' Model P best fit')
+ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  c0,marker='o',label = r'$Prochlorococcus$')
+ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'P',100)
 
 # plot histograms of parameter search results 
 ax4[1].hist(posteriors4.P0, color =  c0)
-ax4[2].hist(posteriors4.kdam,color =  c0)
+ax4[2].hist(posteriors4.kdam,color = c0)
 
 #make legends
-l4 = ax4[0].legend(loc = 'upper left')
+l4 = ax4[0].legend(loc = 'lower left')
 l4.draw_frame(False)
 #show full graph 
-plt.show()
-fig4.savefig('../figures/pro2_odelib4_Pparams')
 
+for (ax,l) in zip(axall.flatten(),'abcdef'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #########################################################
 #graphing H model vs data and params histograms 
 #########################################################
 
 #HOOH dynamics 
-fig5,ax5 = plt.subplots(1,3,figsize=[10,4])
-fig5.suptitle('HOOH parmaters in 400 HOOH')
-ax5[0].set_title('HOOH dynamics')
-ax5[1].set_title('H0')
-ax5[2].set_title('\u03C6')
+ax5[1].set_title(r'$H_0$')
+ax5[2].set_title(r'$\phi_{max}$')
 
-ax5[0].set_ylabel('HOOH concentration')
+ax5[0].set_ylabel(r'H$_2$O$_2$ (nM)')
 ax5[0].set_xlabel('Time (Days)')
-fig5.subplots_adjust(right=0.95, wspace = 0.45, left = 0.1, hspace = 0.30, bottom = 0.2)
 
 ax5[0].set_ylim([200, 500])
-
 ax5[1].set_xlabel('Parameter Value', fontsize = 12)
 ax5[1].set_ylabel('Frequency', fontsize = 12)
 ax5[2].set_xlabel('Parameter Value', fontsize = 12)
 ax5[2].set_ylabel('Frequency', fontsize = 12)
 
-
-l5 = ax5[0].legend(loc = 'upper left')
-l5.draw_frame(False)
-
-ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1 ,marker='o',label = 'H data ')
-ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model H best fit')
+ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1,marker='o',label = 'Hydrogen peroxide')
+ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
+l5 = ax5[0].legend(loc = 'lower left')
+l5.draw_frame(False)
 
 # plot histograms of parameter search results 
 ax5[1].hist(posteriors4.H0,color =  c1)
-ax5[2].hist(posteriors4.phi, color =  c1)
+ax5[2].hist(posteriors4.phi, color = c1)
 
 
 #show full graph 
-plt.show()
-fig5.savefig('../figures/pro2_odelib4_Hparams')
 
+figall.savefig('../figures/pro2_400nm_h2o2')
 
 ##########################
 #TRACE plot for death params
@@ -340,10 +318,6 @@ ax6[1].set_xlabel('Model iteration', fontsize = 12)
 #graphing iteration number vs parameter numbert logged 
 ax6[0].scatter(posteriors4.iteration,posteriors4.kdam,color = c0)
 ax6[1].scatter(posteriors4.iteration,posteriors4.phi,color = c1)
-
-
-plt.show()
-fig5.savefig('../figures/pro1_odelib4_Hparams')
 
 
 

@@ -28,7 +28,6 @@ import sys
 
 df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
-
 df_all = df_all.fillna(0)
 
 #df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
@@ -55,7 +54,7 @@ df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
 df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
 df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
-df['log_sigma'] = 0.2
+df['log_sigma'] = 0.1
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
@@ -153,7 +152,8 @@ def get_model(df):
 
 def mono_0H(y,t,params): #no kdam or phi here (or make 0)
     k1,k2 = params[0], params[1]
-    P,N = max(y[0],0),max(y[1],0),
+    #P,N = max(y[0],0),max(y[1],0),
+    P,N = y[0],y[1]
     ksp=k2/k1 #calculating model param ks in loop but k1 and k2 are fed separately by odelib
     dPdt = (k2 * N /( (ksp) + N) )*P     
     dNdt =  - (k2 * N /( (ksp) + N) )*P
@@ -185,14 +185,14 @@ a0res = get_residuals(a0)
 
 ###### fig set up
 fig3, (ax0,ax1)= plt.subplots(1,2,figsize = (9,4)) #fig creationg of 1 by 2
-fig3.suptitle('Pro in 0 H Model',fontsize = '16') #setting main title of fig
+#fig3.suptitle('Pro in 0 H Model',fontsize = '16') #setting main title of fig
 
 ####### fig config and naming 
 
 fig3.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20, left = 0.1)
 
 ax0.semilogy()
-ax0.set_title('Pro dynamics ',fontsize = '16')
+ax0.set_title('Pro dynamics ',fontsize = '14')
 ax1.set_title('Model residuals',fontsize = '14')
 
 ax0.set_xlabel('Time (days)',fontsize = '14')
@@ -203,7 +203,7 @@ ax1.set_xlabel('Residual',fontsize = '14')
 
 
 #model and residuals
-ax0.errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'], c=c0, marker='d', label = 'Pro Data MEAN')
+ax0.errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'],c=c0, marker='d', label = 'Pro Data MEAN')
 ax0.plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' model best fit')
 a0.plot_uncertainty(ax0,posteriors0,'P',100)
 
@@ -213,30 +213,22 @@ ax1.scatter(a0res['res'], a0res['abundance'],c=c0, label = '0H case')
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-plt.show()
-
-
 fig3.savefig('../figures/pro2_odelib0_fit')
-
 
 #########################################################
 #graphing model vs data and params histograms 
 #########################################################
 
 # set up graph
-fig4,ax4 = plt.subplots(1,3,figsize=[11,5])
+fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 #set titles and config graph 
-fig4.suptitle('Monoculture parameters in 0 HOOH ', fontsize = 14)
-fig4.subplots_adjust(right=0.9, wspace = 0.40, hspace = 0.20)
-
-ax4[0].set_ylim([100, 5000000])
-
+fig4.subplots_adjust(wspace = 0.40)
+ax4[0].set_ylim([2e+5, 4e+6])
 
 #ax4[0].set_title('Pro  dynamics', fontsize = 16)
 #plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
-ax4[0].set_title('Pro Dynamics', fontsize = 12)
-ax4[1].set_title('P0', fontsize = 12)
-ax4[2].set_title('\u03BC', fontsize = 12)
+ax4[1].set_title(r'$P_0$', fontsize = 12)
+ax4[2].set_title(r'$\mu_{max}$', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Parameter Value', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
@@ -252,12 +244,15 @@ ax4[2].tick_params(axis='x', labelsize=12)
 ax4[2].tick_params(axis='y', labelsize=12)
 
 #shift fig subplots
-fig4.subplots_adjust(right=0.90, wspace = 0.55, hspace = 0.20)
+fig4.subplots_adjust(wspace = 0.3)
+ax4[0].semilogy()
 
+for (ax,l) in zip(ax4,'abc'):
+    ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #graph data, model, and uncertainty 
-ax4[0].errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'], c=c0, marker='d', label = 'Pro Data MEAN')
-ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label=' Model P best fit')
+ax4[0].errorbar(df[df['organism']== 'P']['time'],df[df['organism']== 'P']['abundance'],yerr=df[df['organism']== 'P']['sigma'], c=c0, marker='d', label = r'$Prochlorococcus$')
+ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label='Model best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
 
 # plot histograms of parameter search results 
@@ -265,16 +260,14 @@ ax4[1].hist(posteriors0.P0, color = c0)
 ax4[2].hist(posteriors0.k2, color = c0)
 
 #format legend 
-l4 = ax4[0].legend(loc = 'lower right', fontsize = 9)
+l4 = ax4[0].legend(loc = 'upper left', fontsize = 9)
 l4.draw_frame(False)
 #show full graph 
 plt.show()
 
 
-fig4.savefig('../figures/pro1_odelib0_params')
+fig4.savefig('../figures/pro2_odelib0_params')
 
-
-##########################
 #TRACE plot for growth params
 fig5,ax5 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot
 fig5.suptitle('Trace plots for Params ', fontsize = 14) #set main title 
@@ -282,10 +275,12 @@ fig5.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspa
 
 ax5[0].set_title('\u03B1', fontsize = 14)
 ax5[1].set_title('\u03BC', fontsize = 14)
+
 ax5[0].set_ylabel('\u03B1 value', fontsize = 12)
 ax5[0].set_xlabel('Model iteration', fontsize = 12)
 ax5[1].set_ylabel('\u03BC value', fontsize = 12)
 ax5[1].set_xlabel('Model iteration', fontsize = 12)
+
 #ax3[:,:].set_yscale('log')
 
 
@@ -296,6 +291,7 @@ ax5[1].scatter(posteriors0.iteration,posteriors0.k2,color = c0)
 
 #print out plot
 fig3.savefig('../figures/Pro2_0_TRACE')
+
 
 
 

@@ -68,7 +68,7 @@ dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08
 
 #coculture #s coculture_1,57     1,58    1,59         1,60       1,55      
 
-A = ('coculture_1,55')
+A = ('coculture_1,60')
 
 df = dfw[dfw['assay']== A]
 
@@ -207,7 +207,7 @@ ax1.set_xlabel('Time (days)')#settign x axis label for graph 2
 ax1.set_ylabel('HOOH (nM)')
 ax2.set_xlabel('Time (days)') #settign x axis label for graph 1
 ax2.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
-
+ax0.set_ylim([1e+4, 8e+6])
 #graph P
 ax0.errorbar(df[df['organism']=='P']['time'],df[df['organism']=='P']['avg1'],yerr=df[df['organism']=='P']['std1'], marker='o', label = 'avg1')
 ax0.errorbar(df[df['organism']=='P']['time'],df[df['organism']=='P']['avg2'],yerr=df[df['organism']=='P']['std2'], marker='v', label = 'avg2 ')
@@ -221,7 +221,7 @@ ax2.errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['avg1'],yer
 ax2.errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['avg2'],yerr=df[df['organism']=='D']['std2'], marker='v', label = 'avg2')
 ax2.errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['abundance'],yerr=df[df['organism']=='D']['sigma'], marker='d', label = 'MEAN S')
 
-l2 = ax0.legend(loc = 'upper right')
+l2 = ax0.legend(loc = 'lower right')
 l2.draw_frame(False)
 
 
@@ -255,6 +255,8 @@ ax3[1].set_xlabel('Time (days)')
 ax3[2].set_ylabel('Cells (ml$^{-1}$)')
 ax3[2].set_xlabel('Time (days)')
 
+ax3[0].set_ylim([1e+4, 8e+6])
+
 #graphing data from df to see 2 different biological reps represented
 
 ax3[0].errorbar(df[df['organism']=='P']['time'],df[df['organism']=='P']['abundance'],yerr=df[df['organism']=='P']['std1'],c = c0, marker='o', label = 'Data Mean')
@@ -269,13 +271,13 @@ ax3[2].errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['abundan
 ax3[2].plot(mod4.time,mod4['D'],color ='r',lw=2.0,label=' d model best fit')
 a4.plot_uncertainty(ax3[2],posteriors4,'D',100)
 
-l3 = ax3[0].legend(loc = 'upper right')
+l3 = ax3[0].legend(loc = 'lower right')
 l3.draw_frame(False)
 
 
 #save graph
 
-fig3.savefig('../figures/pro_coculture_'+str(A)+'data_')
+fig3.savefig('../figures/pro_het_coculture_'+str(A)+'data_')
 
 
 #########################################################
@@ -380,7 +382,7 @@ ax6[1,1].scatter(posteriors4.iteration,posteriors4.phis,color = c1)
 
 
 plt.show()
-fig6.savefig('../figures/'+str(A)+'_odelib4_trace')
+fig6.savefig('../figures/'+str(A)+'_het_odelib4_trace')
 
 
 

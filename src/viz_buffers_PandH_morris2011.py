@@ -80,6 +80,11 @@ for a,n in zip(assays,range(nassays)):
         df = df_all[(df_all['ID'] == a)]
         count = nt
         df = df[(df['ID']==a) & (df['Treatment']==t)]
+        if df.shape[0] == 0:
+            print('empty df in'+str(a))
+            continue
+        if df.shape[0] > 0:
+            pass
         pdf = df[df['organism'] == 'P']
         hdf = df[df['organism'] == 'H']
         ax1[0].plot(pdf['time'], pdf['abundance'], marker= markers[count], markersize= 10, label =(str(t)+' produced HOOH'), color = colors[count] ) 

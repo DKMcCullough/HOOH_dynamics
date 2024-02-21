@@ -10,7 +10,7 @@ created by DKM
 location:/Users/dkm/Documents/Talmy_research/Zinser_and_Ben/Project_3_Morris_2011_ROS/scripts/
 '''
 
-from scipy import *
+import scipy 
 from scipy.integrate import *
 import pandas as pd
 import numpy as np      
