@@ -190,7 +190,7 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,s
 # run model with optimal params
 mod4 = a4.integrate()
 
-a4res = get_residuals(a4)  #is this using the best fit or just a first run???
+#a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 
 #####################################################
 # graphing model vs data in 0 H and associated error
@@ -348,9 +348,9 @@ ax1.set_ylabel('Data H value',fontsize = '14')
 ax1.set_xlabel('Residual',fontsize = '14')
 
 
-ax0.scatter(a4res['res'], a4res['abundance'],label = '0H case')
+#ax0.scatter(a4res['res'], a4res['abundance'],label = '0H case')
 
-ax1.scatter(a4res['res'], a4res['abundance'],label = '0H case')
+#ax1.scatter(a4res['res'], a4res['abundance'],label = '0H case')
 #printing off graph
 plt.show()
 
