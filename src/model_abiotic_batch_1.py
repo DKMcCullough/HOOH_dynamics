@@ -28,10 +28,6 @@ plt.rcParams["font.family"] = "Times New Roman"
 #####################################################
 df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
-
-
-
-#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
 df_a = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
