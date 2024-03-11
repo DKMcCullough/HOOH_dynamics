@@ -1,6 +1,6 @@
 '''
 
-name:   viz_spikes.py 
+name:   viz_growth.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser/Projects/ROS.../HOOH.....src'
 
@@ -32,7 +32,7 @@ df_media = pd.read_excel("../data/ROS_uncertainty.xlsx",sheet_name = 'Media_assa
 df_growth = pd.read_excel("../data/ROS_uncertainty.xlsx",sheet_name = 'Growth_assays', header = 0)
 df_buffer = pd.read_excel("../data/ROS_uncertainty.xlsx",sheet_name = 'Buffer_assays', header = 0)
 
-df_all =   df_spike
+df_all =   df_growth
 df = df_all
 
 df = df.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
@@ -78,36 +78,22 @@ df['log_abundance'] = np.nanmean(np.r_[[df[i] for i in ['logA1','logA2','logB1',
 df['log_sigma'] = np.nanstd(np.r_[[df[i] for i in ['logA1','logA2','logB1','logB2','logC1','logC2']]],axis=0)
 
 
-
-#slicing into different treatments and organisms 
-df_abiotic = df.loc[df['assay'].str.contains('abiotic', case=False)].copy()  
-df_co = df.loc[df['assay'].str.contains('coculture', case=False)].copy()  
-df_spike = df.loc[df['HOOH_spike (nM) '] > 1]
-df_control = df.loc[df['HOOH_spike (nM) '] == 0]
-
-df_bio = df.loc[~df['organism'].str.contains('H', case=False)].copy()  
-
-df_P = df.loc[df['organism'].str.contains('P', case=False)].copy() 
-df_S = df.loc[df['organism'].str.contains('S', case=False)].copy() 
-df_D = df.loc[df['organism'].str.contains('D', case=False)].copy() 
-df_H = df.loc[df['organism'].str.contains('H', case=False)].copy() 
-
-
-
 #graph all at once 
 
-sns.relplot(data=df, x="abundance", y="sigma", palette = 'cool',size ='HOOH_spike (nM) ', hue="organism", markers =True,  kind="scatter").set(title='Raw Data' )
+#sns.relplot(data=df, x="abundance", y="sigma", palette = 'cool',size ='organism', hue="Buffer",style= 'Light', markers =True,  kind="scatter").set(title='Raw Data' )
+sns.relplot(data=df, x="abundance", y="sigma", palette = 'cool',size ='treatment (nM)', hue="Strain",style= 'nutrient_addition ', markers =True,  kind="scatter").set(title='Raw Data' )
 
-sns.relplot(data=df, x="log_abundance", y="log_sigma", palette = 'cool',size ='HOOH_spike (nM) ', hue="organism", markers =True,  kind="scatter").set(title='Log Data' )
+#sns.relplot(data=df, x="log_abundance", y="log_sigma", palette = 'cool',size ='organism', hue="Buffer", style= 'Light', markers =True,  kind="scatter").set(title='Log Data' )
+sns.relplot(data=df, x="log_abundance", y="log_sigma", palette = 'cool',size ='treatment (nM)', hue="Strain",style= 'nutrient_addition ', markers =True,  kind="scatter").set(title='Log Data' )
 
 
-
+'''
 #make arrays for going through loop via assay 
 
-treats = df['assay'].unique()
-ntreats = treats.shape[0]
+orgs = df['organism'].unique()
+norgs = orgs.shape[0]
 
-dfs = df['organism'].unique()
+dfs = df['Buffer'].unique()
 ndfs = dfs.shape[0]
 
 
@@ -115,21 +101,19 @@ ndfs = dfs.shape[0]
 # Set up large loop  for graphing 
 #####################################################
 
-for d,nd in zip(dfs,range(ndfs)):
+for d,nd in zip(orgs,range(norgs)):
     dfw = df[(df['organism'] == d) ]
 
-#graph each df
 
-#HOOH_spike (nM) 
 
-    a = sns.relplot(data=dfw, x="abundance", y="sigma", palette = 'cool',size ='HOOH_spike (nM) ', hue='HOOH_spike (nM) ', markers =True,  kind="scatter").set(title='Raw '+str(d)+' Data' )
+    a = sns.relplot(data=dfw, x="abundance", y="sigma", palette = 'cool',size ='Buffer_Concentration (microM) ', hue='Buffer', style = 'Light', markers =True,  kind="scatter").set(title='Raw '+str(d)+' Data' )
     
-    a.ax.set_xlabel("Raw Mean Abundance",fontsize=13)
+    a.ax.set_xlabel("Raw Mean HOOH",fontsize=13)
     a.ax.set_ylabel("Raw Sigma",fontsize=13)
     a.ax.tick_params(labelsize=12)
     
-    b = sns.relplot(data=dfw, x="log_abundance", y="log_sigma", palette = 'cool',size ='HOOH_spike (nM) ', hue='HOOH_spike (nM) ',  markers =True,  kind="scatter").set(title='Log '+str(d)+' Data')
-    b.ax.set_xlabel("Log Mean Abundance",fontsize=13)
+    b = sns.relplot(data=dfw, x="log_abundance", y="log_sigma", palette = 'cool',size ='Buffer_Concentration (microM) ', hue='Buffer', style = 'Light', markers =True,  kind="scatter").set(title='Log '+str(d)+' Data')
+    b.ax.set_xlabel("Log Mean HOOH",fontsize=13)
     b.ax.set_ylabel("Log Sigma",fontsize=13)
     b.ax.tick_params(labelsize=12)
 
@@ -140,9 +124,7 @@ for d,nd in zip(dfs,range(ndfs)):
     a.savefig('../figures/raw_'+str(d)+'data')
     b.savefig('../figures/Log_'+str(d)+'data')
 
-
-
-
+'''
 # 'program finished' flag
 print('\n ~~~****~~~****~~~ \n')
 print(' Done my guy ')
