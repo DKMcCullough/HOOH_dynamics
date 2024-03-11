@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
  #UH18301 Pro in 3.75 mM HEPES or Taps buffer. High light (24uC in a Sunbox -  noon maximum of about 250 quanta m) 
 
 
-df_all = pd.read_csv('../data/Buffers_Morris_2011_f1.csv')
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'Buffers_Morris_2011_f1c,d', header = 1)
 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'Time (days)':'time'}, axis=1)    #'renaming column to make it callable by 'times'

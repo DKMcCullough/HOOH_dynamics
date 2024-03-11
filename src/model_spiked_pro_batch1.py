@@ -64,7 +64,7 @@ df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
-df4 = df4[df4.time < 6]
+df4 = df4[df4.time < 6] #to keep growth bump in last days to thro off death (kdma) range.
 
 df = df4
 
