@@ -87,13 +87,13 @@ ax1.set_xlabel('Time (days)',fontsize = 12)#settign x axis label for graph 2
 #graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
 
 #graph 0 H assay even and odd avgs 
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg1'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'avg1')
-ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='v', label = 'avg2')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg1'],yerr=df0[df0['organism']== 'P']['std1'], marker='o', label = 'Bio1')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['avg2'],yerr=df0[df0['organism']== 'P']['std2'], marker='v', label = 'Bio2')
 ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['abundance'],yerr=df0[df0['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
 
 # graph 400 H assay even and odd avgs
-ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg1'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'avg1')
-ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'avg2')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg1'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'Bio1')
+ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'Bio2')
 ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abundance'],yerr=df4[df4['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
 
 
@@ -103,10 +103,111 @@ l1.draw_frame(False)
 fig2.savefig('../figures/pro1_data_0and4')
 
 #####################################################
-#   model param and state variable set up 
-# modeling abiotic HOOH via SH and deltaH and H0 
+#plotting error within biological reps 
+#####################################################
+# fig set up and main title 
+fig2, (ax0,ax1,ax2)= plt.subplots(1,3,figsize = (11,5))
+fig2.suptitle('Pro  in 0 H ')
+fig2.subplots_adjust(right=0.95, wspace = 0.45, hspace = 0.20)
+
+
+#format fig  
+ax0.set_title('Pro Dyanimics ',fontsize = 15) #graph title for graph 1
+ax1.set_title('Error Structure',fontsize = 13) #graph title for graph 2
+ax2.set_title('LOG Error Structure',fontsize = 13) #graph title for graph 2
+
+ax0.set_xlabel('Time (days)',fontsize = 12) #settign x axis label for graph 1
+ax0.set_ylabel('Cells (ml $^{-1}$)',fontsize = 12)  #setting y label for both subgraphs 
+ax0.semilogy()
+
+ax1.set_xlabel('Abundance',fontsize = 12)#settign x axis label for graph 2 
+ax1.set_ylabel('Variance',fontsize = 12)#settign x axis label for graph 2 
+ax1.semilogx()
+ax1.semilogy()
+
+ax2.set_xlabel('Log Abundance',fontsize = 12)#settign x axis label for graph 2 
+ax2.set_ylabel('Log Variance',fontsize = 12)#settign x axis label for graph 2 
+ax2.semilogx()
+ax2.semilogy()
+
+#graph 0 H assay 
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['lavg1'],yerr=df0[df0['organism']== 'P']['stdlog1'], marker='o', label = 'Bio1')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['lavg2'],yerr=df0[df0['organism']== 'P']['stdlog2'], marker='v', label = 'Bio2')
+ax0.errorbar(df0[df0['organism']== 'P']['time'],df0[df0['organism']== 'P']['log_abundance'],yerr=df0[df0['organism']== 'P']['log_sigma'], marker='d', label = 'MEAN')
+
+# raw data vs sigma
+ax1.scatter(df0[df0['organism']== 'P']['avg1'],df0[df0['organism']== 'P']['std1'], marker='o', label = 'Bio1')
+ax1.scatter(df0[df0['organism']== 'P']['avg2'],df0[df0['organism']== 'P']['std2'], marker='v', label = 'Bio2')
+ax1.scatter(df0[df0['organism']== 'P']['abundance'],df0[df0['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+
+# log data vs sigma
+ax2.scatter(df0[df0['organism']== 'P']['lavg1'],df0[df0['organism']== 'P']['stdlog1'], marker='o', label = 'Log_Bio1')
+ax2.scatter(df0[df0['organism']== 'P']['lavg2'],df0[df0['organism']== 'P']['stdlog2'], marker='v', label = 'Log_Bio2')
+ax2.scatter(df0[df0['organism']== 'P']['log_abundance'],df0[df0['organism']== 'P']['log_sigma'], marker='d', label = 'Log_MEAN')
+
+l1 = ax0.legend(loc = 'lower right')
+l1.draw_frame(False)
+
+fig2.savefig('../figures/pro1_0_data_trends')
+
+#####################################################
+#plotting error within biological reps 
+#####################################################
+# fig set up and main title 
+fig2, (ax0,ax1,ax2)= plt.subplots(1,3,figsize = (11,5))
+fig2.suptitle('Pro  in 400 H ')
+fig2.subplots_adjust(right=0.95, wspace = 0.45, hspace = 0.20)
+
+#format fig  
+ax0.set_title('Pro Dyanimics ',fontsize = 15) #graph title for graph 1
+ax0.semilogy() #setting y axis to be logged b/c cell data
+ax1.set_title('Error Structure',fontsize = 13) #graph title for graph 2
+ax2.set_title('LOG Error Structure',fontsize = 13) #graph title for graph 2
+
+
+ax0.set_xlabel('Time (days)',fontsize = 12) #settign x axis label for graph 1
+ax0.set_ylabel('Cells (ml $^{-1}$)',fontsize = 12)  #setting y label for both subgraphs 
+ax0.semilogy()
+
+ax1.set_xlabel('Abundance',fontsize = 12)#settign x axis label for graph 2 
+ax1.set_ylabel('Variance',fontsize = 12)#settign x axis label for graph 2 
+ax1.semilogx()
+ax1.semilogy()
+
+ax2.set_xlabel('Log Abundance',fontsize = 12)#settign x axis label for graph 2 
+ax2.set_ylabel('Log Variance',fontsize = 12)#settign x axis label for graph 2 
+ax2.semilogx()
+ax2.semilogy()
+#graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
+
+#graph 0 H assay even and odd avgs 
+ax0.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg1'],yerr=df4[df4['organism']== 'P']['std1'], marker='o', label = 'Bio1')
+ax0.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['avg2'],yerr=df4[df4['organism']== 'P']['std2'], marker='v', label = 'Bio2')
+ax0.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abundance'],yerr=df4[df4['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+
+# graph 400 H assay even and odd avgs
+ax1.scatter(df4[df4['organism']== 'P']['avg1'],df4[df4['organism']== 'P']['std1'], marker='o', label = 'Bio1')
+ax1.scatter(df4[df4['organism']== 'P']['avg2'],df4[df4['organism']== 'P']['std2'], marker='v', label = 'Bio2')
+ax1.scatter(df4[df4['organism']== 'P']['abundance'],df4[df4['organism']== 'P']['sigma'], marker='d', label = 'MEAN')
+
+ax2.scatter(df4[df4['organism']== 'P']['lavg1'],df4[df4['organism']== 'P']['stdlog1'], marker='o', label = 'Log_Bio1')
+ax2.scatter(df4[df4['organism']== 'P']['lavg2'],df4[df4['organism']== 'P']['stdlog2'], marker='v', label = 'Log_Bio2')
+ax2.scatter(df4[df4['organism']== 'P']['log_abundance'],df4[df4['organism']== 'P']['log_sigma'], marker='d', label = 'Log_MEAN')
+
+
+l1 = ax0.legend(loc = 'upper right')
+l1.draw_frame(False)
+
+fig2.savefig('../figures/pro1_4_data_trends')
+'''
+#####################################################
 #####################################################
 
+#   model param and state variable set up 
+# modeling abiotic HOOH via SH and deltaH and H0 
+
+#####################################################
+#####################################################
 #reading in csv file with inititl guesses for all parameter values ( SH, deltah, H0)
 inits0 = pd.read_csv("../data/inits/pro_MIT9215_inits0_1.csv")
 
@@ -298,7 +399,7 @@ fig3.savefig('../figures/Pro1_0_TRACE')
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe.to_csv('../data/inits/pro_MIT9215_inits0_1.csv')
 
-
+'''
 
 # 'program finished' flag
 

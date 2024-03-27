@@ -60,7 +60,7 @@ df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
 
 df['log_sigma'] = 0.2
 df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
-
+#0.08
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
