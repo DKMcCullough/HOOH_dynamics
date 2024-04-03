@@ -364,7 +364,6 @@ ax4[2].hist(posteriors0.k2, color = c0)
 l4 = ax4[0].legend(loc = 'upper left', fontsize = 9)
 l4.draw_frame(False)
 #show full graph 
-plt.show()
 
 
 fig4.savefig('../figures/pro1_odelib0_params')

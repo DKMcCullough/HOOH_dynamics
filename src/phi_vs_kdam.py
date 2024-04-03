@@ -23,6 +23,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
+plt.rcParams["font.family"] = "Times New Roman"
+
 df = pd.DataFrame({'names' : ('Syn WH7803_vol52','Syn WH7803_vol28','Syn CC9605_vol53','Pro MIT9215_sample1','Pro MIT9215_sample2'),
                                 'phis' : [1.94E-06,1.64E-06,1.61E-06,3.95E-15,1.87E-15],
                                 'kdams' : [0.001390782,0.001691207,0.000656184,0.003121548,0.005126291] }, 
@@ -31,13 +33,13 @@ df = pd.DataFrame({'names' : ('Syn WH7803_vol52','Syn WH7803_vol28','Syn CC9605_
 #Not all of the data sets have cocurrent HOOH measurements so Phi is less constrained and therefore can be biassing the conclusions a lot. 
 fig3, (ax1)= plt.subplots(figsize = (8,6))
 fig3.suptitle('Tradeoffs', fontsize = 17)
-ax1.set_xlabel('\u03C6',fontsize = 14)
-ax1.set_ylabel('kdam',fontsize = 14)
+ax1.set_xlabel('Detoxificatiion rate ($\phi_{max})$',fontsize = 14)
+ax1.set_ylabel('Damage rate ($\kappa_{dam}$)',fontsize = 14)
 ax1.tick_params(axis = 'both', which = 'both', length = 4, labelsize = 12)
 
 
 ax1.set_xlim([0.0000000000000001, 0.0001]) #phi
-ax1.set_ylim([0.0001, 0.01]) #kdam
+ax1.set_ylim([0.0004, 0.008]) #kdam
 
 
 colors = ['cornflowerblue','dodgerblue','steelblue','g','lightgreen']
@@ -56,8 +58,6 @@ l3 = plt.legend(loc = 'lower left', fontsize = 10)
 
 ax1.semilogy()
 ax1.semilogx()
-
-plt.show()
 
 fig3.savefig('../figures/tradeoffs')
 

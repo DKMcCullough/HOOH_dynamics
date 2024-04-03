@@ -14,6 +14,7 @@ working on: ln of data in df for uncertainty, loop for 0 and 400 using different
 '''
 
 #read in needed packages 
+import helpers as hp
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,50 +23,41 @@ import ODElib
 import random as rd
 import sys
 
-plt.rcParams["font.family"] = "Times New Roman"
-
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
-#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
+# get data and visualize uncertainty
+df = hp.get_data('coculture')
 
-df = df_mono
-df['log1'] = np.log(df['rep1'])
-df['log2'] = np.log(df['rep2'])
-df['log3'] = np.log(df['rep3'])
-df['log4'] = np.log(df['rep4'])
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
-df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
-
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
-df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
-df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
-df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
-df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
-
-df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
+vol = int(sys.argv[1])
+if vol == 52:
+    #vol52 colors Syn WH7803
+    c0 = 'cornflowerblue'
+    c1 = 'darkorange'
+elif vol == 28:
+    #vol28 colors Syn WH7803 also 
+    c0 = 'dodgerblue'
+    c1 = 'tomato'
+elif vol == 53:
+    #vol53 colors WSyn CC9605 
+    c0 = 'steelblue'
+    c1 = 'chocolate'
+elif vol == 54:
+    #vol54 colors Syn WH7802 
+    c0 = 'darkcyan'
+    c1 = 'lightcoral'
 
 #strain slice trhough vol number selection 
-vol = 52
+vol = 28
 
-#vol52 colors 
-c0 = 'cornflowerblue'
-c1 = 'darkorange'
+#vol52 colors Syn WH7803
+#c0 = 'cornflowerblue'
+#c1 = 'darkorange'
 
-#vol28 colors
-#c0 = 'dodgerblue'
-#c1 = 'tomato'
+#vol28 colors Syn WH7803 also 
+c0 = 'dodgerblue'
+c1 = 'tomato'
 
 #vol53 colors WSyn CC9605 
 #c0 = 'steelblue'
@@ -75,9 +67,16 @@ c1 = 'darkorange'
 #c0 = 'darkcyan'
 #c1 = 'lightcoral'
 
+
+
 #slicing data into abiotic, biotic, and Pro only dataframes
-df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
+sigma4H = hp.get_uncertainty(df4[df4.organism=='H'])
+sigma4S = hp.get_uncertainty(df4[df4.organism=='S'])
+df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
+df4.loc[df['organism'] == 'S', 'log_sigma'] = sigma4S
+figa,axa = hp.plot_uncertainty(df4[df4.organism=='S'],sigma4S)
+figa.savefig('../figures/error_syn')
 
 df = df4
 
@@ -202,7 +201,6 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,s
 
 # run model with optimal params
 mod4 = a4.integrate()
-a4res = get_residuals(a4)  #is this using the best fit or just a first run???
 
 #####################################################
 # graphing model vs data in 0 H and associated error
@@ -290,39 +288,10 @@ l5.draw_frame(False)
 for (ax,l) in zip(axall.flatten(),'abcdef'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
-figall.savefig('../figures/syn_odelib4_Hparams')
-
-#####residuals
-fig6, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6)) #fig creationg of 1 by 2
-fig6.suptitle('Syn in 400 H Model') #setting main title of fig
-
-####### fig config and naming 
-
-fig6.subplots_adjust(right=0.90, wspace = 0.45, left = 0.10, hspace = 0.20, bottom = 0.2)
-
-ax0.semilogy()
-ax0.set_title('Syn  dynamics ',fontsize = '16')
-ax1.set_title('Model residuals',fontsize = '14')
-
-ax0.set_ylabel('Data S value',fontsize = '14')
-ax0.set_xlabel('Residual',fontsize = '14')
-
-ax1.set_ylabel('Data H value',fontsize = '14')
-ax1.set_xlabel('Residual',fontsize = '14')
-
-
-ax0.scatter(a4res['res'], a4res['abundance'],label = '0H case')
-
-ax1.scatter(a4res['res'], a4res['abundance'],label = '0H case')
-#printing off graph
-plt.show()
-
-
+figall.savefig('../figures/syn_'+str(vol)+'_Hparams')
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
-
-
 
 # 'program finished' flag
 

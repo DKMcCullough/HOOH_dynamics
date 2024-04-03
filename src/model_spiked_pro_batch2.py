@@ -14,6 +14,7 @@ working on: ln of data in df for uncertainty, loop for 0 and 400 using different
 '''
 
 #read in needed packages 
+import helpers as hp
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,50 +23,18 @@ import ODElib
 import random as rd
 import sys
 
-
-######################################################
-#reading in data and configureing 
-#####################################################
-
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
-
-df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
-
-#####################################################
-#config data in df from raw for odelib usefulness
-#####################################################
-
-#splitting df of Pro into 0 and 400 H assays 
- 
-df = df_mono
-df['log1'] = np.log(df['rep1'])
-df['log2'] = np.log(df['rep2'])
-df['log3'] = np.log(df['rep3'])
-df['log4'] = np.log(df['rep4'])
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
-df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
-
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
-df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
-df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
-df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
-df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
-
-df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
+# get data and visualize uncertainty
+df = hp.get_data('coculture',sheet='BCC_2-5-dataset')
 
 #slicing data into abiotic, biotic, and Pro only dataframes
-df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== 1)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
-df4 = df4[df4.time < 6]
 
+sigma4H = hp.get_uncertainty(df4[df4.organism=='H'])
+sigma4P = hp.get_uncertainty(df4[df4.organism=='P'])
+df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
+df4.loc[df['organism'] == 'P', 'log_sigma'] = sigma4P
+
+df4 = df4[df4.time < 6]
 df = df4
 
 c0 = 'lightgreen'

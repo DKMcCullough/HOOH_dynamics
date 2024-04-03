@@ -14,6 +14,7 @@ working on: ln of data in df for uncertainty, loop of all dfs in df_all for mode
 
 
 #read in needed packages 
+import helpers as hp
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,44 +23,16 @@ import ODElib
 import random as rd
 import sys
 
-plt.rcParams["font.family"] = "Times New Roman"
-
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
-
-#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_a = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
-
-df = df_a
-df['log1'] = np.log(df['rep1'])
-df['log2'] = np.log(df['rep2'])
-df['log3'] = np.log(df['rep3'])
-df['log4'] = np.log(df['rep4'])
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
-df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
-
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
-df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
-df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
-df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
-df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
-
-df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.04
-
-#slicing data into abiotic, biotic, and Pro only dataframes
-df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
+# get data and visualize uncertainty
+df = hp.get_data('abiotic')
 df4 = df.loc[(df['assay'].str.contains('4', case=False))]
+sigma4 = hp.get_uncertainty(df4)
+df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4
+figa,axa = hp.plot_uncertainty(df4,sigma4)
 
 ## Reading in inits files for 0 and 400 models respectively
 inits4 = pd.read_csv("../data/inits/abiotic_spike_1.csv")
@@ -122,7 +95,7 @@ H0_mean = inits4['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 100000
+nits = 10000
 
 
 #####################################
@@ -136,7 +109,6 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,p
 
 # run model with optimal params
 mod4 = a4.integrate()
-
 a4res = get_residuals(a4)
 
 #########################################################
@@ -177,8 +149,6 @@ ax1[2].hist((posteriors4.deltah), facecolor=c0) #graphing deltah of 0 H assay
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
-
-plt.show()
 
 
 fig1.savefig('../figures/abiotic1_4_dynamics')
@@ -278,9 +248,6 @@ ax1.errorbar(a4res['res'], a4res['abundance'],yerr=df4.sigma,color = c0,marker =
 #printing off graph
 l4 = ax0.legend(loc = 'lower right')
 l4.draw_frame(False)
-
-plt.show()
-
 
 fig4.savefig('../figures/abiotic1_4_residuals')
 

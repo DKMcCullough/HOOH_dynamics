@@ -14,6 +14,7 @@ working on: ln of data in df for uncertainty, loop for 0 and 400 using different
 '''
 
 #read in needed packages 
+import helpers as hp
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,62 +28,42 @@ plt.rcParams["font.family"] = "Times New Roman"
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
 
+df = hp.get_data('coculture')
 
-
-#df_all = pd.read_csv("../data/BCC_1-31-dataset.csv",header=1)
-df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].copy()  
-
-df = df_mono
-df['log1'] = np.log(df['rep1'])
-df['log2'] = np.log(df['rep2'])
-df['log3'] = np.log(df['rep3'])
-df['log4'] = np.log(df['rep4'])
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
-df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
-
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
-df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
-df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
-df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
-df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
-
-df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
-
-vol = 52
-
-#vol52 colors Syn WH7803
-c0 = 'cornflowerblue'
-c1 = 'darkorange'
-
-#vol28 colors Syn WH7803 also 
-#c0 = 'dodgerblue'
-#c1 = 'tomato'
-
-#vol53 colors WSyn CC9605 
-#c0 = 'steelblue'
-#c1 = 'chocolate'
-
-#vol54 colors Syn WH7802 
-#c0 = 'darkcyan'
-#c1 = 'lightcoral'
-
+vol = int(sys.argv[1])
+if vol == 52:
+    #vol52 colors Syn WH7803
+    c0 = 'cornflowerblue'
+    c1 = 'darkorange'
+elif vol == 28:
+    #vol28 colors Syn WH7803 also 
+    c0 = 'dodgerblue'
+    c1 = 'tomato'
+elif vol == 53:
+    #vol53 colors WSyn CC9605 
+    c0 = 'steelblue'
+    c1 = 'chocolate'
+elif vol == 54:
+    #vol54 colors Syn WH7802 
+    c0 = 'darkcyan'
+    c1 = 'lightcoral'
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
 
-
+# quantify uncertainty
+sigma0H = hp.get_uncertainty(df0[df0.organism=='H'])
+sigma0S = hp.get_uncertainty(df0[df0.organism=='S'])
+sigma4H = hp.get_uncertainty(df4[df4.organism=='H'])
+sigma4S = hp.get_uncertainty(df4[df4.organism=='S'])
+df0.loc[df['organism'] == 'H', 'log_sigma'] = sigma0H
+df0.loc[df['organism'] == 'S', 'log_sigma'] = sigma0S
+df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
+df4.loc[df['organism'] == 'S', 'log_sigma'] = sigma4S
 df = df0[df0['organism']== 'S']
+
 #####################################################
 #plotting data and error within biological reps 
 #####################################################
@@ -279,7 +260,6 @@ l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
 
 #show full graph 
-plt.show()
 fig4.savefig('../figures/syn '+str(vol)+ '_0H_odelib')
 
 

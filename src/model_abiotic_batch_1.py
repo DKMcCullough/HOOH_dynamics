@@ -17,57 +17,29 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy 
+import helpers as hp
 import ODElib
 import random as rd
 import sys
 
-plt.rcParams["font.family"] = "Times New Roman"
-
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_1-31-dataset', header = 1)
-
-df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
-df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
-df_a = df_all.loc[df_all['assay'].str.contains('abiotic', case=False)].copy()  
-
-df = df_a
-df['log1'] = np.log(df['rep1'])
-df['log2'] = np.log(df['rep2'])
-df['log3'] = np.log(df['rep3'])
-df['log4'] = np.log(df['rep4'])
-df['avg1'] = df[['rep1', 'rep3']].mean(axis=1)
-df['avg2'] = df[['rep2', 'rep4']].mean(axis=1)
-df['abundance'] = df[['rep1','rep2','rep3', 'rep4']].mean(axis=1)
-df['std1'] = df[['rep1', 'rep3']].std(axis=1)
-df['std2'] = df[['rep2', 'rep4']].std(axis=1)
-df['sigma'] = df[['rep1','rep2','rep3', 'rep4']].std(axis=1)
-
-df['lavg1'] = df[['log1', 'log3']].mean(axis=1) #making logged avg columns in df for odelib to have log_abundance to use for posterior calcs
-df['lavg2'] = df[['log2', 'log4']].mean(axis=1)
-df['log_abundance'] = df[['log1','log2', 'log3','log4']].mean(axis=1)
-df['stdlog1'] = df[['log1', 'log3']].std(axis=1) #taking stdv of logged reps
-df['stdlog2'] = df[['log2', 'log4']].std(axis=1)
-df['log_sigma'] = df[['log1','log2', 'log3','log4']].std(axis=1)
-
-df['log_sigma'] = 0.2
-df.loc[df['organism'] == 'H', 'log_sigma'] = 0.08
-
+df = hp.get_data('abiotic')
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H 
-df4 = df.loc[(df['assay'].str.contains('4', case=False))]
-
+sigma0 = hp.get_uncertainty(df0)
+df0.loc[df['organism'] == 'H', 'log_sigma'] = sigma0
+figa,axa = hp.plot_uncertainty(df0,sigma0)
+figa.savefig('../figures/error_0spike')
 
 ## Reading in inits files for 0 and 400 models respectively
 inits0 = pd.read_csv("../data/inits/abiotic_control_1.csv")
 
-
 #####################################################
 #functions  for modeling and graphing model uncertainty 
 #####################################################
-
 
 #actual model that will be run by the odelib model framework
 def abiotic(y,t,params):
@@ -189,8 +161,6 @@ l1.draw_frame(False)
 #save fig
 fig1.savefig('../figures/abiotic1_0_dynamics')
 
-plt.show()
-
 ########################################
 #graph parameters against one another 
 ########################################
@@ -242,52 +212,8 @@ ax3[1].scatter(posteriors0.iteration,posteriors0.deltah,color = c0)
 #print out plot
 fig3.savefig('../figures/abiotic1_0_TRACE')
 
-
-#########################################
-#graphing Residuals of best model vs data 
-##########################################
-
-fig4, (ax0,ax1)= plt.subplots(1,2,figsize = (8,4)) #fig creationg of 1 by 2
-fig4.suptitle('Abiotic HOOH Model',fontsize = '14') #setting main title of fig
-
-fig4.subplots_adjust(right=0.9, wspace = 0.45, hspace = 0.20)
-
-ax0.semilogy()
-ax0.set_title('HOOH dynamics ',fontsize = '14')
-ax1.set_title('Model residuals',fontsize = '14')
-
-ax0.set_xlabel('Time (days)', fontsize = 12)
-ax0.set_ylabel('HOOH (nM)', fontsize = 12)
-ax1.set_ylabel('HOOH data value', fontsize = 12)
-ax1.set_xlabel('Residual', fontsize = 12)
-
-ax0.set_ylim([20, 600])
-ax1.set_ylim([20, 600])
-
-
-
-#model and residuals
-ax0.plot(df0.time,df0.abundance, marker='o',color = c0, label = 'HOOH data mean') #data of 0 H assay
-ax0.errorbar(df0.time,df0.abundance, yerr = df0.sigma, marker='o',color = c0) #data of 0 H assay
-ax0.plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-a0.plot_uncertainty(ax0,posteriors0,'H',100)
-
-ax1.errorbar(a0res['res'], a0res['abundance'],yerr=df4.sigma,color = c0,marker = 'o', markersize = 4, ls = 'none',elinewidth=2,label = '0H spike')
-
-#printing off graph
-l4 = ax0.legend(loc = 'lower right')
-l4.draw_frame(False)
-
-plt.show()
-fig4.savefig('../figures/abiotic1_0_residuals')
-
-
-
-
 pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe0.to_csv("../data/inits/abiotic_control_1.csv")
-
-
 
 # 'program finished' flag
 
