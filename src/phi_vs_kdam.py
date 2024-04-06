@@ -19,31 +19,42 @@ goal: icompare phi and kdam values
 #SynWH7803 (Vol 28 and 52) is KatG possitive Syn + 
 #SynWH8102 (Vol 53) is KatG negative  Syn - 
 #Pro = MIT9215
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 plt.rcParams["font.family"] = "Times New Roman"
 
-df = pd.DataFrame({'names' : ('Syn WH7803_vol52','Syn WH7803_vol28','Syn CC9605_vol53','Pro MIT9215_sample1','Pro MIT9215_sample2'),
-                                'phis' : [1.94E-06,1.64E-06,1.61E-06,3.95E-15,1.87E-15],
-                                'kdams' : [0.001390782,0.001691207,0.000656184,0.003121548,0.005126291] }, 
+
+df_Pro_1 =  pd.read_csv('../data/inits/pro_MIT9215_inits4_1.csv')
+df_Pro_2 = pd.read_csv('../data/inits/pro_MIT9215_inits4_2.csv')
+df_Syn_28 = pd.read_csv('../data/inits/syn_vol28_inits4.csv')
+df_Syn_52 = pd.read_csv('../data/inits/syn_vol52_inits4.csv')
+df_Syn_53 = pd.read_csv('../data/inits/syn_vol53_inits4.csv')
+df_Syn_54 = pd.read_csv('../data/inits/syn_vol54_inits4.csv')
+
+df = pd.DataFrame({'names' : ('Syn eWH7803_Vol52','Syn eWH7803_Vol28','Syn eCC9605_Vol53','Pro eMIT9215_Vol1_sample1','Pro eMIT9215_Vol1_sample2'),
+                                'phis' : [df_Syn_52.phi,df_Syn_28.phi,df_Syn_53.phi,df_Pro_1.phi,df_Pro_2.phi],
+                                'kdams' : [df_Syn_52.kdam,df_Syn_28.kdam,df_Syn_53.kdam,df_Pro_1.kdam,df_Pro_2.kdam] }, 
                                 columns=['names','phis', 'kdams'])
 
+
 #Not all of the data sets have cocurrent HOOH measurements so Phi is less constrained and therefore can be biassing the conclusions a lot. 
-fig3, (ax1)= plt.subplots(figsize = (8,6))
+fig3, (ax1)= plt.subplots(figsize = (7,6))
 fig3.suptitle('Tradeoffs', fontsize = 17)
 ax1.set_xlabel('Detoxificatiion rate ($\phi_{max})$',fontsize = 14)
 ax1.set_ylabel('Damage rate ($\kappa_{dam}$)',fontsize = 14)
 ax1.tick_params(axis = 'both', which = 'both', length = 4, labelsize = 12)
 
 
-ax1.set_xlim([0.0000000000000001, 0.0001]) #phi
-ax1.set_ylim([0.0004, 0.008]) #kdam
+ax1.set_xlim([0.000000000001, 0.0001]) #phi
+ax1.set_ylim([0.0003, 0.009]) #kdam
 
 
 colors = ['cornflowerblue','dodgerblue','steelblue','g','lightgreen']
-markers = ['o','o','o','d','d'] #HAVE THIS COORS[PMDWOTJ GENES]
+markers = ['o','o','o','D','D'] #HAVE THIS COORS[PMDWOTJ GENES]
 
 #df.plot.scatter(x='kdams', y='phis',xlabel = 'kdam', ylabel = 'phi',label = 'names')
 for i, r in df.iterrows():

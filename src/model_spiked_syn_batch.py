@@ -29,7 +29,7 @@ import sys
 
 # get data and visualize uncertainty
 df = hp.get_data('coculture')
-
+'''
 vol = int(sys.argv[1])
 if vol == 52:
     #vol52 colors Syn WH7803
@@ -47,21 +47,21 @@ elif vol == 54:
     #vol54 colors Syn WH7802 
     c0 = 'darkcyan'
     c1 = 'lightcoral'
-
+'''
 #strain slice trhough vol number selection 
-vol = 28
+vol = 53
 
 #vol52 colors Syn WH7803
 #c0 = 'cornflowerblue'
 #c1 = 'darkorange'
 
 #vol28 colors Syn WH7803 also 
-c0 = 'dodgerblue'
-c1 = 'tomato'
+#c0 = 'dodgerblue'
+#c1 = 'tomato'
 
 #vol53 colors WSyn CC9605 
-#c0 = 'steelblue'
-#c1 = 'chocolate'
+c0 = 'steelblue'
+c1 = 'chocolate'
 
 #vol54 colors Syn WH7802 
 #c0 = 'darkcyan'
