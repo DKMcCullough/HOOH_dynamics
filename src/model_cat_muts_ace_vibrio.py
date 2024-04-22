@@ -27,8 +27,8 @@ import sys
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_aceMHM = pd.read_excel("../data/data_MEGA.xlsx",sheet_name = 'Cat_muts_MHMace', header = 0)
-df_MHMnoC = pd.read_excel("../data/data_MEGA.xlsx",sheet_name = 'Cat_muts_noC', header = 0)
+df_aceMHM = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'Cat_muts_MHMace', header = 0)
+df_MHMnoC = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'Cat_muts_noC', header = 0)
 
 df_all = df_aceMHM
 #time 25 is actually 24hrsbut had to up to 25 for data set splicing 

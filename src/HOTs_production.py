@@ -25,7 +25,7 @@ import seaborn as sns
 ###############################
 
 
-df_all = pd.read_excel("../data/data_MEGA.xlsx",sheet_name = 'HOTS-main_days', header = 0)
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'HOTS-main_days', header = 0)
 
 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
@@ -68,7 +68,7 @@ df_all['log_sigma'] = np.std(np.r_[[df_all[i] for i in ['Alog1','Alog2','Blog1',
 
 sns.relplot(data=df_all, x="abundance", y="sigma", palette = 'cool',size ='ID', hue="organism", style = 'ID', markers =True,  kind="scatter").set(title='Raw Data' )
 
-sns.relplot(data=df_all, x="log_abundance", y="log_sigma", palette = 'cool',size ='ID', hue="organism", style = 'ID', markers =True,  kind="scatter").set(title='Log Data' )
+#sns.relplot(data=df_all, x="log_abundance", y="log_sigma", palette = 'cool',size ='ID', hue="organism", style = 'ID', markers =True,  kind="scatter").set(title='Log Data' )
 
 
 

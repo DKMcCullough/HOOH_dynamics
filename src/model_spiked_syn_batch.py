@@ -49,7 +49,7 @@ elif vol == 54:
     c1 = 'lightcoral'
 '''
 #strain slice trhough vol number selection 
-vol = 53
+vol = 54
 
 #vol52 colors Syn WH7803
 #c0 = 'cornflowerblue'
@@ -60,12 +60,12 @@ vol = 53
 #c1 = 'tomato'
 
 #vol53 colors WSyn CC9605 
-c0 = 'steelblue'
-c1 = 'chocolate'
+#c0 = 'steelblue'
+#c1 = 'chocolate'
 
 #vol54 colors Syn WH7802 
-#c0 = 'darkcyan'
-#c1 = 'lightcoral'
+c0 = 'darkcyan'
+c1 = 'lightcoral'
 
 
 

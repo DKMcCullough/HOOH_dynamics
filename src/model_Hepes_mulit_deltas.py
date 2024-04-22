@@ -33,6 +33,7 @@ df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'hepes_array-20
 
 #df_all = pd.read_csv("../data/Hepes_assay_2013.csv") #use relative paths 
 df_all.rename(columns = {'time(days)':'time'},inplace = True) 
+#Time (hours)
 df_all.dropna()
 #use df clip? or just use 0H as control for base level of media 
 

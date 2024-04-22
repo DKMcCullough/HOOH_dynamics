@@ -8,14 +8,6 @@ location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/H
 author: DKM
 
 
-
-
-
-
-
-
-
-
 goal: 
     
 HOOH coculture Trial 3 details experiments where Pro, Syn, and Picoeuk mono and cocultures were exposed to a ramping addition of 800nM HOOH over the course of a daylight period and mortality was tracked for days to follow.
@@ -23,9 +15,6 @@ HOOH coculture Trial 3 details experiments where Pro, Syn, and Picoeuk mono and 
 HOOH coculture Trial 4 was identical to Trial 3, except that HOOH was added as an instantaneous addition on day zero rather than being added periodically over the day.
 
 HOOH coculture Trial 5 details picoeuk media conditioning experiments. In summary, protection provided by picoeuks was tested by exposing them to an instantaneous addition of HOOH (what amounted to roughly 700nM). On specific days, picoeuks were removed from a small volume of these cultures and Pro was inoculated to this conditioned media to determine the level of detoxification for each day of picoeuk growth. 
-
-
-
 
 
 
@@ -44,7 +33,7 @@ import helpers as hp
 ######################################################
 #reading in data and configureing 
 #####################################################
-df_all = pd.read_excel("../data/data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'BCC_2-5-dataset', header = 1)
 
 df_all.drop(df_all.columns[df_all.columns.str.contains('unnamed',case = False)],axis = 1, inplace = True)
 df_all = df_all.rename({'time(day)':'time'}, axis=1)    #'renaming column to make it callable by 'times'
@@ -97,10 +86,23 @@ df[['log_abundance']] = df[['log_abundance']].astype(float)
 #colors for graphing
 ############3
 
-c0 = 'c'
-c1 = 'goldenrod'
-c2 = 'dodgerblue'
+c0 = 'lightgreen'
 
+#vol57 colors 
+#c2 = 'violet'
+#c1 = 'crimson'
+
+#vol58 c
+#c2 = 'blueviolet'
+#c1 = 'pink'
+
+#vol59 colors 
+#c2 = 'mediumorchid'
+#c1 = 'lightcoral'
+
+#vol60 colors 
+c2 = 'mediumpurple'
+c1 = 'magenta'
 
 
 #####################################################
