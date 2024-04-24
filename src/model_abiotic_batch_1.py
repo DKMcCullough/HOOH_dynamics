@@ -155,7 +155,7 @@ ax1[1].hist(((posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay
 ax1[2].hist(((posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
 
 #config legends
-l1 = ax1[0].legend(loc = 'upper right')
+l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
 
 #save fig

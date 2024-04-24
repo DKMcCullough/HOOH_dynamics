@@ -32,7 +32,7 @@ df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'EL-EZ55', head
 df_all.rename(columns = {'Time (hours)':'time'},inplace = True) 
 
 dfw = df_all
-dfw = dfw[dfw.time < 8]
+dfw['time'] = dfw['time']/24      #changing time foorm hours to days
 
 dfw['log1'] = np.log(dfw['rep1'])
 dfw['log2'] = np.log(dfw['rep2'])
@@ -50,6 +50,11 @@ dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08
 
 dfa =dfw.loc[(dfw['strain'].str.contains('abio', case=False))]
 dfb =dfw.loc[(~dfw['strain'].str.contains('abio', case=False))]
+
+df_all.rename(columns = {'Time (days)':'time'},inplace = True) 
+
+df_all.rename(columns = {'Time (days)':'time'},inplace = True) 
+
 
 c0 = 'b'
 c1 = 'orange'
@@ -74,9 +79,9 @@ for i in IDs:
     ax0.semilogy() #setting y axis to be logged b/c cell data
     ax1.set_title('HOOH dynamics ') #graph title for graph 2
     ax1.semilogy()#setting y axis to be logged b/c cell data
-    ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
+    ax0.set_xlabel('Time (hours)') #settign x axis label for graph 1
     ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
-    ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
+    ax1.set_xlabel('Time (hours)')#settign x axis label for graph 2 
     ax1.set_ylabel('HOOH (nM)')
 
 

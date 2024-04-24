@@ -49,7 +49,7 @@ elif vol == 54:
     c1 = 'lightcoral'
 '''
 #strain slice trhough vol number selection 
-vol = 54
+vol = 53
 
 #vol52 colors Syn WH7803
 #c0 = 'cornflowerblue'
@@ -60,12 +60,12 @@ vol = 54
 #c1 = 'tomato'
 
 #vol53 colors WSyn CC9605 
-#c0 = 'steelblue'
-#c1 = 'chocolate'
+c0 = 'steelblue'
+c1 = 'chocolate'
 
 #vol54 colors Syn WH7802 
-c0 = 'darkcyan'
-c1 = 'lightcoral'
+#c0 = 'darkcyan'
+#c1 = 'lightcoral'
 
 
 
@@ -245,7 +245,7 @@ ax4[1].hist(posteriors4.S0, facecolor = c0)
 ax4[2].hist(posteriors4.kdam, facecolor = c0)
 
 #make legends
-l4 = ax4[0].legend(loc = 'upper left')
+l4 = ax4[0].legend(loc = 'lower right')
 l4.draw_frame(False)
 #show full graph 
 
@@ -281,7 +281,7 @@ ax5[1].hist(posteriors4.H0, facecolor = c1)
 ax5[2].hist(posteriors4.phi, facecolor = c1)
 
 #make legends
-l5 = ax5[0].legend(loc = 'upper right')
+l5 = ax5[0].legend(loc = 'lower left')
 l5.draw_frame(False)
 #show full graph 
 

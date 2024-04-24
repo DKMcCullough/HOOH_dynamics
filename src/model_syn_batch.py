@@ -30,7 +30,10 @@ plt.rcParams["font.family"] = "Times New Roman"
 #####################################################
 
 df = hp.get_data('coculture')
-
+vol = 53
+c0 = 'steelblue'
+c1 = 'chocolate'
+'''
 vol = int(sys.argv[1])
 if vol == 52:
     #vol52 colors Syn WH7803
@@ -49,6 +52,7 @@ elif vol == 54:
     c0 = 'darkcyan'
     c1 = 'lightcoral'
 
+'''
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
@@ -256,7 +260,7 @@ for (ax,l) in zip(ax4,'abc'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 #make legends
-l4 = ax4[0].legend(loc = 'upper left')
+l4 = ax4[0].legend(loc = 'lower right')
 l4.draw_frame(False)
 
 #show full graph 

@@ -199,7 +199,7 @@ l1 = ax0.legend(loc = 'upper right')
 l1.draw_frame(False)
 
 fig2.savefig('../figures/pro1_4_data_trends')
-'''
+
 #####################################################
 #####################################################
 
@@ -361,7 +361,7 @@ ax4[1].hist(posteriors0.P0, color = c0)
 ax4[2].hist(posteriors0.k2, color = c0)
 
 #format legend 
-l4 = ax4[0].legend(loc = 'upper left', fontsize = 9)
+l4 = ax4[0].legend(loc = 'lower right', fontsize = 9)
 l4.draw_frame(False)
 #show full graph 
 
@@ -398,7 +398,7 @@ fig3.savefig('../figures/Pro1_0_TRACE')
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe.to_csv('../data/inits/pro_MIT9215_inits0_1.csv')
 
-'''
+
 
 # 'program finished' flag
 
