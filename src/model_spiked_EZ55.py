@@ -1,7 +1,7 @@
 
 '''
 
-name:   model_spiked_pro_batch1.py 
+name:   model_spiked_EZ55.py 
 
 location: '/Users/dkm/Documents/Talmy_research/Zinser_lab/Projects/ROS_focused/HOOH_dynamics/src'
     
