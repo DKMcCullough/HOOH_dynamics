@@ -12,4 +12,6 @@ python model_spiked_pro_batch2.py # (Figure S4)
 python model_syn_batch.py 52 # (figure S5)
 python model_spiked_syn_batch.py 52 # (figure S6)
 python model_syn_batch.py 28 # (figure S7)
-python model_spiked_syn_batch.py 28 # (figure S8) 
+python model_spiked_syn_batch.py 28 # (figure S8)
+python model_spiked_EZ55.py
+

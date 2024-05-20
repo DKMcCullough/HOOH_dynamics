@@ -45,7 +45,7 @@ dfw['sigma'] = dfw[['rep1','rep2','rep3', 'rep4','rep5', 'rep6']].std(axis=1)
 dfw['log_abundance'] = dfw[['log1','log2', 'log3','log4', 'log5', 'log6']].mean(axis=1)
 dfw['log_sigma'] = dfw[['log1','log2', 'log3','log4', 'log5', 'log6']].std(axis=1)
 
-dfw['log_sigma'] = 0.2
+dfw['log_sigma'] = 0.1
 dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08
 
 dfa =dfw.loc[(dfw['strain'].str.contains('abio', case=False))]
@@ -89,7 +89,6 @@ for i in IDs:
 # graph 400 H assay even and odd avgs
     ax1.errorbar(df[df['organism']=='H']['time'],df[df['organism']=='H']['log_abundance'],yerr=df[df['organism']=='H']['log_sigma'], marker='o', label = 'Log-Mean')
     plt.legend()
-    plt.show()
 
 
 
@@ -177,7 +176,7 @@ for i in IDs:
 
 #broken here!!!!!!!!!!
 # do fitting
-    posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','k2','N0']),print_report=True) #, )
+    posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','N0']),print_report=True) #, )
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # run model with optimal params
@@ -249,7 +248,7 @@ for i in IDs:
     ax4[2].set_xlabel('Parameter Value', fontsize = 12)
     ax4[2].set_ylabel('Frequency', fontsize = 12)
 
-    ax4[0].set_ylim([100, 5000000])
+    #ax4[0].set_ylim([100, 5000000])
 #graph data, model, and uncertainty 
     ax4[0].plot(df[df['organism']=='D']['time'], df[df['organism']=='D']['abundance'], color =  c0,marker='o',label = r'$Alteromonas EZ55$')
     ax4[0].plot(mod4.time,mod4['D'],color='r',lw=1.5,label='Model best fit')
@@ -278,7 +277,7 @@ for i in IDs:
     ax5[0].set_ylabel(r'H$_2$O$_2$ (nM)')
     ax5[0].set_xlabel('Time (Days)')
 
-    ax5[0].set_ylim([200, 500])
+    #ax5[0].set_ylim([200, 500])
     ax5[1].set_xlabel('Parameter Value', fontsize = 12)
     ax5[1].set_ylabel('Frequency', fontsize = 12)
     ax5[2].set_xlabel('Parameter Value', fontsize = 12)
@@ -326,7 +325,7 @@ for i in IDs:
 
 
 # 'program finished' flag
-
+plt.show()
 print('\n ~~~****~~~****~~~ \n')
 print('\n Im free Im free! Im done calculating!' )
 print('\n ~~~****~~~****~~~ \n')
