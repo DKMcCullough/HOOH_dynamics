@@ -32,7 +32,7 @@ df0 = df.loc[~ df['assay'].str.contains('4', case=False)]  #assay 0 H
 sigma0 = hp.get_uncertainty(df0)
 df0.loc[df['organism'] == 'H', 'log_sigma'] = sigma0
 figa,axa = hp.plot_uncertainty(df0,sigma0)
-figa.savefig('../figures/error_0spike')
+#figa.savefig('../figures/error_0spike')
 
 ## Reading in inits files for 0 and 400 models respectively
 inits0 = pd.read_csv("../data/inits/abiotic_control_1.csv")
@@ -128,16 +128,13 @@ c0 = 'plum'
 fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config 
 #set titles of subplots
 #fig1.suptitle('Abiotic HOOH Model Output', fontsize = 14) #full title config
-fig1.subplots_adjust(wspace=0.3) #shift white space for better fig view
-ax1[0].set_title(r'H$_2$O$_2$ Dynamics', fontsize = 12)
-ax1[0].set_ylabel(r'H$_2$O$_2$ Concentration nM/mL', fontsize = 12)
+fig1.subplots_adjust(wspace=0.3,bottom=0.2) #shift white space for better fig view
+ax1[0].set_ylabel(r'H$_2$O$_2$ (Concentration pmol mL$^{-1}$)', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
-ax1[1].set_title(r'$S_H$', fontsize = 12)
 ax1[1].set_ylabel('Frequency', fontsize = 12)
-ax1[1].set_xlabel('Parameter Value', fontsize = 12)
-ax1[2].set_title(r'$\delta_H$', fontsize = 12)
+ax1[1].set_xlabel('H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax1[2].set_ylabel('Frequency', fontsize = 12)
-ax1[2].set_xlabel('Parameter Value', fontsize = 12)
+ax1[2].set_xlabel('H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
 
 #ax1[0].set_ylim([20, 600])
 
@@ -185,7 +182,7 @@ ax2[0].scatter(posteriors0.Sh,posteriors0.deltah,color = c0)
 ax2[1].scatter(np.log(posteriors0.Sh),np.log(posteriors0.deltah),color = c0)
 plt.legend()
 #save fig
-fig2.savefig('../figures/abiotic1_0_params')
+#fig2.savefig('../figures/abiotic1_0_params')
 
 
 #################################
@@ -210,7 +207,7 @@ ax3[1].scatter(posteriors0.iteration,posteriors0.deltah,color = c0)
 
 
 #print out plot
-fig3.savefig('../figures/abiotic1_0_TRACE')
+#fig3.savefig('../figures/abiotic1_0_TRACE')
 
 pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe0.to_csv("../data/inits/abiotic_control_1.csv")

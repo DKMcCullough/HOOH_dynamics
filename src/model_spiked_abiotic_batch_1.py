@@ -120,16 +120,13 @@ c0 = 'slateblue'
 # Set up graph for Dynamics and param histograms
 
 fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config 
-fig1.subplots_adjust(wspace=0.3) #shift white space for better fig view
-ax1[0].set_title(r'H$_2$O$_2$ Dynamics', fontsize = 12)
-ax1[0].set_ylabel(r'H$_2$O$_2$ Concentration nM/mL', fontsize = 12)
+fig1.subplots_adjust(wspace=0.3,bottom=0.2) #shift white space for better fig view
+ax1[0].set_ylabel(r'H$_2$O$_2$ (Concentration pmol mL$^{-1}$)', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
-ax1[1].set_title(r'$S_H$', fontsize = 12)
 ax1[1].set_ylabel('Frequency', fontsize = 12)
-ax1[1].set_xlabel('Parameter Value', fontsize = 12)
-ax1[2].set_title(r'$\delta_H$', fontsize = 12)
+ax1[1].set_xlabel('H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax1[2].set_ylabel('Frequency', fontsize = 12)
-ax1[2].set_xlabel('Parameter Value', fontsize = 12)
+ax1[2].set_xlabel('H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
 
 #ax1[0].set_ylim([20, 600])
 
@@ -183,7 +180,7 @@ ax2[1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c0)
 
 #show full graph and save fig
 
-fig2.savefig('../figures/abiotic1_4_params')
+#fig2.savefig('../figures/abiotic1_4_params')
 
 
 #################################
@@ -209,7 +206,7 @@ ax3[1].scatter(posteriors4.iteration,(posteriors4.deltah),color = c0)
 
 
 #print out plot
-fig3.savefig('../figures/abiotic1_4_TRACE')
+#fig3.savefig('../figures/abiotic1_4_TRACE')
 
 
 #########################################
@@ -249,7 +246,7 @@ ax1.errorbar(a4res['res'], a4res['abundance'],yerr=df4.sigma,color = c0,marker =
 l4 = ax0.legend(loc = 'lower right')
 l4.draw_frame(False)
 
-fig4.savefig('../figures/abiotic1_4_residuals')
+#fig4.savefig('../figures/abiotic1_4_residuals')
 
 
 #saving best params as the new inits file for the next file run. 

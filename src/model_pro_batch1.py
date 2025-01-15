@@ -100,7 +100,7 @@ ax1.errorbar(df4[df4['organism']== 'P']['time'],df4[df4['organism']== 'P']['abun
 l1 = ax0.legend(loc = 'lower right')
 l1.draw_frame(False)
 
-fig2.savefig('../figures/pro1_data_0and4')
+#fig2.savefig('../figures/pro1_data_0and4')
 
 #####################################################
 #plotting error within biological reps 
@@ -148,7 +148,7 @@ ax2.scatter(df0[df0['organism']== 'P']['log_abundance'],df0[df0['organism']== 'P
 l1 = ax0.legend(loc = 'lower right')
 l1.draw_frame(False)
 
-fig2.savefig('../figures/pro1_0_data_trends')
+#fig2.savefig('../figures/pro1_0_data_trends')
 
 #####################################################
 #plotting error within biological reps 
@@ -198,7 +198,7 @@ ax2.scatter(df4[df4['organism']== 'P']['log_abundance'],df4[df4['organism']== 'P
 l1 = ax0.legend(loc = 'upper right')
 l1.draw_frame(False)
 
-fig2.savefig('../figures/pro1_4_data_trends')
+#fig2.savefig('../figures/pro1_4_data_trends')
 
 #####################################################
 #####################################################
@@ -314,7 +314,7 @@ ax1.scatter(a0res['res'], a0res['abundance'],c=c0, label = '0H case')
 l3 = ax0.legend(loc = 'lower right')
 l3.draw_frame(False)
 
-fig3.savefig('../figures/pro1_odelib0_fit')
+#fig3.savefig('../figures/pro1_odelib0_fit')
 
 #########################################################
 #graphing model vs data and params histograms 
@@ -323,20 +323,17 @@ fig3.savefig('../figures/pro1_odelib0_fit')
 # set up graph
 fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 #set titles and config graph 
-fig4.subplots_adjust(wspace = 0.40)
+fig4.subplots_adjust(wspace = 0.40, bottom=0.2)
 ax4[0].set_ylim([2e+5, 4e+6])
 
 #ax4[0].set_title('Pro  dynamics', fontsize = 16)
 #plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
-ax4[1].set_title(r'$P_0$', fontsize = 12)
-ax4[2].set_title(r'$\mu_{max}$', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
-ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density \n ($P_0$, cells mL$^{-1}$)', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+ax4[2].set_xlabel('Growth rate ($\mu_i$, day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Frequency', fontsize = 12)
-#ax4[1].xaxis.set_label_coords(0.85, -0.1)
-ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 12)
+ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].tick_params(axis='x', labelsize=12)
 ax4[0].tick_params(axis='y', labelsize=12)
 ax4[1].tick_params(axis='x', labelsize=12)
@@ -390,7 +387,7 @@ ax5[1].scatter(posteriors0.iteration,posteriors0.k2,color = c0)
 
 
 #print out plot
-fig3.savefig('../figures/Pro1_0_TRACE')
+#fig3.savefig('../figures/Pro1_0_TRACE')
 
 
 
