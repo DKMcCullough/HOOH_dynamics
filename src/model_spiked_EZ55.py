@@ -223,7 +223,7 @@ for i in IDs:
 
 #save graph
 
-    fig3.savefig('../figures/EZ55_'+str(i))
+    #fig3.savefig('../figures/EZ55_'+str(i))
 
 
 #########################################################
@@ -235,28 +235,24 @@ for i in IDs:
     figall.subplots_adjust(wspace=0.3,hspace=0.3)
     ax4,ax5 = axall[0,:],axall[1,:]
 #set titles and config graph 
-    ax4[1].set_title(r'$D_0$')
-    ax4[2].set_title(r'$\kappa_{dam}$')
-
     ax4[0].semilogy()
-    ax4[0].set_ylabel('Cells (ml$^{-1}$)')
-    ax4[0].set_xlabel('Time (Days)')
 
-
-    ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+    ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
+    ax4[0].set_xlabel('Time (days)', fontsize = 12)
+    ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
     ax4[1].set_ylabel('Frequency', fontsize = 12)
-    ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+    ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, x10$^{-12}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
     ax4[2].set_ylabel('Frequency', fontsize = 12)
 
     #ax4[0].set_ylim([100, 5000000])
 #graph data, model, and uncertainty 
-    ax4[0].plot(df[df['organism']=='D']['time'], df[df['organism']=='D']['abundance'], color =  c0,marker='o',label = r'$Alteromonas EZ55$')
+    ax4[0].plot(df[df['organism']=='D']['time'], df[df['organism']=='D']['abundance'], color =  c0,marker='o',label = r'$Alteromonas$ $EZ55$')
     ax4[0].plot(mod4.time,mod4['D'],color='r',lw=1.5,label='Model best fit')
     a4.plot_uncertainty(ax4[0],posteriors4,'D',100)
 
 # plot histograms of parameter search results 
     ax4[1].hist(posteriors4.D0, color =  c0)
-    ax4[2].hist(posteriors4.kdam,color = c0)
+    ax4[2].hist(posteriors4.kdam*1e+12,color = c0)
 
 #make legends
     l4 = ax4[0].legend(loc = 'lower left')
@@ -271,16 +267,14 @@ for i in IDs:
 #########################################################
 
 #HOOH dynamics 
-    ax5[1].set_title(r'$H_0$')
-    ax5[2].set_title(r'$\phi_{max}$')
 
-    ax5[0].set_ylabel(r'H$_2$O$_2$ (nM)')
-    ax5[0].set_xlabel('Time (Days)')
+    ax5[0].semilogy()
 
-    #ax5[0].set_ylim([200, 500])
-    ax5[1].set_xlabel('Parameter Value', fontsize = 12)
+    ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+    ax5[0].set_xlabel('Time (Days)', fontsize = 12)
+    ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
     ax5[1].set_ylabel('Frequency', fontsize = 12)
-    ax5[2].set_xlabel('Parameter Value', fontsize = 12)
+    ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
     ax5[2].set_ylabel('Frequency', fontsize = 12)
 
     ax5[0].plot(df[df['organism']=='H']['time'], df[df['organism']=='H']['abundance'], color =  c1,marker='o',label = 'Hydrogen peroxide')
@@ -292,7 +286,7 @@ for i in IDs:
 
 # plot histograms of parameter search results 
     ax5[1].hist(posteriors4.H0,color =  c1)
-    ax5[2].hist(posteriors4.phi, color = c1)
+    ax5[2].hist(posteriors4.phi*1e+6, color = c1)
 
 
 #show full graph 
@@ -325,7 +319,7 @@ for i in IDs:
 
 
 # 'program finished' flag
-plt.show()
+#plt.show()
 print('\n ~~~****~~~****~~~ \n')
 print('\n Im free Im free! Im done calculating!' )
 print('\n ~~~****~~~****~~~ \n')

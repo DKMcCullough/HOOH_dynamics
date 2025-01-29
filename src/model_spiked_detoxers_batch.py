@@ -70,28 +70,29 @@ df_co = df_all.loc[df_all['assay'].str.contains('coculture', case=False)].copy()
 
 vol = 58
 
-
 df = df_mono.loc[(df_mono['Vol_number'] == vol )].copy()  
-
-
-
-#vol57 colors S
-#c0 = 'violet'
-#c1 = 'crimson'
 
 #vol58 c
 c0 = 'blueviolet'
 c1 = 'pink'
 
-#vol59 colors 
-#c0 = 'mediumorchid'
-#c1 = 'lightcoral'
-
-#vol60 colors 
-#c0 = 'mediumpurple'
-#c1 = 'magenta'
-
-
+vol = int(sys.argv[1])
+if vol == 57:
+    #vol57 colors S
+    c0 = 'violet'
+    c1 = 'crimson'
+elif vol == 59:
+    #vol59 colors
+    c0 = 'mediumorchid'
+    c1 = 'lightcoral'
+elif vol == 58:
+    #vol58 c
+    c0 = 'blueviolet'
+    c1 = 'pink'
+elif vol == 60:
+    #vol60 colors 
+    c0 = 'mediumpurple'
+    c1 = 'magenta'
 
 df4 = df.loc[df['assay'].str.contains('4', case=False)].copy()
 #df4 = df4[df4.time < 3] #to keep growth bump in last days to thro off death (kdma) range.
@@ -231,16 +232,14 @@ ax4,ax5 = axall[0,:],axall[1,:]
 figall.suptitle('Het Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
 # set up graph
 #set titles and config graph 
-ax4[1].set_title(r'$D_0$', fontsize = 14)
-ax4[2].set_title(r'$\kappa_{dam}$', fontsize = 14)
 ax4[0].semilogy()
 
-ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 14)
-ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[1].set_xlabel('Parameter Value', fontsize = 14)
-ax4[1].set_ylabel('Frequency', fontsize = 14)
-ax4[2].set_xlabel('Parameter Value', fontsize = 14)
-ax4[2].set_ylabel('Frequency', fontsize = 14)
+ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
+ax4[0].set_xlabel('Time (days)', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_ylabel('Frequency', fontsize = 12)
+ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Frequency', fontsize = 12)
 
 ax4[1].tick_params(axis='x', labelsize=14)
 ax4[1].tick_params(axis='y', labelsize=14)
@@ -268,17 +267,14 @@ l4.draw_frame(False)
 #########################################################
 
 #HOOH dynamics 
-ax5[1].set_title(r'$H_0$', fontsize = 14)
-ax5[2].set_title('$\phi_{max}$', fontsize = 14)
-
 ax5[0].semilogy()
 
-ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 14)
-ax5[0].set_xlabel('Time (Days)', fontsize = 14)
-ax5[1].set_xlabel('Parameter Value', fontsize = 14)
-ax5[1].set_ylabel('Frequency', fontsize = 13)
-ax5[2].set_xlabel('Parameter Value', fontsize = 14)
-ax5[2].set_ylabel('Frequency', fontsize = 13)
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+ax5[0].set_xlabel('Time (Days)', fontsize = 12)
+ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+ax5[1].set_ylabel('Frequency', fontsize = 12)
+ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax5[2].set_ylabel('Frequency', fontsize = 12)
 
 ax5[1].tick_params(axis='x', labelsize=14)
 ax5[1].tick_params(axis='y', labelsize=14)
@@ -292,7 +288,7 @@ a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
 ax5[1].hist(posteriors4.H0, facecolor = c1)
-ax5[2].hist(posteriors4.phi, facecolor = c1)
+ax5[2].hist(posteriors4.phi*1e+6, facecolor = c1)
 
 #make legends
 l5 = ax5[0].legend(loc = 'upper right')

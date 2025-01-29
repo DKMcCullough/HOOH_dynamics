@@ -51,7 +51,7 @@ df_mono_no_ez55 = pd.DataFrame({'names' : ('Syn WH7803 avg' ,'Syn CC9605','Syn W
                                 'colors' : ['dodgerblue','steelblue','b','lightgreen','violet','blueviolet','mediumorchid','mediumpurple']}, 
                                 columns=['names','phis', 'kdams','markers','colors'])
 
-df_mono = pd.DataFrame({'names' : ('Syn WH7803 avg' ,'Syn CC9605','Syn WH8102', 'Pro MIT9215 avg' ,'Micromonas commoda','Micromonas pusilla','Ostreococcus lucimarinus','Ostreococcus tauri', 'Alteromonas macleodii avg'),
+df_mono = pd.DataFrame({'names' : ('$Synechococcus$ WH7803' ,'$Synechococcus$ CC9605','$Synechococcus$ WH8102', '$Prochlorococcus$ MIT9215' ,'$Micromonas$ $commoda$','$Micromonas$ $pusilla$','$Ostreococcus$ $lucimarinus$','$Ostreococcus$ $tauri$', '$Alteromonas$ $macleodii$'),
                                 'phis' : [df_Syn_WH7803.phi,df_Syn_53.phi,df_Syn_54.phi,df_Pros.phi,df_Het_57.phi, df_Het_58.phi,df_Het_59.phi,df_Het_60.phi,df_Het_55.phi],
                                 'kdams' : [df_Syn_WH7803.kdam,df_Syn_53.kdam,df_Syn_54.kdam,df_Pros.kdam,df_Het_57.kdam, df_Het_58.kdam,df_Het_59.kdam,df_Het_60.kdam ,df_Het_55.kdam], 
                                 'markers' : ['o','o','o','D','v','v','v','v','d'],
@@ -93,7 +93,7 @@ df_co_pro = pd.DataFrame({'names' : ('Syn WH7803 avg','Syn CC9605 ','Syn WH8102'
 ####################################################
 
 
-df_mini = pd.DataFrame({'names' : ('Syn WH7803 avg' ,'Syn CC9605', 'Pro MIT9215 avg' ,'Alteromonas macleodii avg'),
+df_mini = pd.DataFrame({'names' : ('$Synechococcus$ WH7803 ' ,'$Synechococcus$ CC9605', '$Prochlorococcus$ MIT9215' ,'$Alteromonas$ $macleodii$'),
                                 'phis' : [df_Syn_WH7803.phi,df_Syn_53.phi,df_Pros.phi,df_Het_55.phi],
                                 'kdams' : [df_Syn_WH7803.kdam,df_Syn_53.kdam,df_Pros.kdam,df_Het_55.kdam],
                                 'markers' : ['o','o','D','d'],
@@ -103,8 +103,7 @@ df_mini = pd.DataFrame({'names' : ('Syn WH7803 avg' ,'Syn CC9605', 'Pro MIT9215 
 
 ##mini fig of monoculture tradeoffs  - Manuscript of CHap 2
 fig3, (ax1)= plt.subplots(figsize = (7,6))
-fig3.suptitle('Tradeoffs', fontsize = 18)
-ax1.set_xlabel('Detoxification rate ($\phi_{max})$',fontsize = 16)
+ax1.set_xlabel('Detoxification rate ($\phi_{det,i})$',fontsize = 16)
 ax1.set_ylabel('Damage rate ($\kappa_{dam}$)',fontsize = 16)
 ax1.tick_params(axis = 'both', which = 'both', length = 5, labelsize = 16)
 
@@ -120,7 +119,7 @@ l3 = plt.legend(loc = 'best', fontsize = 12)
 ax1.semilogy()
 ax1.semilogx()
 
-fig3.savefig('../figures/tradeoffs_mini')
+#fig3.savefig('../figures/tradeoffs_mini')
 
 
 ####################################################
@@ -129,9 +128,8 @@ fig3.savefig('../figures/tradeoffs_mini')
 
 #Not all of the data sets have cocurrent HOOH measurements so Phi is less constrained and therefore can be biassing the conclusions a lot. 
 fig3, (ax1)= plt.subplots(figsize = (7,6))
-fig3.suptitle('Tradeoffs', fontsize = 18)
-ax1.set_xlabel('Detoxification rate ($\phi_{max})$',fontsize = 16)
-ax1.set_ylabel('Damage rate ($\kappa_{dam}$)',fontsize = 16)
+ax1.set_xlabel('Detoxification rate ($\phi_{det,i})$',fontsize = 16)
+ax1.set_ylabel('Damage rate ($\kappa_{dam,i}$)',fontsize = 16)
 ax1.tick_params(axis = 'both', which = 'both', length = 5, labelsize = 16)
 
 
@@ -140,9 +138,11 @@ for i, r in df_mono.iterrows():
 
 l3 = plt.legend(loc = 'best', fontsize = 12)
 
-
+l3.draw_frame(False)
 ax1.semilogy()
 ax1.semilogx()
+
+fig3.subplots_adjust(bottom=0.15)
 
 fig3.savefig('../figures/tradeoffs')
 
@@ -155,7 +155,7 @@ fig3.savefig('../figures/tradeoffs')
 
 fig4, (ax1)= plt.subplots(figsize = (7,6))
 fig4.suptitle('Helper - coculture parameters', fontsize = 18)
-ax1.set_xlabel('Detoxification rate ($\phi_{max})$ of coexistant microbe',fontsize = 16)
+ax1.set_xlabel('Detoxification rate ($\phi_{det,i})$ of coexistant microbe',fontsize = 16)
 ax1.set_ylabel('Damage rate ($\kappa_{dam}$) of coexistant microbe',fontsize = 16)
 ax1.tick_params(axis = 'both', which = 'both', length = 5, labelsize = 16)
 
@@ -173,7 +173,7 @@ l4 = plt.legend(loc = 'best', fontsize = 12)
 ax1.semilogy()
 ax1.semilogx()
 
-fig4.savefig('../figures/helper-tradeoffs')
+#fig4.savefig('../figures/helper-tradeoffs')
 
 
 ############################################
@@ -184,7 +184,7 @@ fig4.savefig('../figures/helper-tradeoffs')
 
 fig5, (ax1)= plt.subplots(figsize = (7,6))
 fig5.suptitle('Pro parameters in coculture', fontsize = 18)
-ax1.set_xlabel('Detoxification rate ($\phi_{max})$ of Pro ',fontsize = 16)
+ax1.set_xlabel('Detoxification rate ($\phi_{det,i})$ of Pro ',fontsize = 16)
 ax1.set_ylabel('Damage rate ($\kappa_{dam}$) of Pro ',fontsize = 16)
 ax1.tick_params(axis = 'both', which = 'both', length = 5, labelsize = 16)
 
@@ -200,7 +200,7 @@ l5 = plt.legend(loc = 'lower right', fontsize = 12)
 ax1.semilogy()
 ax1.semilogx()
 
-fig5.savefig('../figures/Pro-helped')
+#fig5.savefig('../figures/Pro-helped')
 
 
 
@@ -262,7 +262,7 @@ l6 = plt.legend(loc = 'lower right', fontsize = 12)
 ax1.semilogy()
 ax1.semilogx()
 
-fig6.savefig('../figures/hlper_ratios')
+#fig6.savefig('../figures/hlper_ratios')
 
 
 

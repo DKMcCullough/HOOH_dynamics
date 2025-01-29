@@ -33,7 +33,7 @@ df = hp.get_data('coculture')
 vol = 53
 c0 = 'steelblue'
 c1 = 'chocolate'
-'''
+
 vol = int(sys.argv[1])
 if vol == 52:
     #vol52 colors Syn WH7803
@@ -52,7 +52,6 @@ elif vol == 54:
     c0 = 'darkcyan'
     c1 = 'lightcoral'
 
-'''
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
@@ -212,7 +211,7 @@ a0.plot_uncertainty(ax0,posteriors0,'S',1000)
 ax1.scatter(a0res['res'], a0res['abundance'],label = '0H case')
 #printing off graph
 
-fig3.savefig('../figures/syn'+str(vol)+ '_0H_fits')
+#fig3.savefig('../figures/syn'+str(vol)+ '_0H_fits')
 
 
 #########################################################
@@ -225,15 +224,13 @@ fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 #fig4.axes(fontsize = 10)
 
 
-ax4[1].set_title(r'$S_0$', fontsize = 12)
-ax4[2].set_title(r'$\mu_{max}$', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
-ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+ax4[2].set_xlabel('Growth rate ($\mu_i$, day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Frequency', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 12)
+ax4[0].set_ylabel('cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].tick_params(axis='x', labelsize=12)
 ax4[0].tick_params(axis='y', labelsize=12)
 ax4[1].tick_params(axis='x', labelsize=12)
@@ -242,7 +239,7 @@ ax4[2].tick_params(axis='x', labelsize=12)
 ax4[2].tick_params(axis='y', labelsize=12)
 
 #shift fig subplots
-fig4.subplots_adjust(wspace = 0.3)
+fig4.subplots_adjust(wspace = 0.3, bottom=0.2)
 
 #graph data, model, and uncertainty 
 ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = r'$Synechococcus$')
@@ -264,13 +261,13 @@ l4 = ax4[0].legend(loc = 'lower right')
 l4.draw_frame(False)
 
 #show full graph 
-fig4.savefig('../figures/syn '+str(vol)+ '_0H_odelib')
+fig4.savefig('../figures/syn'+str(vol)+ '_0H_odelib')
 
 
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
-fig4.savefig('../figures/syn'+str(vol)+'_odelib0')
+#fig4.savefig('../figures/syn'+str(vol)+'_odelib0')
 
 
 # 'program finished' flag

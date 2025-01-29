@@ -45,7 +45,7 @@ sigma4P = hp.get_uncertainty(df4[df4.organism=='P'])
 df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
 df4.loc[df['organism'] == 'P', 'log_sigma'] = sigma4P
 figa,axa = hp.plot_uncertainty(df4[df4.organism=='P'],sigma4P)
-figa.savefig('../figures/error_pro')
+#figa.savefig('../figures/error_pro')
 
 df = df4
 
@@ -210,7 +210,7 @@ l3.draw_frame(False)
 
 #save graph
 
-fig3.savefig('../figures/pro1_data_400')
+#fig3.savefig('../figures/pro1_data_400')
 
 
 #########################################################
@@ -222,17 +222,14 @@ figall,axall = plt.subplots(2,3,figsize=[12,8])
 figall.subplots_adjust(wspace=0.3,hspace=0.3)
 ax4,ax5 = axall[0,:],axall[1,:]
 #set titles and config graph 
-ax4[1].set_title(r'$P_0$')
-ax4[2].set_title(r'$\kappa_{dam}$')
 
 ax4[0].semilogy()
-ax4[0].set_ylabel('Cells (ml$^{-1}$)')
-ax4[0].set_xlabel('Time (Days)')
+ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize=12)
+ax4[0].set_xlabel('Time (days)',fontsize=12)
 
-
-ax4[1].set_xlabel('Parameter Value', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
 ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Parameter Value', fontsize = 12)
+ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Frequency', fontsize = 12)
 
 ax4[0].set_ylim([100, 5000000])
@@ -258,16 +255,13 @@ for (ax,l) in zip(axall.flatten(),'abcdef'):
 #########################################################
 
 #HOOH dynamics 
-ax5[1].set_title(r'$H_0$')
-ax5[2].set_title(r'$\phi_{max}$')
-
-ax5[0].set_ylabel(r'H$_2$O$_2$ (nM)')
-ax5[0].set_xlabel('Time (Days)')
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
+ax5[0].set_xlabel('Time (days)',fontsize=12)
 
 ax5[0].set_ylim([200, 500])
-ax5[1].set_xlabel('Parameter Value', fontsize = 12)
+ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize = 12)
 ax5[1].set_ylabel('Frequency', fontsize = 12)
-ax5[2].set_xlabel('Parameter Value', fontsize = 12)
+ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax5[2].set_ylabel('Frequency', fontsize = 12)
 
 ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1,marker='o',label = 'Hydrogen peroxide')
@@ -279,7 +273,7 @@ l5.draw_frame(False)
 
 # plot histograms of parameter search results 
 ax5[1].hist(posteriors4.H0,color =  c1)
-ax5[2].hist(posteriors4.phi, color = c1)
+ax5[2].hist(posteriors4.phi*1e+6, color = c1)
 
 
 #show full graph 

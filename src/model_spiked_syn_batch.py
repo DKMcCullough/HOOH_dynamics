@@ -29,7 +29,11 @@ import sys
 
 # get data and visualize uncertainty
 df = hp.get_data('coculture')
-'''
+
+vol = 53
+c0 = 'steelblue'
+c1 = 'chocolate'
+
 vol = int(sys.argv[1])
 if vol == 52:
     #vol52 colors Syn WH7803
@@ -47,27 +51,6 @@ elif vol == 54:
     #vol54 colors Syn WH7802 
     c0 = 'darkcyan'
     c1 = 'lightcoral'
-'''
-#strain slice trhough vol number selection 
-vol = 53
-
-#vol52 colors Syn WH7803
-#c0 = 'cornflowerblue'
-#c1 = 'darkorange'
-
-#vol28 colors Syn WH7803 also 
-#c0 = 'dodgerblue'
-#c1 = 'tomato'
-
-#vol53 colors WSyn CC9605 
-c0 = 'steelblue'
-c1 = 'chocolate'
-
-#vol54 colors Syn WH7802 
-#c0 = 'darkcyan'
-#c1 = 'lightcoral'
-
-
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
@@ -217,21 +200,19 @@ ax4,ax5 = axall[0,:],axall[1,:]
 
 # set up graph
 #set titles and config graph 
-ax4[1].set_title(r'$S_0$', fontsize = 14)
-ax4[2].set_title(r'$\kappa_{dam}$', fontsize = 14)
 ax4[0].semilogy()
 
-ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 14)
-ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[1].set_xlabel('Parameter Value', fontsize = 14)
-ax4[1].set_ylabel('Frequency', fontsize = 14)
-ax4[2].set_xlabel('Parameter Value', fontsize = 14)
-ax4[2].set_ylabel('Frequency', fontsize = 14)
+ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
+ax4[0].set_xlabel('Time (days)', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_ylabel('Frequency', fontsize = 12)
+ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Frequency', fontsize = 12)
 
-ax4[1].tick_params(axis='x', labelsize=14)
-ax4[1].tick_params(axis='y', labelsize=14)
-ax4[2].tick_params(axis='x', labelsize=14)
-ax4[2].tick_params(axis='y', labelsize=14)
+ax4[1].tick_params(axis='x', labelsize=12)
+ax4[1].tick_params(axis='y', labelsize=12)
+ax4[2].tick_params(axis='x', labelsize=12)
+ax4[2].tick_params(axis='y', labelsize=12)
 
 #shift fig subplots
 
@@ -254,22 +235,19 @@ l4.draw_frame(False)
 #########################################################
 
 #HOOH dynamics 
-ax5[1].set_title(r'$H_0$', fontsize = 14)
-ax5[2].set_title('$\phi_{max}$', fontsize = 14)
-
 ax5[0].semilogy()
 
-ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 14)
-ax5[0].set_xlabel('Time (Days)', fontsize = 14)
-ax5[1].set_xlabel('Parameter Value', fontsize = 14)
-ax5[1].set_ylabel('Frequency', fontsize = 13)
-ax5[2].set_xlabel('Parameter Value', fontsize = 14)
-ax5[2].set_ylabel('Frequency', fontsize = 13)
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+ax5[0].set_xlabel('Time (Days)', fontsize = 12)
+ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+ax5[1].set_ylabel('Frequency', fontsize = 12)
+ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax5[2].set_ylabel('Frequency', fontsize = 12)
 
-ax5[1].tick_params(axis='x', labelsize=14)
-ax5[1].tick_params(axis='y', labelsize=14)
-ax5[2].tick_params(axis='x', labelsize=14)
-ax5[2].tick_params(axis='y', labelsize=14)
+ax5[1].tick_params(axis='x', labelsize=12)
+ax5[1].tick_params(axis='y', labelsize=12)
+ax5[2].tick_params(axis='x', labelsize=12)
+ax5[2].tick_params(axis='y', labelsize=12)
 
 #plot dynamics and models
 ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color = c1, marker='o',label = 'Hydrogen peroxide')
@@ -278,7 +256,7 @@ a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
 ax5[1].hist(posteriors4.H0, facecolor = c1)
-ax5[2].hist(posteriors4.phi, facecolor = c1)
+ax5[2].hist(posteriors4.phi*1e+6, facecolor = c1)
 
 #make legends
 l5 = ax5[0].legend(loc = 'lower left')
