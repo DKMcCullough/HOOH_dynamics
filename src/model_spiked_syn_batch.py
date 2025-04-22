@@ -59,7 +59,7 @@ sigma4S = hp.get_uncertainty(df4[df4.organism=='S'])
 df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
 df4.loc[df['organism'] == 'S', 'log_sigma'] = sigma4S
 figa,axa = hp.plot_uncertainty(df4[df4.organism=='S'],sigma4S)
-figa.savefig('../figures/error_syn')
+#figa.savefig('../figures/error_syn')
 
 df = df4
 
@@ -107,6 +107,7 @@ plt.legend()
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
 inits4 = pd.read_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
+inits0 = pd.read_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
 #setting how many MCMC chains you will run 
 nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -119,7 +120,7 @@ pw = 1   #sigma for param search
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':inits0['k2'][0]})
 kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.06})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':12})
@@ -205,9 +206,9 @@ ax4[0].semilogy()
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax4[2].set_ylabel('Frequency', fontsize = 12)
+ax4[1].set_ylabel('Probability density (x10$^{-5}$)', fontsize = 12)
+ax4[2].set_xlabel('Damage rate \n ($\kappa_{dam,i}$, x10$^{-6}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Probability density', fontsize = 12)
 
 ax4[1].tick_params(axis='x', labelsize=12)
 ax4[1].tick_params(axis='y', labelsize=12)
@@ -222,8 +223,12 @@ ax4[0].plot(mod4.time,mod4['S'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'S',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.S0, facecolor = c0)
-ax4[2].hist(posteriors4.kdam, facecolor = c0)
+ax4[1].hist(posteriors4.S0, density=True,facecolor = c0)
+ax4[2].hist(posteriors4.kdam*1e+6, density=True,facecolor = c0)
+
+# rescale 
+ticks = ax4[1].get_yticks()
+ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
 
 #make legends
 l4 = ax4[0].legend(loc = 'lower right')
@@ -240,9 +245,9 @@ ax5[0].semilogy()
 ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
 ax5[0].set_xlabel('Time (Days)', fontsize = 12)
 ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
-ax5[1].set_ylabel('Frequency', fontsize = 12)
+ax5[1].set_ylabel('Probability density', fontsize = 12)
 ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax5[2].set_ylabel('Frequency', fontsize = 12)
+ax5[2].set_ylabel('Probability density', fontsize = 12)
 
 ax5[1].tick_params(axis='x', labelsize=12)
 ax5[1].tick_params(axis='y', labelsize=12)
@@ -255,8 +260,8 @@ ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
-ax5[1].hist(posteriors4.H0, facecolor = c1)
-ax5[2].hist(posteriors4.phi*1e+6, facecolor = c1)
+ax5[1].hist(posteriors4.H0,density=True, facecolor = c1)
+ax5[2].hist(posteriors4.phi*1e+6, density=True,  facecolor = c1)
 
 #make legends
 l5 = ax5[0].legend(loc = 'lower left')
@@ -266,14 +271,10 @@ l5.draw_frame(False)
 for (ax,l) in zip(axall.flatten(),'abcdef'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
-figall.savefig('../figures/syn_'+str(vol)+'_Hparams')
+figall.subplots_adjust(wspace=0.35,hspace=0.35)
+figall.savefig('../figures/syn_'+str(vol)+'_Hparams',bbox_inches='tight')
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
 
-# 'program finished' flag
-
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')
 

@@ -63,36 +63,39 @@ df_mono = df_all.loc[~df_all['assay'].str.contains('coculture', case=False)].cop
 df_co = df_all.loc[df_all['assay'].str.contains('coculture', case=False)].copy()  
 
 #####################
-
 #strain slice through vol number selection 
 #57,58,59,60
 ##########################################
 
-vol = 57
-
+vol = 58
+#vol58 c
+c0 = 'blueviolet'
+c1 = 'pink'
 
 df = df_mono.loc[(df_mono['Vol_number'] == vol )].copy()  
 df = df.loc[(df['organism'] == 'D' )].copy()  
 
-
-
-#vol57 colors 
-c0 = 'violet'
-c1 = 'crimson'
-
-#vol58 colors  
-#c0 = 'blueviolet'
-#c1 = 'pink'
-
-#vol59 colors  
-#c0 = 'mediumorchid'
-#c1 = 'lightcoral'
-
-#vol60 colors 
-#c0 = 'mediumpurple'
-#c1 = 'lightpink'
-
-
+vol = int(sys.argv[1])
+if vol == 57:
+    #vol57 colors S
+    c0 = 'violet'
+    c1 = 'crimson'
+    mylab = '$Micromonas$ $commoda$'
+elif vol == 59:
+    #vol59 colors
+    c0 = 'mediumorchid'
+    c1 = 'lightcoral'
+    mylab = '$Micromonas$ $pusilla$'
+elif vol == 58:
+    #vol58 c
+    c0 = 'blueviolet'
+    c1 = 'pink'
+    mylab = '$Ostreococcus$ $lucimarinus$'
+elif vol == 60:
+    #vol60 colors 
+    c0 = 'mediumpurple'
+    c1 = 'magenta'
+    mylab = '$Ostreococcus$ $tauri$'
 
 df0 = df.loc[~df['assay'].str.contains('4', case=False)].copy()
 #####################################################
@@ -205,51 +208,53 @@ mod4 = a4.integrate()
 #graphing P model vs data and params histograms 
 #########################################################
 
-figall,ax4 = plt.subplots(1,3,figsize=[12,8])
-figall.subplots_adjust(wspace=0.3,hspace=0.3)
-#ax4,ax5 = axall[0,:],axall[1,:]
+fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 
-# set up graph
-#set titles and config graph 
-ax4[1].set_title(r'$D_0$', fontsize = 14)
-ax4[2].set_title(r'$\mu$', fontsize = 14)
-ax4[0].semilogy()
+fig4.subplots_adjust(wspace=0.3,hspace=0.3)
 
-ax4[0].set_ylabel('Cells (ml$^{-1}$)', fontsize = 14)
+ax4[0].set_xlabel('Time (days)', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density \n($P_{i,0}$, Cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_ylabel('Probability density (x10$^{-5}$)', fontsize = 12)
+ax4[2].set_xlabel('Growth rate ($\mu_i$, day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Probability density', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[1].set_xlabel('Parameter Value', fontsize = 14)
-ax4[1].set_ylabel('Frequency', fontsize = 14)
-ax4[2].set_xlabel('Parameter Value', fontsize = 14)
-ax4[2].set_ylabel('Frequency', fontsize = 14)
+ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
+ax4[0].tick_params(axis='x', labelsize=12)
+ax4[0].tick_params(axis='y', labelsize=12)
+ax4[1].tick_params(axis='x', labelsize=12)
+ax4[1].tick_params(axis='y', labelsize=12)
+ax4[2].tick_params(axis='x', labelsize=12)
+ax4[2].tick_params(axis='y', labelsize=12)
 
-ax4[1].tick_params(axis='x', labelsize=14)
-ax4[1].tick_params(axis='y', labelsize=14)
-ax4[2].tick_params(axis='x', labelsize=14)
-ax4[2].tick_params(axis='y', labelsize=14)
+fig4.subplots_adjust(wspace = 0.3, bottom=0.2)
 
 #shift fig subplots
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']=='D']['time'], df0[df0['organism']=='D']['abundance'], color = c0, marker='o',label = r'$Het$'+str(vol))
+ax4[0].plot(df0[df0['organism']=='D']['time'], df0[df0['organism']=='D']['abundance'], color = c0, marker='o')
+ax4[0].errorbar(df0[df0['organism']== 'D']['time'], df0[df0['organism']== 'D']['abundance'], yerr = df0[df0['organism']== 'D']['sigma'], color = c0, marker='o',label = mylab)
 ax4[0].plot(mod4.time,mod4['D'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'D',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.D0, facecolor = c0)
-ax4[2].hist(posteriors4.k2, facecolor = c0)
+ax4[1].hist(posteriors4.D0,density=True, facecolor = c0)
+ax4[2].hist(posteriors4.k2,density=True, facecolor = c0)
 
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
 l4.draw_frame(False)
 #show full graph 
 
+# rescale 
+ticks = ax4[1].get_yticks()
+ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/Het_'+str(vol)+ '_inits0.csv')
 
-# 'program finished' flag
+ax4[0].semilogy()
 
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')
+#show full graph
+fig4.savefig('../figures/Het-'+str(vol)+ '_no_spike',bbox_inches='tight')
+
 

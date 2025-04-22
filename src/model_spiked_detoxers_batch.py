@@ -81,18 +81,22 @@ if vol == 57:
     #vol57 colors S
     c0 = 'violet'
     c1 = 'crimson'
+    mylab = '$Micromonas$ $commoda$'
 elif vol == 59:
     #vol59 colors
     c0 = 'mediumorchid'
     c1 = 'lightcoral'
+    mylab = '$Micromonas$ $pusilla$'
 elif vol == 58:
     #vol58 c
     c0 = 'blueviolet'
     c1 = 'pink'
+    mylab = '$Ostreococcus$ $lucimarinus$'
 elif vol == 60:
     #vol60 colors 
     c0 = 'mediumpurple'
     c1 = 'magenta'
+    mylab = '$Ostreococcus$ $tauri$'
 
 df4 = df.loc[df['assay'].str.contains('4', case=False)].copy()
 #df4 = df4[df4.time < 3] #to keep growth bump in last days to thro off death (kdma) range.
@@ -140,6 +144,7 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
+inits0 = pd.read_csv('../data/inits/Het_'+str(vol)+ '_inits0.csv')
 inits4 = pd.read_csv('../data/inits/Het_'+str(vol)+ '_inits4.csv')
 
 #setting how many MCMC chains you will run 
@@ -153,7 +158,7 @@ pw = 1   #sigma for param search
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':inits0['k2'][0]})
 kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.006})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':12})
@@ -229,7 +234,7 @@ mod4 = a4.integrate()
 figall,axall = plt.subplots(2,3,figsize=[12,8])
 figall.subplots_adjust(wspace=0.3,hspace=0.3)
 ax4,ax5 = axall[0,:],axall[1,:]
-figall.suptitle('Het Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
+#figall.suptitle('Het Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
 # set up graph
 #set titles and config graph 
 ax4[0].semilogy()
@@ -237,9 +242,9 @@ ax4[0].semilogy()
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax4[2].set_ylabel('Frequency', fontsize = 12)
+ax4[1].set_ylabel('Probability density (x10$^{-5}$)', fontsize = 12)
+ax4[2].set_xlabel('Damage rate \n ($\kappa_{dam,i}$, x10$^{-5}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Probability density', fontsize = 12)
 
 ax4[1].tick_params(axis='x', labelsize=14)
 ax4[1].tick_params(axis='y', labelsize=14)
@@ -249,13 +254,18 @@ ax4[2].tick_params(axis='y', labelsize=14)
 #shift fig subplots
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='D']['time'], df4[df4['organism']=='D']['abundance'], color = c0, marker='o',label = r'$Het$'+str(vol))
+ax4[0].plot(df4[df4['organism']=='D']['time'], df4[df4['organism']=='D']['abundance'], color = c0, marker='o')
+ax4[0].errorbar(df4[df4['organism']== 'D']['time'], df4[df4['organism']== 'D']['abundance'], yerr = df4[df4['organism']== 'D']['sigma'], color = c0, marker='o',label = mylab)
 ax4[0].plot(mod4.time,mod4['D'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'D',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.D0, facecolor = c0)
-ax4[2].hist(posteriors4.kdam, facecolor = c0)
+ax4[1].hist(posteriors4.D0, density=True facecolor = c0, density='True')
+ax4[2].hist(posteriors4.kdam*1e+5, density=True facecolor = c0,density='True')
+
+# rescale 
+ticks = ax4[1].get_yticks()
+ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
 
 #make legends
 l4 = ax4[0].legend(loc = 'upper left')
@@ -269,12 +279,12 @@ l4.draw_frame(False)
 #HOOH dynamics 
 ax5[0].semilogy()
 
-ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
 ax5[0].set_xlabel('Time (Days)', fontsize = 12)
 ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
-ax5[1].set_ylabel('Frequency', fontsize = 12)
+ax5[1].set_ylabel('Probability density', fontsize = 12)
 ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax5[2].set_ylabel('Frequency', fontsize = 12)
+ax5[2].set_ylabel('Probability density', fontsize = 12)
 
 ax5[1].tick_params(axis='x', labelsize=14)
 ax5[1].tick_params(axis='y', labelsize=14)
@@ -282,8 +292,9 @@ ax5[2].tick_params(axis='x', labelsize=14)
 ax5[2].tick_params(axis='y', labelsize=14)
 
 #plot dynamics and models
-ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color = c1, marker='o',label = 'Hydrogen peroxide')
-ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model best fit')
+ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color = c1, marker='o')
+ax5[0].errorbar(df4[df4['organism']== 'H']['time'], df4[df4['organism']== 'H']['abundance'], yerr = df4[df4['organism']== 'H']['sigma'], color = c0, marker='o',label = 'Hydrogen peroxide')
+ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
@@ -298,14 +309,9 @@ l5.draw_frame(False)
 for (ax,l) in zip(axall.flatten(),'abcdef'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
-figall.savefig('../figures/Het-'+str(vol)+'_Hparams')
+figall.subplots_adjust(wspace=0.4,hspace=0.4)
+figall.savefig('../figures/Het-'+str(vol)+'_Hparams',bbox_inches='tight')
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/Het_'+str(vol)+ '_inits4.csv')
-
-# 'program finished' flag
-
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')
 

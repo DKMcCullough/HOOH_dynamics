@@ -30,27 +30,36 @@ plt.rcParams["font.family"] = "Times New Roman"
 #####################################################
 
 df = hp.get_data('coculture')
-vol = 53
-c0 = 'steelblue'
-c1 = 'chocolate'
+
+vol = 58
+
+#vol58 c
+c0 = 'blueviolet'
+c1 = 'pink'
 
 vol = int(sys.argv[1])
-if vol == 52:
-    #vol52 colors Syn WH7803
-    c0 = 'cornflowerblue'
-    c1 = 'darkorange'
-elif vol == 28:
-    #vol28 colors Syn WH7803 also 
-    c0 = 'dodgerblue'
-    c1 = 'tomato'
-elif vol == 53:
-    #vol53 colors WSyn CC9605 
-    c0 = 'steelblue'
-    c1 = 'chocolate'
-elif vol == 54:
-    #vol54 colors Syn WH7802 
-    c0 = 'darkcyan'
+if vol == 57:
+    #vol57 colors S
+    c0 = 'violet'
+    c1 = 'crimson'
+    mylab = '$Micromonas$ $commoda$'
+elif vol == 59:
+    #vol59 colors
+    c0 = 'mediumorchid'
     c1 = 'lightcoral'
+    mylab = '$Micromonas$ $pusilla$'
+elif vol == 58:
+    #vol58 c
+    c0 = 'blueviolet'
+    c1 = 'pink'
+    mylab = '$Ostreococcus$ $lucimarinus$'
+elif vol == 60:
+    #vol60 colors 
+    c0 = 'mediumpurple'
+    c1 = 'magenta'
+    mylab = '$Ostreococcus$ $tauri$'
+
+
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df0 = df.loc[~ df['assay'].str.contains('4', case=False) & (df['Vol_number']== vol)]  #assay 0 H 
@@ -225,12 +234,12 @@ fig4,ax4 = plt.subplots(1,3,figsize=[12,4])
 
 
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
-ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, Cells mL$^{-1}$)', fontsize = 12)
 ax4[1].set_ylabel('Probability density (x10$^{-5}$)', fontsize = 12)
 ax4[2].set_xlabel('Growth rate ($\mu_i$, day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Probability density', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 14)
-ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
+ax4[0].set_ylabel('cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].tick_params(axis='x', labelsize=12)
 ax4[0].tick_params(axis='y', labelsize=12)
 ax4[1].tick_params(axis='x', labelsize=12)
@@ -242,7 +251,7 @@ ax4[2].tick_params(axis='y', labelsize=12)
 fig4.subplots_adjust(wspace = 0.3, bottom=0.2)
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = r'$Synechococcus$')
+ax4[0].plot(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'],color = c0, marker='o',label = mylab)
 ax4[0].errorbar(df0[df0['organism']== 'S']['time'], df0[df0['organism']== 'S']['abundance'], yerr = df0[df0['organism']== 'S']['sigma'], color = c0, marker='o')
 ax4[0].plot(mod0.time,mod0['S'],c='r',lw=1.5,label=' Model best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'S',100)
@@ -265,11 +274,11 @@ ticks = ax4[1].get_yticks()
 ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
 
 #show full graph 
-fig4.savefig('../figures/syn'+str(vol)+ '_no_spike',bbox_inches='tight')
+fig4.savefig('../figures/het'+str(vol)+ '_0H_odelib')
 
 
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
-pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
+pframe.to_csv('../data/inits/het_vol'+str(vol)+ '_inits0.csv')
 
 #fig4.savefig('../figures/syn'+str(vol)+'_odelib0')
 

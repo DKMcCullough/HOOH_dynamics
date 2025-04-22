@@ -330,9 +330,9 @@ ax4[0].set_ylim([2e+5, 4e+6])
 #plt.text(0.5, 1.08, 'Pro  dynamics',horizontalalignment='left',fontsize=14, transform = ax4.transAxes)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
 ax4[1].set_xlabel('Initial cell density \n ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Frequency', fontsize = 12)
+ax4[1].set_ylabel('Probability density (x10$^{-6}$)', fontsize = 12)
 ax4[2].set_xlabel('Growth rate ($\mu_i$, day$^{-1}$)', fontsize = 12)
-ax4[2].set_ylabel('Frequency', fontsize = 12)
+ax4[2].set_ylabel('Probability density', fontsize = 12)
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].tick_params(axis='x', labelsize=12)
 ax4[0].tick_params(axis='y', labelsize=12)
@@ -354,16 +354,19 @@ ax4[0].plot(mod0.time,mod0['P'],c='r',lw=1.5,label='Model best fit')
 a0.plot_uncertainty(ax4[0],posteriors0,'P',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors0.P0, color = c0)
-ax4[2].hist(posteriors0.k2, color = c0)
+ax4[1].hist(posteriors0.P0,density=True, color = c0)
+ax4[2].hist(posteriors0.k2,density=True, color = c0)
 
 #format legend 
 l4 = ax4[0].legend(loc = 'lower right', fontsize = 9)
 l4.draw_frame(False)
 #show full graph 
 
+# rescale
+ticks = ax4[1].get_yticks()
+ax4[1].set_yticklabels([f"{tick * 1e+6:.0f}" for tick in ticks])
 
-fig4.savefig('../figures/pro1_odelib0_params')
+fig4.savefig('../figures/pro1_odelib0_params',bbox_inches='tight')
 
 #TRACE plot for growth params
 fig5,ax5 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot

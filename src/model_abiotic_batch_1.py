@@ -131,9 +131,9 @@ fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config
 fig1.subplots_adjust(wspace=0.3,bottom=0.2) #shift white space for better fig view
 ax1[0].set_ylabel(r'H$_2$O$_2$ (Concentration pmol mL$^{-1}$)', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
-ax1[1].set_ylabel('Frequency', fontsize = 12)
+ax1[1].set_ylabel('Probability density', fontsize = 12)
 ax1[1].set_xlabel('H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax1[2].set_ylabel('Frequency', fontsize = 12)
+ax1[2].set_ylabel('Probability density', fontsize = 12)
 ax1[2].set_xlabel('H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
 
 #ax1[0].set_ylim([20, 600])
@@ -148,15 +148,15 @@ ax1[0].plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label='Model best fit') #best
 a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
 
 # plot histograms of params next to dynamics graphs
-ax1[1].hist(((posteriors0.Sh)), facecolor=c0) #graphing Sh of 0 H assay 
-ax1[2].hist(((posteriors0.deltah)), facecolor=c0) #graphing deltah of 0 H assay 
+ax1[1].hist(((posteriors0.Sh)),density=True, facecolor=c0) #graphing Sh of 0 H assay 
+ax1[2].hist(((posteriors0.deltah)),density=True, facecolor=c0) #graphing deltah of 0 H assay 
 
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
 
 #save fig
-fig1.savefig('../figures/abiotic1_0_dynamics')
+fig1.savefig('../figures/abiotic1_0_dynamics',bbox_inches='tight')
 
 ########################################
 #graph parameters against one another 

@@ -86,6 +86,7 @@ plt.legend()
 #####################################################
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
+inits0 = pd.read_csv("../data/inits/pro_MIT9215_inits0_1.csv")
 inits4 = pd.read_csv("../data/inits/pro_MIT9215_inits4_1.csv")
 
 #setting how many MCMC chains you will run 
@@ -100,7 +101,7 @@ pw = 1   #sigma for param search
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
 k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
-k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.6})
+k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':inits0['k2'][0]})
 kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.2})
 phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.06})
 Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
@@ -228,19 +229,24 @@ ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize=12)
 ax4[0].set_xlabel('Time (days)',fontsize=12)
 
 ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Frequency', fontsize = 12)
-ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax4[2].set_ylabel('Frequency', fontsize = 12)
+ax4[1].set_ylabel('Probability density (x10$^{-6}$)', fontsize = 12)
+ax4[2].set_xlabel('Damage rate \n ($\kappa_{dam,i}$, x10$^{-5}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[2].set_ylabel('Probability denity', fontsize = 12)
 
 ax4[0].set_ylim([100, 5000000])
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  c0,marker='o',label = r'$Prochlorococcus$')
+ax4[0].plot(df4[df4['organism']=='P']['time'], df4[df4['organism']=='P']['abundance'], color =  c0,marker='o')
+ax4[0].errorbar(df4[df4['organism']== 'P']['time'], df4[df4['organism']== 'P']['abundance'], yerr = df4[df4['organism']== 'P']['sigma'], color = c0, marker='o',label = r'$Prochlorococcus$')
 ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'P',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.P0, color =  c0)
-ax4[2].hist(posteriors4.kdam,color = c0)
+ax4[1].hist(posteriors4.P0, color =  c0,density=True)
+ax4[2].hist(posteriors4.kdam*1e+5,color = c0,density=True)
+
+# rescale 
+ticks = ax4[1].get_yticks()
+ax4[1].set_yticklabels([f"{tick * 1e+6:.0f}" for tick in ticks])
 
 #make legends
 l4 = ax4[0].legend(loc = 'lower left')
@@ -254,17 +260,19 @@ for (ax,l) in zip(axall.flatten(),'abcdef'):
 #graphing H model vs data and params histograms 
 #########################################################
 
+ax5[0].set_ylim([200, 500])
+
 #HOOH dynamics 
 ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
 ax5[0].set_xlabel('Time (days)',fontsize=12)
-
-ax5[0].set_ylim([200, 500])
-ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize = 12)
-ax5[1].set_ylabel('Frequency', fontsize = 12)
+ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+ax5[1].set_ylabel('Probability density', fontsize = 12)
 ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
-ax5[2].set_ylabel('Frequency', fontsize = 12)
+ax5[2].set_ylabel('Probability density', fontsize = 12)
 
-ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1,marker='o',label = 'Hydrogen peroxide')
+
+ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1,marker='o')
+ax5[0].errorbar(df4[df4['organism']== 'H']['time'], df4[df4['organism']== 'H']['abundance'], yerr = df4[df4['organism']== 'H']['sigma'], color = c0, marker='o',label = 'Hydrogen peroxide')
 ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label='Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
@@ -272,8 +280,8 @@ l5 = ax5[0].legend(loc = 'lower left')
 l5.draw_frame(False)
 
 # plot histograms of parameter search results 
-ax5[1].hist(posteriors4.H0,color =  c1)
-ax5[2].hist(posteriors4.phi*1e+6, color = c1)
+ax5[1].hist(posteriors4.H0,color =  c1, density=True)
+ax5[2].hist(posteriors4.phi*1e+6, color = c1,density=True)
 
 
 #show full graph 
