@@ -21,8 +21,7 @@ import scipy
 import ODElib
 import random as rd
 import sys
-
-plt.rcParams["font.family"] = "Times New Roman"
+import helpers as hp
 
 ######################################################
 #reading in data and configureing 
@@ -212,7 +211,7 @@ l1.draw_frame(False)
 inits0 = pd.read_csv("../data/inits/pro_MIT9215_inits0_1.csv")
 
 #setting how many MCMC chains you will run 
-nits = 10000 # number of iterations - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 100000 # number of iterations - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['P','N'] #order must match all further model mentions (same fro params) 
@@ -367,6 +366,7 @@ ticks = ax4[1].get_yticks()
 ax4[1].set_yticklabels([f"{tick * 1e+6:.0f}" for tick in ticks])
 
 fig4.savefig('../figures/pro1_odelib0_params',bbox_inches='tight')
+fig4.savefig('../figures/figure4.tiff',bbox_inches='tight',format='tiff',dpi=300)
 
 #TRACE plot for growth params
 fig5,ax5 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot

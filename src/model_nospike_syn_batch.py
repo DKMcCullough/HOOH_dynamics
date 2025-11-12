@@ -53,7 +53,7 @@ elif vol == 54:
     c1 = 'lightcoral'
 
 #slicing data into abiotic, biotic, and Pro only dataframes
-df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
+df4 = df.loc[(~df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
 sigma4H = hp.get_uncertainty(df4[df4.organism=='H'])
 sigma4S = hp.get_uncertainty(df4[df4.organism=='S'])
 df4.loc[df['organism'] == 'H', 'log_sigma'] = sigma4H
@@ -110,7 +110,7 @@ inits4 = pd.read_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
 inits0 = pd.read_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
 #setting how many MCMC chains you will run 
-nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 1000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['S','N','H'] #order must match all further model mentions (same fro params) 
@@ -272,10 +272,10 @@ for (ax,l) in zip(axall.flatten(),'abcdef'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
 
 figall.subplots_adjust(wspace=0.35,hspace=0.35)
-figall.savefig('../figures/syn_'+str(vol)+'_Hparams',bbox_inches='tight')
-figall.savefig('../figures/syn_'+str(vol)+'_Hparams.tiff',bbox_inches='tight',format='tiff',dpi=200)
+figall.savefig('../figures/syn_'+str(vol)+'_no_spike_Hparams',bbox_inches='tight')
+figall.savefig('../figures/syn_'+str(vol)+'_no_spike_Hparams.tiff',bbox_inches='tight',format='tiff',dpi=200)
 
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
-pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
+pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
 

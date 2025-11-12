@@ -99,7 +99,7 @@ H0_mean = inits0['H0'][0]
 
 
 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS
-nits = 10000
+nits = 100000
 
 
 #####################################
@@ -157,6 +157,7 @@ l1.draw_frame(False)
 
 #save fig
 fig1.savefig('../figures/abiotic1_0_dynamics',bbox_inches='tight')
+fig1.savefig('../figures/figure2.tiff',bbox_inches='tight',dpi=300,format='tiff')
 
 ########################################
 #graph parameters against one another 

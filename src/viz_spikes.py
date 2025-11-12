@@ -21,6 +21,8 @@ import seaborn as sns
 #set figure RC params 
 #####################################################
 plt.rcParams["figure.dpi"] = 300
+plt.rcParams["font.family"] = "DeJavu Serif"
+pd.Series.iteritems = pd.Series.items
 
 ######################################################
 #reading in data and configureing 

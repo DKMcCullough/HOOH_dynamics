@@ -237,7 +237,6 @@ ax4,ax5 = axall[0,:],axall[1,:]
 #figall.suptitle('Het Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
 # set up graph
 #set titles and config graph 
-ax4[0].semilogy()
 
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
@@ -260,8 +259,8 @@ ax4[0].plot(mod4.time,mod4['D'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'D',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.D0, density=True facecolor = c0, density='True')
-ax4[2].hist(posteriors4.kdam*1e+5, density=True facecolor = c0,density='True')
+ax4[1].hist(posteriors4.D0, density=True, facecolor = c0)
+ax4[2].hist(posteriors4.kdam*1e+5, density=True, facecolor = c0)
 
 # rescale 
 ticks = ax4[1].get_yticks()
@@ -277,7 +276,6 @@ l4.draw_frame(False)
 #########################################################
 
 #HOOH dynamics 
-ax5[0].semilogy()
 
 ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
 ax5[0].set_xlabel('Time (Days)', fontsize = 12)
@@ -308,6 +306,10 @@ l5.draw_frame(False)
 
 for (ax,l) in zip(axall.flatten(),'abcdef'):
     ax.text(0.07,0.9,l,ha='center',va='center',color='k',transform=ax.transAxes)
+
+
+ax4[0].semilogy()
+ax4[0].semilogy()
 
 figall.subplots_adjust(wspace=0.4,hspace=0.4)
 figall.savefig('../figures/Het-'+str(vol)+'_Hparams',bbox_inches='tight')

@@ -106,7 +106,7 @@ plt.legend()
 inits0 = pd.read_csv('../data/inits/syn_vol'+str(vol)+'_inits0.csv')
 
 #setting how many MCMC chains you will run 
-nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
 snames = ['S','N'] #order must match all further model mentions (same fro params) 
@@ -266,13 +266,13 @@ ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
 
 #show full graph 
 fig4.savefig('../figures/syn'+str(vol)+ '_no_spike',bbox_inches='tight')
-
+fig4.savefig('../figures/syn'+str(vol)+ '_no_spike.tiff',bbox_inches='tight',dpi=200,format='tiff')
 
 pframe = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits0.csv')
 
 #fig4.savefig('../figures/syn'+str(vol)+'_odelib0')
-
+posteriors4.to_csv('../data/posteriors/pos_syn-'+str(vol)+ '_no_spike.csv')
 
 # 'program finished' flag
 

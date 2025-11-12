@@ -4,7 +4,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy
 
-plt.rcParams["font.family"] = "Times New Roman"
+plt.rcParams["font.family"] = "DeJavu Serif"
+pd.Series.iteritems = pd.Series.items
 
 def get_data(identifier,sheet='BCC_1-31-dataset'):
     df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = sheet, header = 1)
@@ -14,7 +15,7 @@ def get_data(identifier,sheet='BCC_1-31-dataset'):
     if identifier == 'coculture':
         df_a = df_all.loc[~df_all['assay'].str.contains(identifier, case=False)].copy()
     df = summary_stats(df_a)
-    df['log_sigma'] = 0.2 # default log sigma
+    df['log_sigma'] = 0.056225 # default log sigma
     return df
 
 def get_uncertainty(df,alpha=0.01):

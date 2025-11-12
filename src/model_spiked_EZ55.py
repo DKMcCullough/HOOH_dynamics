@@ -28,22 +28,22 @@ import sys
 #####################################################
 
 # get data and visualize uncertainty
-df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'EL-EZ55', header = 0)
+df_all = pd.read_excel("../data/ROS_data_MEGA.xlsx",sheet_name = 'EZ55_REDO', header = 0)
 df_all.rename(columns = {'Time (hours)':'time'},inplace = True) 
 
 dfw = df_all
-dfw['time'] = dfw['time']/24      #changing time foorm hours to days
+dfw['time'] = dfw['time']      #changing time foorm hours to days
 
 dfw['log1'] = np.log(dfw['rep1'])
 dfw['log2'] = np.log(dfw['rep2'])
 dfw['log3'] = np.log(dfw['rep3'])
-dfw['log4'] = np.log(dfw['rep4'])
-dfw['log5'] = np.log(dfw['rep5'])
-dfw['log6'] = np.log(dfw['rep6'])
-dfw['abundance'] = dfw[['rep1','rep2','rep3', 'rep4', 'rep5', 'rep6']].mean(axis=1)
-dfw['sigma'] = dfw[['rep1','rep2','rep3', 'rep4','rep5', 'rep6']].std(axis=1)
-dfw['log_abundance'] = dfw[['log1','log2', 'log3','log4', 'log5', 'log6']].mean(axis=1)
-dfw['log_sigma'] = dfw[['log1','log2', 'log3','log4', 'log5', 'log6']].std(axis=1)
+#dfw['log4'] = np.log(dfw['rep4'])
+#dfw['log5'] = np.log(dfw['rep5'])
+#dfw['log6'] = np.log(dfw['rep6'])
+dfw['abundance'] = dfw[['rep1','rep2','rep3']].mean(axis=1)
+dfw['sigma'] = dfw[['rep1','rep2','rep3']].std(axis=1)
+dfw['log_abundance'] = dfw[['log1','log2', 'log3']].mean(axis=1)
+dfw['log_sigma'] = dfw[['log1','log2', 'log3']].std(axis=1)
 
 dfw['log_sigma'] = 0.1
 dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08

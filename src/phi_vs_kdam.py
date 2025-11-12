@@ -145,7 +145,7 @@ l3.draw_frame(False)
 fig3.subplots_adjust(bottom=0.15)
 
 fig3.savefig('../figures/tradeoffs',bbox_inches='tight')
-
+fig3.savefig('../figures/figure8.tiff',bbox_inches='tight',dpi=300,format='tiff')
 
 
 ############################################
