@@ -1,6 +1,6 @@
 
 #!/bin/sh
-python model_pro_batch1.py
+python model_nospike_pro_batch1.py
 python viz_spikes.py
 python model_spiked_abiotic_batch_1.py
 python model_abiotic_batch_1.py
