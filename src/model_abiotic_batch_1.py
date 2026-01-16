@@ -66,14 +66,6 @@ def get_model(df):
 
 
 
-#find closest time 
-def get_residuals(self):
-    mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)   #this is not same species 
-    mod['res'] = res
-    return(mod)
-
-
 #####################################################
 #model param and state variable set up 
 #####################################################
@@ -114,8 +106,6 @@ posteriors0 = a0.MCMC(chain_inits=inits0,iterations_per_chain=nits,cpu_cores=1,p
 # run model with optimal params
 mod0 = a0.integrate()
 
-a0res = get_residuals(a0)  #is this using the best fit or just a first run???
-
 #########################################################
 # graphing df and models together
 #########################################################
@@ -129,12 +119,12 @@ fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config
 #set titles of subplots
 #fig1.suptitle('Abiotic HOOH Model Output', fontsize = 14) #full title config
 fig1.subplots_adjust(wspace=0.3,bottom=0.2) #shift white space for better fig view
-ax1[0].set_ylabel(r'H$_2$O$_2$ (Concentration pmol mL$^{-1}$)', fontsize = 12)
+ax1[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
 ax1[1].set_ylabel('Probability density', fontsize = 12)
-ax1[1].set_xlabel('H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax1[1].set_xlabel('log$_{10}$ H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax1[2].set_ylabel('Probability density', fontsize = 12)
-ax1[2].set_xlabel('H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
+ax1[2].set_xlabel('log$_{10}$ H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
 
 #ax1[0].set_ylim([20, 600])
 
@@ -148,8 +138,11 @@ ax1[0].plot(mod0.time,mod0['H'],c='darkred',lw=1.5,label='Model best fit') #best
 a0.plot_uncertainty(ax1[0],posteriors0,'H',100)
 
 # plot histograms of params next to dynamics graphs
-ax1[1].hist(((posteriors0.Sh)),density=True, facecolor=c0) #graphing Sh of 0 H assay 
-ax1[2].hist(((posteriors0.deltah)),density=True, facecolor=c0) #graphing deltah of 0 H assay 
+#ax1[1].hist(((posteriors0.Sh)),density=True, facecolor=c0) #graphing Sh of 0 H assay 
+#ax1[2].hist(((posteriors0.deltah)),density=True, facecolor=c0) #graphing deltah of 0 H assay 
+
+hp.sns.kdeplot(np.log10(posteriors0.Sh),color=c0,fill=True,ax=ax1[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors0.deltah),color=c0,fill=True,ax=ax1[2],linewidth=3)
 
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
@@ -159,64 +152,8 @@ l1.draw_frame(False)
 fig1.savefig('../figures/abiotic1_0_dynamics',bbox_inches='tight')
 fig1.savefig('../figures/figure2.tiff',bbox_inches='tight',dpi=300,format='tiff')
 
-########################################
-#graph parameters against one another 
-########################################
-
-#graph set up
-
-fig2,ax2 = plt.subplots(1,2, figsize=[7,4])
-fig2.suptitle('Parameter Interactions ')
-
-ax2[0].set_ylabel('deltah', fontsize = 12)
-ax2[0].set_xlabel('Sh', fontsize = 12)
-ax2[1].set_ylabel('log (deltah)', fontsize = 12)
-ax2[1].set_xlabel('log (Sh)', fontsize = 12)
-
-
-#adding text for more labels of graph
-
-fig2.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-
-#graphing each assay's parameters against each other 
-ax2[0].scatter(posteriors0.Sh,posteriors0.deltah,color = c0)
-ax2[1].scatter(np.log(posteriors0.Sh),np.log(posteriors0.deltah),color = c0)
-plt.legend()
-#save fig
-#fig2.savefig('../figures/abiotic1_0_params')
-
-
-#################################
-#graphing logged parameter values
-##################################
-#crating and config of fig 3
-fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot
-fig3.suptitle('Trace plots for H Params ', fontsize = 14) #set main title 
-fig3.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-fig3.supxlabel('Model Iteration', fontsize = 12) #set overall x title 
-
-ax3[0].set_ylabel('Log Sh', fontsize = 12)
-ax3[0].set_xlabel('Model iteration', fontsize = 12)
-ax3[1].set_ylabel('Log deltah', fontsize = 12)
-ax3[1].set_xlabel('Model iteration', fontsize = 12)
-#ax3[:,:].set_yscale('log')
-
-
-#graphing iteration number vs parameter numbert logged 
-ax3[0].scatter(posteriors0.iteration,posteriors0.Sh,color = c0)
-ax3[1].scatter(posteriors0.iteration,posteriors0.deltah,color = c0)
-
-
-#print out plot
-#fig3.savefig('../figures/abiotic1_0_TRACE')
-
 pframe0 = pd.DataFrame(a0.get_parameters(),columns=a0.get_pnames())
 pframe0.to_csv("../data/inits/abiotic_control_1.csv")
 
-# 'program finished' flag
-
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')
-
+posteriors0.to_csv('../data/posteriors/nospike_abiotic.csv')
 

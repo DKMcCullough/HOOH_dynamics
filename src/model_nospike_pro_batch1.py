@@ -22,6 +22,7 @@ import scipy
 import ODElib
 import random as rd
 import sys
+import statsmodels.formula.api as smf
 
 ######################################################
 #reading in data and configureing 
@@ -32,7 +33,7 @@ df = hp.get_data('coculture')
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df4 = df.loc[(~df['assay'].str.contains('4', case=False)) & (df['Vol_number']== 1)]
-df4 = df4[df4.time < 6] #to keep growth bump in last days to thro off death (kdma) range.
+#df4 = df4[df4.time < 6] #to keep growth bump in last days to thro off death (kdma) range.
 
 df = df4
 
@@ -57,6 +58,11 @@ df = df4
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
 inits0 = pd.read_csv("../data/inits/pro_MIT9215_inits0_1.csv")
+
+# use OLS to constrain growth rate
+dfregress = df[df.organism=='P']
+model = smf.ols('log_abundance ~ time', data=dfregress).fit()
+inits0['k2'] = model.params.time
 
 #setting how many MCMC chains you will run 
 nits = 100000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
@@ -145,9 +151,9 @@ ax4,ax5 = axall[0,:],axall[1,:]
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize=12)
 ax4[0].set_xlabel('Time (days)',fontsize=12)
 
-ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Probability density (x10$^{-6}$)', fontsize = 12)
-ax4[2].set_xlabel('Damage rate \n ($\kappa_{dam,i}$, x10$^{-5}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[1].set_xlabel('log$_{10}$ Initial cell density \n ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_ylabel('Probability density', fontsize = 12)
+ax4[2].set_xlabel('log$_{10}$ Damage rate \n ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Probability denity', fontsize = 12)
 
 #graph data, model, and uncertainty 
@@ -157,12 +163,12 @@ a4.plot_uncertainty(ax4[0],posteriors4,'P',100)
 ax4[0].plot(mod4.time,mod4['P'],color='r',lw=1.5,label='Model best fit')
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.P0, color =  c0,density=True)
-ax4[2].hist(posteriors4.kdam*1e+5,color = c0,density=True)
+hp.sns.kdeplot(np.log10(posteriors4.P0),color=c0,fill=True,ax=ax4[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors4.kdam),color=c0,fill=True,ax=ax4[2],linewidth=3)
 
 # rescale 
-ticks = ax4[1].get_yticks()
-ax4[1].set_yticklabels([f"{tick * 1e+6:.0f}" for tick in ticks])
+#ticks = ax4[1].get_yticks()
+#ax4[1].set_yticklabels([f"{tick * 1e+6:.0f}" for tick in ticks])
 
 #make legends
 l4 = ax4[0].legend(loc = 'lower left')
@@ -184,9 +190,9 @@ for (ax,l) in zip(axall.flatten(),'abcdef'):
 #HOOH dynamics 
 ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
 ax5[0].set_xlabel('Time (days)',fontsize=12)
-ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+ax5[1].set_xlabel('log$_{10}$ Initial H$_2$O$_2$ concentration \n ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
 ax5[1].set_ylabel('Probability density', fontsize = 12)
-ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax5[2].set_xlabel('log$_{10}$ Detoxification rate \n ($\phi_{det,i}$, pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax5[2].set_ylabel('Probability density', fontsize = 12)
 
 ax5[0].plot(df4[df4['organism']=='H']['time'], df4[df4['organism']=='H']['abundance'], color =  c1,marker='o')
@@ -198,9 +204,11 @@ l5 = ax5[0].legend(loc = 'lower left')
 l5.draw_frame(False)
 
 # plot histograms of parameter search results 
-ax5[1].hist(posteriors4.H0,color =  c1, density=True)
-ax5[2].hist(posteriors4.phi*1e+6, color = c1,density=True)
+#ax5[1].hist(posteriors4.H0,color =  c1, density=True)
+#ax5[2].hist(posteriors4.phi*1e+6, color = c1,density=True)
 
+hp.sns.kdeplot(np.log10(posteriors4.H0),color=c1,fill=True,ax=ax5[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors4.phi),color=c1,fill=True,ax=ax5[2],linewidth=3)
 
 figall.savefig('../figures/pro1_0nm_h2o2',bbox_inches='tight')
 figall.savefig('../figures/figure5test.tiff',dpi=200,format='tiff',bbox_inches='tight')

@@ -33,6 +33,7 @@ df_all.rename(columns = {'Time (hours)':'time'},inplace = True)
 
 dfw = df_all
 dfw['time'] = dfw['time']      #changing time foorm hours to days
+dfw = dfw[dfw.time >0.3] #to keep growth bump in last days to thro off death (kdma) range.
 
 dfw['log1'] = np.log(dfw['rep1'])
 dfw['log2'] = np.log(dfw['rep2'])
@@ -47,6 +48,7 @@ dfw['log_sigma'] = dfw[['log1','log2', 'log3']].std(axis=1)
 
 dfw['log_sigma'] = 0.1
 dfw.loc[dfw['organism'] == 'H', 'log_sigma'] = 0.08
+dfw.time = dfw.time - 0.3
 
 dfa =dfw.loc[(dfw['strain'].str.contains('abio', case=False))]
 dfb =dfw.loc[(~dfw['strain'].str.contains('abio', case=False))]
@@ -65,33 +67,6 @@ IDs = dfb.ID.unique()
 
 for i in IDs:
     df =dfb[dfb['ID']== i]
-#####################################################
-#plotting data and error within biological reps 
-#####################################################
-# fig set up and main title 
-    fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (9,5))
-    fig2.suptitle('EZ55  Monoculture in '+str(i)+' HOOH')
-    fig2.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
-
-
-#format fig  
-    ax0.set_title('EZ55 dynamics') #graph title for graph 1
-    ax0.semilogy() #setting y axis to be logged b/c cell data
-    ax1.set_title('HOOH dynamics ') #graph title for graph 2
-    ax1.semilogy()#setting y axis to be logged b/c cell data
-    ax0.set_xlabel('Time (hours)') #settign x axis label for graph 1
-    ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
-    ax1.set_xlabel('Time (hours)')#settign x axis label for graph 2 
-    ax1.set_ylabel('HOOH (nM)')
-
-
-    ax0.errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['abundance'],yerr=df[df['organism']=='D']['sigma'], marker='d', label = 'MEAN ')
-# graph 400 H assay even and odd avgs
-    ax1.errorbar(df[df['organism']=='H']['time'],df[df['organism']=='H']['log_abundance'],yerr=df[df['organism']=='H']['log_sigma'], marker='o', label = 'Log-Mean')
-    plt.legend()
-
-
-
 
 #####################################################
 #   model param and state variable set up 
@@ -100,9 +75,11 @@ for i in IDs:
 
 #reading in csv file with inititla guesses for all parameter values ( SH, deltah, H0)
     inits4 = pd.read_csv('../data/inits/Het_55_inits_'+str(i)+'.csv')
+    inits0 = pd.read_csv('../data/inits/Het_55_inits_'+str(IDs[0])+'.csv')
 
 #setting how many MCMC chains you will run 
-    nits = 10000 # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
+    nits = 100000
+    # nits - INCREASE FOR MORE BELL CURVEY LOOKING HISTS of params
 
 # state variable names
     snames = ['D','N','H'] #order must match all further model mentions (same fro params) 
@@ -113,7 +90,7 @@ for i in IDs:
 
 #setting param prior guesses and inititaing as an odelib param class in odelib
     k1_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.000002})
-    k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.5})
+    k2_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':inits0['k2'][0]})
     kdam_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.00002})
     phi_prior = ODElib.parameter(stats_gen=scipy.stats.lognorm,hyperparameters={'s':pw,'scale':0.006})
     Sh_prior=ODElib.parameter(stats_gen=scipy.stats.lognorm, hyperparameters={'s':pw,'scale':2})
@@ -160,13 +137,6 @@ for i in IDs:
         dHdt = 8 - phi*D*H
         return [dDdt,dNdt,dHdt]
 
-
-    def get_residuals(self):
-        mod = self.integrate(predict_obs=True)
-        res = (mod.abundance - self.df.abundance)   #this is not same species 
-        mod['res'] = res
-        return(mod)
-
 #####################################################
 #modeling and fitting 
 #####################################################
@@ -176,55 +146,11 @@ for i in IDs:
 
 #broken here!!!!!!!!!!
 # do fitting
-    posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','N0']),print_report=True) #, )
+    posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,static_parameters =set(['k1','k2','N0']),print_report=True) #, )
 #posteriors1 = a1.MetropolisHastings(chain_inits=inits0,iterations_per_chain=nits,burnin = 500,cpu_cores=1,static_parameters=set(['Qnp']))
 
 # run model with optimal params
     mod4 = a4.integrate()
-
-#a4res = get_residuals(a4)  #is this using the best fit or just a first run???
-
-#####################################################
-# graphing model vs data in 0 H and associated error
-#####################################################
-
-###### fig set up
-    fig3, ax3 = plt.subplots(1,2,figsize = (9,5)) #fig creationg of 1 by 2
-    fig3.suptitle('EZ55 in '+str(i)+' H Model') #setting main title of fig
-
-####### fig config and naming 
-
-    fig3.subplots_adjust(right=0.85, wspace = 0.50, hspace = 0.30)
-
-    ax3[0].semilogy()
-    ax3[1].semilogy()
-    ax3[0].set_title('EZ55 dynamics ', fontsize = 14)
-    ax3[1].set_title('HOOH dynamics', fontsize = 14)
-
-    ax3[0].set_ylabel('Cells (ml$^{-1}$)')
-    ax3[0].set_xlabel('Time (days)')
-    ax3[1].set_ylabel('HOOH (nM)')
-    ax3[1].set_xlabel('Time (days)')
-
-
-#graphing data from df to see 2 different biological reps represented
-
-    ax3[0].errorbar(df[df['organism']=='D']['time'],df[df['organism']=='D']['abundance'],yerr=df[df['organism']=='D']['sigma'],c = c0, marker='o', label = 'Mean D')
-    ax3[0].plot(mod4.time,mod4['D'],color ='r',lw=1.5,label=' P model best fit')
-    a4.plot_uncertainty(ax3[0],posteriors4,'D',100)
-
-    ax3[1].errorbar(df[df['organism']=='H']['time'],df[df['organism']=='H']['abundance'],yerr=df[df['organism']=='H']['sigma'],c = c1, marker='o', label = 'Mean H')
-    ax3[1].plot(mod4.time,mod4['H'],color ='r',lw=2.0,label=' H model best fit')
-    a4.plot_uncertainty(ax3[1],posteriors4,'H',100)
-
-    l3 = ax3[0].legend(loc = 'lower left')
-    l3.draw_frame(False)
-
-
-#save graph
-
-    #fig3.savefig('../figures/EZ55_'+str(i))
-
 
 #########################################################
 #graphing P model vs data and params histograms 
@@ -239,10 +165,10 @@ for i in IDs:
 
     ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
     ax4[0].set_xlabel('Time (days)', fontsize = 12)
-    ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-    ax4[1].set_ylabel('Frequency', fontsize = 12)
-    ax4[2].set_xlabel('Damage rate ($\kappa_{dam,i}$, x10$^{-12}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
-    ax4[2].set_ylabel('Frequency', fontsize = 12)
+    ax4[1].set_xlabel('log$_{10}$ Initial cell density \n ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+    ax4[1].set_ylabel('Probability density', fontsize = 12)
+    ax4[2].set_xlabel('log$_{10}$ Damage rate \n ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+    ax4[2].set_ylabel('Probability density', fontsize = 12)
 
     #ax4[0].set_ylim([100, 5000000])
 #graph data, model, and uncertainty 
@@ -251,8 +177,8 @@ for i in IDs:
     a4.plot_uncertainty(ax4[0],posteriors4,'D',100)
 
 # plot histograms of parameter search results 
-    ax4[1].hist(posteriors4.D0, color =  c0)
-    ax4[2].hist(posteriors4.kdam*1e+12,color = c0)
+    hp.sns.kdeplot(np.log10(posteriors4.D0),color=c0,fill=True,ax=ax4[1],linewidth=3)
+    hp.sns.kdeplot(np.log10(posteriors4.kdam),color=c0,fill=True,ax=ax4[2],linewidth=3)
 
 #make legends
     l4 = ax4[0].legend(loc = 'lower left')
@@ -270,12 +196,12 @@ for i in IDs:
 
     ax5[0].semilogy()
 
-    ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+    ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
     ax5[0].set_xlabel('Time (Days)', fontsize = 12)
-    ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
-    ax5[1].set_ylabel('Frequency', fontsize = 12)
-    ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
-    ax5[2].set_ylabel('Frequency', fontsize = 12)
+    ax5[1].set_xlabel('log$_{10}$ Initial H$_2$O$_2$ concentration \n ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+    ax5[1].set_ylabel('Probability density', fontsize = 12)
+    ax5[2].set_xlabel('log$_{10}$ Detoxification rate \n ($\phi_{det,i}$, pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
+    ax5[2].set_ylabel('Probability density', fontsize = 12)
 
     ax5[0].plot(df[df['organism']=='H']['time'], df[df['organism']=='H']['abundance'], color =  c1,marker='o',label = 'Hydrogen peroxide')
     ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label='Model best fit')
@@ -285,12 +211,10 @@ for i in IDs:
     l5.draw_frame(False)
 
 # plot histograms of parameter search results 
-    ax5[1].hist(posteriors4.H0,color =  c1)
-    ax5[2].hist(posteriors4.phi*1e+6, color = c1)
-
+    hp.sns.kdeplot(np.log10(posteriors4.H0),color=c1,fill=True,ax=ax5[1],linewidth=3)
+    hp.sns.kdeplot(np.log10(posteriors4.phi),color=c1,fill=True,ax=ax5[2],linewidth=3)
 
 #show full graph 
-
     figall.savefig('../figures/EZ55_h2o2_'+str(i))
 
 ##########################
@@ -317,9 +241,7 @@ for i in IDs:
     pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
     pframe.to_csv('../data/inits/Het_55_inits_'+str(i)+'.csv')
 
+    posteriors4.to_csv('../data/posteriors/pos_EZ55_'+str(i)+ '.csv')
 
 # 'program finished' flag
 #plt.show()
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')

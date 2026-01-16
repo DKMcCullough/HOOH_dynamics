@@ -65,14 +65,6 @@ def get_model(df):
     return a1
 
 
-#find closest time 
-def get_residuals(self):
-    mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)   #this is not same species 
-    mod['res'] = res
-    return(mod)
-
-
 #####################################################
 #model param and state variable set up 
 #####################################################
@@ -109,7 +101,6 @@ posteriors4 = a4.MCMC(chain_inits=inits4,iterations_per_chain=nits,cpu_cores=1,p
 
 # run model with optimal params
 mod4 = a4.integrate()
-a4res = get_residuals(a4)
 
 #########################################################
 # graphing df and models together
@@ -121,12 +112,12 @@ c0 = 'slateblue'
 
 fig1,ax1 = plt.subplots(1,3,figsize=[12,4]) #plot creation and config 
 fig1.subplots_adjust(wspace=0.3,bottom=0.2) #shift white space for better fig view
-ax1[0].set_ylabel(r'H$_2$O$_2$ (Concentration pmol mL$^{-1}$)', fontsize = 12)
+ax1[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize = 12)
 ax1[0].set_xlabel('Time (days)', fontsize = 12)
 ax1[1].set_ylabel('Probability density', fontsize = 12)
-ax1[1].set_xlabel('H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax1[1].set_xlabel('log$_{10}$ H$_2$O$_2$ supply rate \n ($S_H$, pmol mL$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax1[2].set_ylabel('Probability density', fontsize = 12)
-ax1[2].set_xlabel('H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
+ax1[2].set_xlabel('log$_{10}$ H$_2$O$_2$ decay rate \n ($\delta_H$, day$^{-1}$)', fontsize = 12)
 
 #ax1[0].set_ylim([20, 600])
 
@@ -140,127 +131,22 @@ ax1[0].errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0)
 a4.plot_uncertainty(ax1[0],posteriors4,'H',100)
 
 # plot histograms of params next to dynamics graphs
-ax1[1].hist((posteriors4.Sh),density=True, facecolor=c0) #graphing Sh of 0 H assay 
-ax1[2].hist((posteriors4.deltah),density=True, facecolor=c0) #graphing deltah of 0 H assay 
+#ax1[1].hist((posteriors4.Sh),density=True, facecolor=c0) #graphing Sh of 0 H assay 
+#ax1[2].hist((posteriors4.deltah),density=True, facecolor=c0) #graphing deltah of 0 H assay 
+
+hp.sns.kdeplot(np.log10(posteriors4.Sh),color=c0,fill=True,ax=ax1[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors4.deltah),color=c0,fill=True,ax=ax1[2],linewidth=3)
 
 #config legends
 l1 = ax1[0].legend(loc = 'lower right')
 l1.draw_frame(False)
 
+pframe4 = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
+pframe4.to_csv("../data/inits/abiotic_spike_1.csv")
+posteriors4.to_csv('../data/posteriors/spike_abiotic.csv')
 
 fig1.savefig('../figures/abiotic1_4_dynamics',bbox_inches='tight')
 fig1.savefig('../figures/figure3.tiff',bbox_inches='tight',dpi=300,format='tiff')
-
-########################################
-#graph parameters against one another 
-########################################
-
-#graph set up
-
-fig2,ax2 = plt.subplots(1,2, figsize=[9,6])
-fig2.suptitle('Parameter Interactions ',fontsize = '14')
-
-ax2[0].set_ylabel('deltah',fontsize = '12')
-ax2[0].set_xlabel('Sh',fontsize = '12')
-ax2[1].set_ylabel('log (deltah)',fontsize = '12')
-ax2[1].set_xlabel('log (Sh)',fontsize = '12')
-
-#ax2.set_title('0 HOOH')
-
-plt.legend()
-#adding text for more labels of graph
-
-fig2.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-
-#graphing each assay's parameters against each other 
-ax2[0].scatter(posteriors4.Sh,posteriors4.deltah,color = c0)
-ax2[1].scatter(np.log(posteriors4.Sh),np.log(posteriors4.deltah),color = c0)
-
-#ax2[1,0].set_yscale('log')
-
-
-#show full graph and save fig
-
-#fig2.savefig('../figures/abiotic1_4_params')
-
-
-#################################
-#graphing logged parameter values
-##################################
-#crating and config of fig 3
-fig3,ax3 = plt.subplots(1,2,sharex=True,figsize=[8,4]) #make plot
-fig3.suptitle('Trace plots for H Params ',fontsize = '16') #set main title 
-fig3.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2) #shift white space for better fig view
-fig3.supxlabel('Model Iteration', fontsize = '14') #set overall x title 
-#ax3[0].set_title('0 HOOH')
-#ax3[1].set_title('400 HOOH ')
-ax3[0].set_ylabel('Sh',fontsize = '12')
-ax3[1].set_ylabel('deltah',fontsize = '12')
-
-#ax3[:,:].set_yscale('log')
-
-
-#graphing iteration number vs parameter numbert logged 
-ax3[0].scatter(posteriors4.iteration,(posteriors4.Sh),color = c0)
-ax3[1].scatter(posteriors4.iteration,(posteriors4.deltah),color = c0)
-
-
-
-#print out plot
-#fig3.savefig('../figures/abiotic1_4_TRACE')
-
-
-#########################################
-#graphing Residuals of best model vs data 
-##########################################
-
-#making and confing of residuals plot
-fig4, (ax0,ax1)= plt.subplots(1,2,figsize = (8,4)) #fig creationg of 1 by 2
-fig4.suptitle('Abiotic HOOH 400 spike Model',fontsize = '16') #setting main title of fig
-
-####### fig config and naming 
-
-fig4.subplots_adjust(left=0.1, bottom=0.2, right=0.9, top=0.8, wspace=0.45, hspace=0.2)
-
-ax0.semilogy()
-ax0.set_title('HOOH dynamics ',fontsize = '16')
-ax1.set_title('Model residuals',fontsize = '12')
-
-ax0.set_xlabel('Time (days)',fontsize = '12')
-ax0.set_ylabel('HOOH (nM)',fontsize = '12')
-ax1.set_ylabel('Data H value',fontsize = '12')
-ax1.set_xlabel('Residual',fontsize = '12')
-
-ax0.set_ylim([20, 600])
-ax1.set_ylim([20, 600])
-
-
-#model and residuals
-ax0.plot(df4.time,df4.abundance, marker='o',color = c0, label = 'HOOH data mean') #data of 0 H assay
-ax0.errorbar(df4.time,df4.abundance, yerr = df4.sigma, marker='o',color = c0) #data of 0 H assay
-ax0.plot(mod4.time,mod4['H'],c='r',lw=1.5,label=' model best fit') #best model fit of 0 H assay
-a4.plot_uncertainty(ax0,posteriors4,'H',100)
-
-ax1.errorbar(a4res['res'], a4res['abundance'],yerr=df4.sigma,color = c0,marker = 'o', markersize = 4, ls = 'none',elinewidth=2,label = '400H spike')
-
-#printing off graph
-l4 = ax0.legend(loc = 'lower right')
-l4.draw_frame(False)
-
-#fig4.savefig('../figures/abiotic1_4_residuals')
-
-
-#saving best params as the new inits file for the next file run. 
-
-pframe4 = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
-pframe4.to_csv("../data/inits/abiotic_spike_1.csv")
-
-
-# 'program finished' flag
-
-print('\n ~~~****~~~****~~~ \n')
-print('\n Im free Im free! Im done calculating!' )
-print('\n ~~~****~~~****~~~ \n')
 
 
 

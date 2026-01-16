@@ -3,8 +3,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy
+import seaborn as sns
 
-plt.rcParams["font.family"] = "DeJavu Serif"
+#plt.rcParams["font.family"] = "DeJavu Serif"
 pd.Series.iteritems = pd.Series.items
 
 def get_data(identifier,sheet='BCC_1-31-dataset'):

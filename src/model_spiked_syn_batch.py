@@ -39,18 +39,22 @@ if vol == 52:
     #vol52 colors Syn WH7803
     c0 = 'cornflowerblue'
     c1 = 'darkorange'
+    figlab = '$Synechococcus$ WH7803'
 elif vol == 28:
     #vol28 colors Syn WH7803 also 
     c0 = 'dodgerblue'
     c1 = 'tomato'
+    figlab = '$Synechococcus$ WH7803'
 elif vol == 53:
     #vol53 colors WSyn CC9605 
     c0 = 'steelblue'
     c1 = 'chocolate'
+    figlab = '$Synechococcus$ CC9605'
 elif vol == 54:
     #vol54 colors Syn WH7802 
     c0 = 'darkcyan'
     c1 = 'lightcoral'
+    figlab = '$Synechococcus$ WH7802'
 
 #slicing data into abiotic, biotic, and Pro only dataframes
 df4 = df.loc[(df['assay'].str.contains('4', case=False)) & (df['Vol_number']== vol)]
@@ -62,43 +66,6 @@ figa,axa = hp.plot_uncertainty(df4[df4.organism=='S'],sigma4S)
 #figa.savefig('../figures/error_syn')
 
 df = df4
-
-#####################################################
-#config data in df from raw for odelib usefulness
-#####################################################
-
-#making avg columns of technical reps (std here only for graphing, not logged here)
-#splitting df of Pro into 0 and 400 H assays 
-
-#####################################################
-#plotting data and error within biological reps 
-#####################################################
-# fig set up and main title 
-fig2, (ax0,ax1)= plt.subplots(1,2,figsize = (10,6))
-fig2.suptitle('Syn Vol '+str(vol)+'  Monoculture in 400 nM HOOH')
-fig2.subplots_adjust(right=0.90, wspace = 0.25, hspace = 0.30)
-
-#format fig  
-ax0.set_title('Syn Vol '+str(vol)+' dynamics') #graph title for graph 1
-ax0.semilogy() #setting y axis to be logged b/c cell data
-ax1.set_title('HOOH dynamics ') #graph title for graph 2
-ax1.semilogy()#setting y axis to be logged b/c cell data
-ax0.set_xlabel('Time (days)') #settign x axis label for graph 1
-ax0.set_ylabel('Cells(ml$^{-1}$)')  #setting y label for both subgraphs 
-ax1.set_xlabel('Time (days)')#settign x axis label for graph 2 
-ax1.set_ylabel('HOOH (nM)')
-#graph dataframe of even or odd avgs (for tech reps) to give avg of total bioreps 
-
-#graph 0 H assay even and odd avgs 
-ax0.errorbar(df4[df4['organism']=='S']['time'],df4[df4['organism']=='S']['avg1'],yerr=df4[df4['organism']=='S']['std1'],color = 'b', marker='o', label = 'avg1')
-ax0.errorbar(df4[df4['organism']=='S']['time'],df4[df4['organism']=='S']['avg2'],yerr=df4[df4['organism']=='S']['std2'], color = 'g',marker='v', label = 'avg2 ')
-ax0.errorbar(df4[df4['organism']=='S']['time'],df4[df4['organism']=='S']['abundance'],yerr=df4[df4['organism']=='S']['sigma'], color = c0,marker='d', label = 'MEAN ')
-# graph 400 H assay even and odd avgs
-ax1.errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['avg1'],yerr=df4[df4['organism']=='H']['std1'], color = 'b',marker='o', label = 'avg1')
-ax1.errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['avg2'],yerr=df4[df4['organism']=='H']['std2'], color = 'g',marker='v', label = 'avg2')
-ax1.errorbar(df4[df4['organism']=='H']['time'],df4[df4['organism']=='H']['abundance'],yerr=df4[df4['organism']=='H']['sigma'],color = c0, marker='d', label = 'MEAN')
-
-plt.legend()
 
 #####################################################
 #   model param and state variable set up 
@@ -167,14 +134,6 @@ def mono_4H(y,t,params): #no kdam or phi here (or make 0)
     dHdt = 12- phi*S*H
     return [dSdt,dNdt,dHdt]
 
-def get_residuals(self):
-    mod = self.integrate(predict_obs=True)
-    res = (mod.abundance - self.df.abundance)   #this is not same species 
-    mod['res'] = res
-    return(mod)
-
-#df0.loc[:,'log_abundance'] = np.log(10**df0.log_abundance)
-
 # get_models
 a4 = get_model(df4) 
 
@@ -205,9 +164,9 @@ ax4[0].semilogy()
 
 ax4[0].set_ylabel('Cells (mL$^{-1}$)', fontsize = 12)
 ax4[0].set_xlabel('Time (days)', fontsize = 12)
-ax4[1].set_xlabel('Initial cell density ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
-ax4[1].set_ylabel('Probability density (x10$^{-5}$)', fontsize = 12)
-ax4[2].set_xlabel('Damage rate \n ($\kappa_{dam,i}$, x10$^{-6}$ mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax4[1].set_xlabel('log$_{10}$ Initial cell density \n ($P_{i,0}$, cells mL$^{-1}$)', fontsize = 12)
+ax4[1].set_ylabel('Probability density', fontsize = 12)
+ax4[2].set_xlabel('log$_{10}$ Damage rate \n ($\kappa_{dam,i}$, mL pmol$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax4[2].set_ylabel('Probability density', fontsize = 12)
 
 ax4[1].tick_params(axis='x', labelsize=12)
@@ -218,17 +177,13 @@ ax4[2].tick_params(axis='y', labelsize=12)
 #shift fig subplots
 
 #graph data, model, and uncertainty 
-ax4[0].plot(df4[df4['organism']=='S']['time'], df4[df4['organism']=='S']['abundance'], color = c0, marker='o',label = r'$Synechococcus$')
+ax4[0].plot(df4[df4['organism']=='S']['time'], df4[df4['organism']=='S']['abundance'], color = c0, marker='o',label = figlab)
 ax4[0].plot(mod4.time,mod4['S'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax4[0],posteriors4,'S',100)
 
 # plot histograms of parameter search results 
-ax4[1].hist(posteriors4.S0, density=True,facecolor = c0)
-ax4[2].hist(posteriors4.kdam*1e+6, density=True,facecolor = c0)
-
-# rescale 
-ticks = ax4[1].get_yticks()
-ax4[1].set_yticklabels([f"{tick * 1e+5:.0f}" for tick in ticks])
+hp.sns.kdeplot(np.log10(posteriors4.S0),color=c0,fill=True,ax=ax4[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors4.kdam),color=c0,fill=True,ax=ax4[2],linewidth=3)
 
 #make legends
 l4 = ax4[0].legend(loc = 'lower right')
@@ -242,11 +197,12 @@ l4.draw_frame(False)
 #HOOH dynamics 
 ax5[0].semilogy()
 
-ax5[0].set_ylabel(r'H$_2$O$_2$ concentration', fontsize = 12)
+#HOOH dynamics 
+ax5[0].set_ylabel(r'H$_2$O$_2$ concentration (pmol mL$^{-1}$)', fontsize=12)
 ax5[0].set_xlabel('Time (Days)', fontsize = 12)
-ax5[1].set_xlabel('Initial H$_2$O$_2$ concentration ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
+ax5[1].set_xlabel('log$_{10}$ Initial H$_2$O$_2$ concentration \n ($H_0$, pmol mL$^{-1}$)', fontsize = 12)
 ax5[1].set_ylabel('Probability density', fontsize = 12)
-ax5[2].set_xlabel('Detoxification rate \n ($\phi_{det,i}$, x10$^{-6}$ pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
+ax5[2].set_xlabel('log$_{10}$ Detoxification rate \n ($\phi_{det,i}$, pmol cell$^{-1}$ day$^{-1}$)', fontsize = 12)
 ax5[2].set_ylabel('Probability density', fontsize = 12)
 
 ax5[1].tick_params(axis='x', labelsize=12)
@@ -260,8 +216,8 @@ ax5[0].plot(mod4.time,mod4['H'],color='r',lw=1.5,label=' Model best fit')
 a4.plot_uncertainty(ax5[0],posteriors4,'H',100)
 
 # plot histograms of parameter search results 
-ax5[1].hist(posteriors4.H0,density=True, facecolor = c1)
-ax5[2].hist(posteriors4.phi*1e+6, density=True,  facecolor = c1)
+hp.sns.kdeplot(np.log10(posteriors4.H0),color=c1,fill=True,ax=ax5[1],linewidth=3)
+hp.sns.kdeplot(np.log10(posteriors4.phi),color=c1,fill=True,ax=ax5[2],linewidth=3)
 
 #make legends
 l5 = ax5[0].legend(loc = 'lower left')
@@ -278,4 +234,4 @@ figall.savefig('../figures/syn_'+str(vol)+'_Hparams.tiff',bbox_inches='tight',fo
 pframe = pd.DataFrame(a4.get_parameters(),columns=a4.get_pnames())
 pframe.to_csv('../data/inits/syn_vol'+str(vol)+ '_inits4.csv')
 
-
+posteriors4.to_csv('../data/posteriors/pos_syn_'+str(vol)+ 'spike.csv')
